@@ -17,7 +17,8 @@ workflows:
           xcodegen generate
       - name: Build ipa
         script: |
-          xcodebuild build \
+          set -e
+          xcodebuild \
             -project "$XCODE_WORKSPACE" \
             -scheme "$XCODE_SCHEME" \
             -sdk iphoneos \
@@ -25,10 +26,12 @@ workflows:
             -destination 'generic/platform=iOS' \
             -derivedDataPath build/DerivedData \
             -archivePath build/SuanLeMe.xcarchive \
-            archive \
             CODE_SIGN_STYLE=Automatic \
             DEVELOPMENT_TEAM=68UURQ95X7 \
-            -allowProvisioningUpdates
+            -allowProvisioningUpdates \
+            CODE_SIGNING_ALLOWED=YES \
+            CODE_SIGNING_REQUIRED=YES \
+            clean archive
       - name: Export ipa
         script: |
           xcodebuild -exportArchive \
