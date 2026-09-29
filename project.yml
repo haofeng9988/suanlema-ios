@@ -1,0 +1,32 @@
+name: SuanLeMe
+options:
+  bundleIdPrefix: com.suanleme
+  deploymentTarget:
+    iOS: "13.0"
+targets:
+  SuanLeMe:
+    type: application
+    platform: iOS
+    sources:
+      - SuanLeMe
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.suanleme.yixue
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "1"
+        INFOPLIST_KEY_CFBundleDisplayName: "算了么易学天机"
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        GENERATE_INFOPLIST_FILE: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1"
+        SUPPORTS_MACCATALYST: NO
+        SWIFT_VERSION: "5.0"
+    info:
+      path: SuanLeMe/Info.plist
+      properties:
+        UILaunchStoryboardName: ""
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
