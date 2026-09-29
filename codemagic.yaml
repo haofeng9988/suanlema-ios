@@ -1,0 +1,67 @@
+workflows:
+  ios-build:
+    name: SuanLeMe iOS Build
+    max_build_duration: 60
+    environment:
+      vars:
+        XCODE_WORKSPACE: "SuanLeMe.xcodeproj"
+        XCODE_SCHEME: "SuanLeMe"
+        BUNDLE_ID: "com.suanleme.yixue.AppStore"
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.suanleme.yixue.AppStore
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install XcodeGen
+        script: |
+          brew install xcodegen
+      - name: Generate Xcode project
+        script: |
+          xcodegen generate
+      - name: List profiles
+        script: |
+          echo "=== Profiles found on build machine ==="
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/ 2>/dev/null
+          for f in ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
+            echo ""
+            echo "--- File: $f ---"
+            echo "Bundle ID inside:"
+            security cms decode -i "$f" 2>/dev/null | grep -A1 "<key>application-identifier</key>" | tail -1
+            echo "Team identifier:"
+            security cms decode -i "$f" 2>/dev/null | grep -A1 "<key>com.apple.developer.team-identifier</key>" | tail -1
+            echo "Name:"
+            security cms decode -i "$f" 2>/dev/null | grep -A1 "<key>Name</key>" | tail -1
+            echo "UUID:"
+            security cms decode -i "$f" 2>/dev/null | grep -A1 "<key>UUID</key>" | tail -1
+          done
+      - name: Set up code signing
+        script: |
+          xcode-project use-profiles
+      - name: Build ipa
+        script: |
+          xcodebuild build \
+            -project "$XCODE_WORKSPACE" \
+            -scheme "$XCODE_SCHEME" \
+            -sdk iphoneos \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/DerivedData \
+            -archivePath build/SuanLeMe.xcarchive \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            DEVELOPMENT_TEAM=68UURQ95X7 \
+            PROVISIONING_PROFILE_SPECIFIER="com.suanleme.yixue.AppStore" \
+            archive
+      - name: Export ipa
+        script: |
+          xcodebuild -exportArchive \
+            -archivePath build/SuanLeMe.xcarchive \
+            -exportOptionsPlist exportOptions.plist \
+            -exportPath build/export
+    artifacts:
+      - build/export/*.ipa
+    publishing:
+      email:
+        recipients:
+          - 148452410@qq.com
