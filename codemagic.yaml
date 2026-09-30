@@ -9,26 +9,23 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.suanleme.yixue.AppStore
-        key_id: $APP_STORE_CONNECT_KEY_ID
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
-        private_key: $APP_STORE_CONNECT_PRIVATE_KEY
       xcode: latest
       cocoapods: default
     scripts:
       - name: Install XcodeGen
         script: |
-          brew install xcodegen
+          brew install xcodegen          
       - name: Generate Xcode project
         script: |
-          xcodegen generate
+          xcodegen generate          
       - name: Set up code signing
         script: |
-          xcode-project use-profiles
+          xcode-project use-profiles          
       - name: Build ipa
         script: |
           xcode-project build-ipa \
             --project "$XCODE_PROJECT" \
-            --scheme "$XCODE_SCHEME"
+            --scheme "$XCODE_SCHEME"          
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
