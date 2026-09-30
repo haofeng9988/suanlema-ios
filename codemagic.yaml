@@ -1,1 +1,45 @@
-
+workflows:
+  ios-build:
+    name: SuanLeMe iOS Build
+    max_build_duration: 60
+    environment:
+      vars:
+        XCODE_PROJECT: "SuanLeMe.xcodeproj"
+        XCODE_SCHEME: "SuanLeMe"
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.suanleme.yixue.AppStore
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install XcodeGen
+        script: |
+          brew install xcodegen
+      - name: Generate Xcode project
+        script: |
+          xcodegen generate
+      - name: Set up code signing
+        script: |
+          xcode-project use-profiles
+      - name: Build ipa
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        api_key: |
+          -----BEGIN PRIVATE KEY-----
+          MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg1vFEWS596SPipHTS
+          757hFY5jGGYxO1Z2hViLSnSH8DKgCgYIKoZIzj0DAQehRANCAARV0MQqhdTnN5Sx
+          iXU7iunicUjUGnhiQkJv5sMfQ9tZDTCqesa6D0bODPzXfuPfFKE/3K7rXtsncmF9
+          zQZlfVfZ
+          -----END PRIVATE KEY-----
+        key_id: 2UJ4MCYPB6
+        issuer_id: ac9ae068-2ef9-4605-af51-ba5a2f63baf1
+        submit_to_testflight: true
+      email:
+        recipients:
+          - 148452410@qq.com
