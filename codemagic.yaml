@@ -9,6 +9,7 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.suanleme.yixue.AppStore
+        integration_name: suanleme.yixue
       xcode: latest
       cocoapods: default
     scripts:
@@ -21,7 +22,7 @@ workflows:
       - name: Set up code signing
         script: |
           xcode-project use-profiles
-      - name: Build ipa
+      - name: Build ipa (Codemagic official)
         script: |
           xcode-project build-ipa \
             --project "$XCODE_PROJECT" \
