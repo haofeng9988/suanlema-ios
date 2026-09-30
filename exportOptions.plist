@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>method</key>
-    <string>app-store</string>
+    <string>app-store-connect</string>
     <key>teamID</key>
     <string>68UURQ95X7</string>
     <key>signingStyle</key>
@@ -13,5 +13,9 @@
         <key>com.suanleme.yixue.AppStore</key>
         <string>suanlema</string>
     </dict>
+    <key>uploadSymbols</key>
+    <true/>
+    <key>stripSwiftSymbols</key>
+    <true/>
 </dict>
 </plist>
