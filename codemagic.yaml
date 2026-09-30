@@ -1,46 +1,46 @@
-workflows:
-  ios-build:
-    name: SuanLeMe iOS Build
-    max_build_duration: 60
-    environment:
-      vars:
-        XCODE_PROJECT: "SuanLeMe.xcodeproj"
-        XCODE_SCHEME: "SuanLeMe"
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.suanleme.yixue.AppStore
-        integration_name: suanleme.yixue
-      xcode: latest
-      cocoapods: default
-    scripts:
-      - name: Install XcodeGen
-        script: |
-          brew install xcodegen
-      - name: Generate Xcode project
-        script: |
-          xcodegen generate
-      - name: Set up code signing
-        script: |
-          xcode-project use-profiles
-      - name: Build ipa (Codemagic official)
-        script: |
-          xcode-project build-ipa \
-            --project "$XCODE_PROJECT" \
-            --scheme "$XCODE_SCHEME"
-    artifacts:
+工作流程:
+ios-build:
+姓名: SuanLeMe iOS版本
+最大_build_duration: 60
+环境:
+VARs:
+Xcode_PROJECT: "SuanLeMe.xcodeproj"
+Xcode_SCHEME: "SuanLeMe"
+iOS签名(_S):
+分发类型(_T): app_store
+bundle_identifier: suanleme.yixue.AppStore
+integration_name: 散粒美.一血
+Xcode: 最新的
+CocoaPods: 默认
+脚本:
+      - 姓名: 安装XcodeGen
+脚本: |
+brew安装xcodegen
+      - 姓名: 生成Xcode项目
+脚本: |
+xcodegen生成
+      - 姓名: 设置代码签名
+脚本: |
+xcode项目使用配置文件
+      - 姓名: 构建IPA(Codemagic官方)
+脚本: |
+xcode-project build-ipa\
+--项目"$XCODE_PROJECT" \
+--方案"$XCODE_SCHEME"          
+人工制品:
       - build/ios/ipa/*.ipa
-    publishing:
-      app_store_connect:
-        api_key: |
-          -----BEGIN PRIVATE KEY-----
-          MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg1vFEWS596SPipHTS
-          757hFY5jGGYxO1Z2hViLSnSH8DKgCgYIKoZIzj0DAQehRANCAARV0MQqhdTnN5Sx
-          iXU7iunicUjUGnhiQkJv5sMfQ9tZDTCqesa6D0bODPzXfuPfFKE/3K7rXtsncmF9
-          zQZlfVfZ
-          -----END PRIVATE KEY-----
-        key_id: 2UJ4MCYPB6
-        issuer_id: ac9ae068-2ef9-4605-af51-ba5a2f63baf1
-        submit_to_testflight: true
-      email:
-        recipients:
+出版:
+app_store_connect:
+API_key: |
+-----开始私人钥匙----
+MIGTAagEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQg1vFEWS596SPipHTS
+757hFY5jGGYxO1Z2hViLSnSH8DKgCgYIKoZIzj0DAQehRANCAARV0MQqhdTnN5Sx
+iXU7iunicUjUgnhiQkJv5sMfQ9tZDTCqesa6D0bODPzXfuPfFKE/3K7rXtsncmF9
+zQZlfVfZ
+-----端专用钥匙----
+key_id: 2UJ4MCYPB6
+签发者识别码(_ID): ac9ae068-2ef9-4605-af51-ba5a2f63baf1
+submit_to_testflight: 正确
+电子邮件:
+收件人:
           - 148452410@qq.com
