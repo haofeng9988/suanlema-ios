@@ -28,6 +28,7 @@ workflows:
             -scheme "$XCODE_SCHEME" \
             -sdk iphoneos \
             -configuration Release \
+            -destination 'generic/platform=iOS' \
             -archivePath build/SuanLeMe.xcarchive \
             archive
       - name: Export ipa
