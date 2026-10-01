@@ -1,109 +1,55 @@
 workflows:
-2  
-ios-build:
-3    
-name: SuanLeMe iOS Build
-4    
-max_build_duration: 60
-5    
-environment:
-6      
-vars:
-7        
-XCODE_PROJECT: "SuanLeMe.xcodeproj"
-8        
-XCODE_SCHEME: "SuanLeMe"
-9      
-ios_signing:
-10        
-distribution_type: app_store
-11        
-bundle_identifier: com.suanleme.yixue.AppStore
-12      
-xcode: latest
-13      
-cocoapods: default
-14    
-scripts:
-15      
-- name: Fix source layout
-16        
-script: |
-17
+  ios-build:
+    name: SuanLeMe iOS Build
+    max_build_duration: 60
+    environment:
+      vars:
+        XCODE_PROJECT: "SuanLeMe.xcodeproj"
+        XCODE_SCHEME: "SuanLeMe"
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.suanleme.yixue.AppStore
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Fix source layout
+        script: |
           # 把误放进 Assets.xcassets 的源码挪到 SuanLeMe/ 正确位置
-18
           cd SuanLeMe/Assets.xcassets
-19
           [ -f AppDelegate.swift ] && mv AppDelegate.swift ../AppDelegate.swift || true
-20
           [ -f ViewController.swift ] && mv ViewController.swift ../ViewController.swift || true
-21
           [ -f splash_logo.png ] && mv splash_logo.png ../splash_logo.png || true
-22
           cd ../..
-23
           echo "=== SuanLeMe/ 目录内容 ==="
-24
           ls -la SuanLeMe/          
-25      
-- name: Install XcodeGen
-26        
-script: |
-27
+      - name: Install XcodeGen
+        script: |
           brew install xcodegen          
-28      
-- name: Generate Xcode project
-29        
-script: |
-30
+      - name: Generate Xcode project
+        script: |
           xcodegen generate          
-31      
-- name: Set up code signing
-32        
-script: |
-33
+      - name: Set up code signing
+        script: |
           xcode-project use-profiles          
-34      
-- name: Build ipa (Codemagic official)
-35        
-script: |
-36
+      - name: Build ipa (Codemagic official)
+        script: |
           xcode-project build-ipa \
-37
             --project "$XCODE_PROJECT" \
-38
             --scheme "$XCODE_SCHEME"          
-39    
-artifacts:
-40      
-- build/ios/ipa/*.ipa
-41    
-publishing:
-42      
-app_store_connect:
-43        
-api_key: |
-44
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        api_key: |
           -----BEGIN PRIVATE KEY-----
-45
           MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg1vFEWS596SPipHTS
-46
-          757hFY5jGGYxO1Z2hViLSnSH8DKgCgYIKoZIzj0DAQehRANCAARV0MQqhdTnN5Sx
-47
+          757hFY5jGGYxO1Z2hViLSnSH8DKgCgYIKoZIzj0DAQehRANCAARV0MQMQqhdTnN5Sx
           iXU7iunicUjUGnhiQkJv5sMfQ9tZDTCqesa6D0bODPzXfuPfFKE/3K7rXtsncmF9
-48
           zQZlfVfZ
-49
           -----END PRIVATE KEY-----          
-50        
-key_id: 2UJ4MCYPB6
-51        
-issuer_id: ac9ae068-2ef9-4605-af51-ba5a2f63baf1
-52        
-submit_to_testflight: true
-53      
-email:
-54        
-recipients:
-55          
-- 148452410@qq.com
+        key_id: 2UJ4MCYPB6
+        issuer_id: ac9ae068-2ef9-4605-af51-ba5a2f63baf1
+        submit_to_testflight: true
+      email:
+        recipients:
+          - 148452410@qq.com
