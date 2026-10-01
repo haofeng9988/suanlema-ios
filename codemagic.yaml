@@ -1,48 +1,16 @@
-workflows:
-  ios-build:
-    name: SuanLeMe iOS Build
-    max_build_duration: 60
-    environment:
-      vars:
-        XCODE_PROJECT: "SuanLeMe.xcodeproj"
-        XCODE_SCHEME: "SuanLeMe"
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.suanleme.yixue.AppStore
-      xcode: latest
-      cocoapods: default
-    scripts:
+workflows:   ios-build:     name: SuanLeMe iOS Build     max_build_duration: 60     environment:       groups:
+        - app_store_connect
+vars:         XCODE_PROJECT: "SuanLeMe.xcodeproj"         XCODE_SCHEME: "SuanLeMe"       ios_signing:         distribution_type: app_store         bundle_identifier: com.suanleme.yixue.AppStore       xcode: latest       cocoapods: default     scripts:
       - name: Fix source layout
-        script: |
-          cd SuanLeMe/Assets.xcassets
-          [ -f AppDelegate.swift ] && mv AppDelegate.swift ../AppDelegate.swift || true
-          [ -f ViewController.swift ] && mv ViewController.swift ../ViewController.swift || true
-          [ -f splash_logo.png ] && mv splash_logo.png ../splash_logo.png || true
-          cd ../..
-          echo "=== SuanLeMe/ ==="
-          ls -la SuanLeMe/          
+script: |           cd SuanLeMe/Assets.xcassets           [ -f AppDelegate.swift ] && mv AppDelegate.swift ../AppDelegate.swift || true           [ -f ViewController.swift ] && mv ViewController.swift ../ViewController.swift || true           [ -f splash_logo.png ] && mv splash_logo.png ../splash_logo.png || true           cd ../..           echo "=== SuanLeMe/ 目录内容 ==="           ls -la SuanLeMe/
       - name: Install XcodeGen
-        script: |
-          brew install xcodegen          
+script: |           brew install xcodegen
       - name: Generate Xcode project
-        script: |
-          xcodegen generate          
+script: |           xcodegen generate
       - name: Set up code signing
-        script: |
-          xcode-project use-profiles          
+script: |           xcode-project use-profiles
       - name: Build ipa (Codemagic official)
-        script: |
-          xcode-project build-ipa \
-            --project "$XCODE_PROJECT" \
-            --scheme "$XCODE_SCHEME"          
-    artifacts:
+script: |           xcode-project build-ipa \             --project "$XCODE_PROJECT" \             --scheme "$XCODE_SCHEME"     artifacts:
       - build/ios/ipa/*.ipa
-    publishing:
-      app_store_connect:
-        api_key_path: app-store-connect-key.p8
-        key_id: 2UJ4MCYPB6
-        issuer_id: ac9ae068-2ef9-4605-af51-ba5a2f63baf1
-        submit_to_testflight: true
-      email:
-        recipients:
+publishing:       app_store_connect:         api_key: $APP_STORE_CONNECT_PRIVATE_KEY         key_id: $APP_STORE_CONNECT_KEY_ID         issuer_id: $APP_STORE_CONNECT_ISSUER_ID         submit_to_testflight: true       email:         recipients:
           - 148452410@qq.com
