@@ -3,8 +3,6 @@ workflows:
     name: SuanLeMe iOS Build
     max_build_duration: 60
     environment:
-      groups:
-        - app_store_connect
       vars:
         XCODE_PROJECT: "SuanLeMe.xcodeproj"
         XCODE_SCHEME: "SuanLeMe"
@@ -16,35 +14,40 @@ workflows:
     scripts:
       - name: Fix source layout
         script: |
-          # 把误放进 Assets.xcassets 的源码挪到 SuanLeMe/ 正确位置
           cd SuanLeMe/Assets.xcassets
           [ -f AppDelegate.swift ] && mv AppDelegate.swift ../AppDelegate.swift || true
           [ -f ViewController.swift ] && mv ViewController.swift ../ViewController.swift || true
           [ -f splash_logo.png ] && mv splash_logo.png ../splash_logo.png || true
           cd ../..
-          echo "=== SuanLeMe/ 目录内容 ==="
-          ls -la SuanLeMe/
+          echo "=== SuanLeMe/ ==="
+          ls -la SuanLeMe/          
       - name: Install XcodeGen
         script: |
-          brew install xcodegen
+          brew install xcodegen          
       - name: Generate Xcode project
         script: |
-          xcodegen generate
+          xcodegen generate          
       - name: Set up code signing
         script: |
-          xcode-project use-profiles
+          xcode-project use-profiles          
       - name: Build ipa (Codemagic official)
         script: |
           xcode-project build-ipa \
             --project "$XCODE_PROJECT" \
-            --scheme "$XCODE_SCHEME"
+            --scheme "$XCODE_SCHEME"          
     artifacts:
       - build/ios/ipa/*.ipa
     publishing:
       app_store_connect:
-        key_id: $APP_STORE_CONNECT_KEY_ID
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
-        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        api_key: |
+          -----BEGIN PRIVATE KEY-----
+          MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg1vFEWS596SPipHTS
+          757hFY5jGGYxO1Z2hViLSnSH8DKgCgYIKoZIzj0DAQehRANCAARV0MQqhdTnN5Sx
+          iXU7iunicUjUGnhiQkJv5sMfQ9tZDTCqesa6D0bODPzXfuPfFKE/3K7rXtsncmF9
+          zQZlfVfZ
+          -----END PRIVATE KEY-----          
+        key_id: 2UJ4MCYPB6
+        issuer_id: ac9ae068-2ef9-4605-af51-ba5a2f63baf1
         submit_to_testflight: true
       email:
         recipients:
