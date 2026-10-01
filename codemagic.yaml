@@ -38,7 +38,7 @@ workflows:
             --scheme "$XCODE_SCHEME"          
     artifacts:
       - build/ios/ipa/*.ipa
-      publishing:    
+    publishing:    
     app_store_connect:
       api_key_path: app-store-connect-key.p8
       key_id: 2UJ4MCYPB6
