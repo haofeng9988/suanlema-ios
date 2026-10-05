@@ -8,13 +8,18 @@ targets:
     type: application
     platform: iOS
     sources:
-      - SuanLeMe
+      - path: SuanLeMe
+        excludes:
+          - "Games/**"
+      # 本地游戏目录：作为 folder reference 打包，保留 Games 子目录结构（App 内置、离线可玩）
+      - path: SuanLeMe/Games
+        type: folder
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.suanleme.yixue.AppStore
-        MARKETING_VERSION: "1.0.0"
+        PRODUCT_BUNDLE_IDENTIFIER: com.suanleme.yixue.wanleme
+        MARKETING_VERSION: "2.0.0"
         CURRENT_PROJECT_VERSION: "1"
-        INFOPLIST_KEY_CFBundleDisplayName: "算了么易学天机"
+        INFOPLIST_KEY_CFBundleDisplayName: "算了吗·易游"
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         GENERATE_INFOPLIST_FILE: YES

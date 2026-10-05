@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1a1612">
+<title>天機五行消消樂 · 算了吗·易游</title>
+<script src="tool-intro.js?v=20261005"></script>
+<style>
+:root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a;--green:#4a8;
+  --mu:#4caf7d;--huo:#e0563f;--tu:#c9a34e;--jin:#cfd6dd;--shui:#4a90d9}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;justify-content:center;overscroll-behavior:none;
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+#wrap{max-width:480px;width:100%;min-height:100vh;position:relative;background:radial-gradient(circle at 50% 0%,#2a2218,#12100c 70%);display:flex;flex-direction:column}
+button{font-family:inherit;cursor:pointer}
+.screen{display:none;flex-direction:column;flex:1}
+.screen.active{display:flex}
+header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:12px 16px 10px;text-align:center;border-bottom:2px solid var(--gold);position:relative}
+header h1{font-size:17px;color:var(--gold);letter-spacing:2px;margin:0}
+header .sub{font-size:10.5px;color:var(--sub);margin-top:3px;letter-spacing:1px}
+.back{position:absolute;left:10px;top:12px;font-size:20px;color:var(--gold);text-decoration:none;background:none;border:none;padding:4px 8px}
+
+/* ===== 顶栏（等级/灵晶/体力） ===== */
+.topbar{display:flex;gap:8px;padding:10px 14px 4px}
+.topbar .tb{flex:1;background:var(--c1);border:1px solid var(--c2);border-radius:10px;padding:6px 4px;text-align:center;font-size:12px;color:var(--sub)}
+.topbar .tb b{color:var(--gold);font-size:13px}
+.topbar .tb small{font-size:9px;color:var(--sub)}
+
+/* ===== 功能按钮 ===== */
+.navbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px 14px 2px}
+.navbtns button{background:linear-gradient(180deg,#332a1c,#241d13);border:1px solid var(--c2);border-radius:10px;color:var(--text);
+  font-size:11.5px;padding:9px 2px;line-height:1.35;font-weight:700}
+.navbtns button .ic{display:block;font-size:16px;margin-bottom:2px}
+.navbtns button .badge{color:#ff6b6b;font-weight:900}
+.navbtns button.weekly{grid-column:span 3;background:linear-gradient(135deg,#3a2e1e,#241d13);border-color:var(--gold);color:var(--gold)}
+
+/* ===== HUD ===== */
+.hud{display:flex;align-items:stretch;gap:8px;margin:10px 12px 6px}
+.hud .box{flex:1;background:var(--c1);border:1px solid var(--c2);border-radius:12px;padding:8px 10px;text-align:center}
+.hud .box .k{font-size:10px;color:var(--sub);letter-spacing:1px}
+.hud .box .v{font-size:19px;font-weight:800;color:var(--gold);line-height:1.25}
+.hud .box.goal .v{color:var(--text);font-size:15px}
+.hud .box.goal .v small{font-size:13px;color:var(--gold)}
+.progwrap{margin:0 12px 8px;background:var(--c1);border:1px solid var(--c2);border-radius:10px;height:16px;position:relative;overflow:hidden}
+.progbar{height:100%;width:0;background:linear-gradient(90deg,#8a6a20,#d4af37);transition:width .35s}
+.progtxt{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;text-shadow:0 1px 2px #000}
+
+/* ===== 棋盘 ===== */
+#boardWrap{margin:6px 12px 10px;position:relative;flex:1;display:flex;align-items:flex-start;justify-content:center}
+#board{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;width:100%;max-width:420px;aspect-ratio:1;touch-action:manipulation;user-select:none}
+.cell{position:relative;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(16px,5.5vw,26px);font-weight:800;color:rgba(0,0,0,.55);
+  transition:transform .12s,box-shadow .12s;cursor:pointer;box-shadow:inset 0 -3px 0 rgba(0,0,0,.22),inset 0 2px 0 rgba(255,255,255,.25)}
+.cell.sel{outline:3px solid var(--gold);outline-offset:-1px;transform:scale(1.08);z-index:5}
+.cell.pop{animation:pop .30s forwards}
+.cell.rockpop{animation:rockpop .34s forwards}
+.cell.drop{animation:drop .24s}
+.cell.born{animation:born .34s}
+.cell.ke{animation:shake .3s}
+@keyframes pop{0%{transform:scale(1.18);filter:brightness(1.7)}60%{transform:scale(.7);filter:brightness(1.4)}100%{transform:scale(0);opacity:0}}
+@keyframes rockpop{0%{transform:scale(1.1) rotate(0);filter:brightness(1.6)}100%{transform:scale(0) rotate(45deg);opacity:0}}
+@keyframes drop{0%{transform:translateY(-30px);opacity:.35}100%{transform:translateY(0);opacity:1}}
+@keyframes born{0%{transform:scale(0) rotate(-40deg)}70%{transform:scale(1.25) rotate(6deg)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+
+.el-mu{background:linear-gradient(160deg,#5fd394,#2f8f5b)}
+.el-huo{background:linear-gradient(160deg,#ff7a5f,#c03418)}
+.el-tu{background:linear-gradient(160deg,#e6c470,#9a7826)}
+.el-jin{background:linear-gradient(160deg,#eef3f7,#a9b6c2)}
+.el-shui{background:linear-gradient(160deg,#6fb3f0,#2a6ec0)}
+
+/* 特殊方塊 */
+.cell.sp-lh,.cell.sp-lv{box-shadow:0 0 12px rgba(255,255,255,.75),inset 0 -3px 0 rgba(0,0,0,.22);}
+.cell.sp-tian{box-shadow:0 0 16px rgba(255,226,122,.95),inset 0 0 14px rgba(255,255,255,.6);}
+.cell.sp-zha{box-shadow:0 0 16px rgba(255,120,60,.95),inset 0 0 10px rgba(255,220,120,.6);}
+.cell.sp-lh::after{content:'⇔';position:absolute;right:2px;top:0;font-size:10px;color:#0a0e14;font-weight:900}
+.cell.sp-lv::after{content:'⇕';position:absolute;right:2px;top:0;font-size:10px;color:#0a0e14;font-weight:900}
+.cell.sp-tian::after{content:'✦';position:absolute;right:1px;top:0;font-size:12px;color:#fff;text-shadow:0 0 6px #ffe27a}
+.cell.sp-zha::after{content:'✸';position:absolute;right:1px;top:0;font-size:12px;color:#fff;text-shadow:0 0 6px #ff8a3c}
+.cell.bao::after{content:'⤓';position:absolute;left:2px;top:0;font-size:12px;color:#fff;text-shadow:0 0 6px #4a90d9;font-weight:900}
+.cell.blk-ice{background:linear-gradient(160deg,#cdeeff,#7fb8e6);color:#2a3a4a;box-shadow:inset 0 0 10px rgba(255,255,255,.7)}
+.cell.blk-rock{background:linear-gradient(160deg,#8a8378,#4a453d);color:#e6ddc8}
+
+/* 飘分 */
+.float{position:absolute;font-weight:800;pointer-events:none;z-index:30;animation:floatup .95s forwards;font-size:15px;text-shadow:0 2px 4px rgba(0,0,0,.75)}
+.float.plus{color:#ffe27a}.float.combo{color:#7ef0a0;font-size:17px}.float.ke{color:#ff6b6b}.float.res{color:#9ce0ff;font-size:17px}
+@keyframes floatup{0%{opacity:0;transform:translateY(6px) scale(.8)}20%{opacity:1;transform:translateY(0) scale(1.12)}100%{opacity:0;transform:translateY(-38px) scale(1)}}
+
+/* 大字特效 */
+#bigFx{position:absolute;left:50%;top:36%;transform:translate(-50%,-50%);pointer-events:none;z-index:45;
+  font-weight:900;font-size:30px;color:#ffe27a;letter-spacing:2px;opacity:0;white-space:nowrap;
+  text-shadow:0 0 20px rgba(212,175,55,.95),0 3px 8px #000}
+#bigFx.gold{color:#ffd770}
+#bigFx.show{animation:bigpop .85s}
+@keyframes bigpop{0%{opacity:0;transform:translate(-50%,-50%) scale(.35)}18%{opacity:1;transform:translate(-50%,-50%) scale(1.18)}68%{opacity:1}100%{opacity:0;transform:translate(-50%,-115%) scale(1)}}
+.spark{position:absolute;width:7px;height:7px;border-radius:50%;pointer-events:none;z-index:24;animation:sparkfly .7s forwards}
+@keyframes sparkfly{0%{opacity:1;transform:translate(0,0) scale(1.1)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(.15)}}
+
+/* 相生链提示条 */
+.chain{margin:0 12px 8px;display:flex;gap:6px;justify-content:center;align-items:center;flex-wrap:wrap;min-height:22px}
+.chain .ch{font-size:11px;padding:3px 9px;border-radius:10px;background:var(--c2);color:var(--sub);border:1px solid transparent}
+.chain .ch.on{color:#1a1612;background:var(--gold);font-weight:700}
+.chain .arrow{color:var(--sub);font-size:12px}
+.chain .tip{font-size:10.5px;color:var(--sub)}
+
+/* 结算 / 弹窗 */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.74);display:none;align-items:center;justify-content:center;z-index:100;padding:22px}
+.overlay.show{display:flex}
+.panel{background:linear-gradient(180deg,#2a2218,#1f1912);border:2px solid var(--gold);border-radius:18px;padding:20px 18px;max-width:340px;width:100%;text-align:center;max-height:86vh;overflow-y:auto}
+.panel h2{margin:0 0 6px;font-size:20px;color:var(--gold);letter-spacing:1px}
+.panel .big{font-size:40px;font-weight:900;color:#fff;margin:6px 0;text-shadow:0 3px 10px rgba(212,175,55,.4)}
+.panel .row{display:flex;justify-content:space-between;padding:7px 2px;font-size:13px;color:var(--sub);border-bottom:1px dashed var(--c2)}
+.panel .row b{color:var(--text)}
+.panel .btns{display:flex;gap:10px;margin-top:16px}
+.panel button{flex:1;padding:12px;border-radius:12px;border:none;font-size:15px;font-weight:800}
+.btn-gold{background:var(--gold);color:#1a1612}
+.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold)!important}
+.starline{font-size:26px;letter-spacing:6px;margin:2px 0 8px}
+.compliance{font-size:10px;color:var(--sub);line-height:1.7;margin-top:12px;border-top:1px dashed var(--c2);padding-top:8px}
+
+/* 弹窗列表 */
+.modal-row{display:flex;align-items:center;gap:10px;background:var(--c1);border:1px solid var(--c2);border-radius:12px;padding:10px 12px;margin-bottom:9px;text-align:left}
+.modal-row .ri{font-size:22px;flex-shrink:0}
+.modal-row .rb{flex:1;min-width:0}
+.modal-row .rt{font-size:13px;color:var(--text);font-weight:700}
+.modal-row .rd{font-size:10.5px;color:var(--sub);margin-top:2px;line-height:1.5}
+.modal-row .rp{height:6px;background:var(--c2);border-radius:4px;margin-top:6px;overflow:hidden}
+.modal-row .rp i{display:block;height:100%;background:linear-gradient(90deg,#8a6a20,#d4af37);width:0}
+.modal-row.done{border-color:var(--gold)}
+.modal-row button{background:var(--gold);color:#1a1612;border:none;border-radius:9px;font-size:12px;font-weight:800;padding:7px 11px;flex-shrink:0}
+.modal-row button:disabled{background:var(--c2);color:var(--sub)}
+
+/* 签到 */
+.sign-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+.sign-day{background:var(--c1);border:1px solid var(--c2);border-radius:10px;padding:8px 2px;text-align:center;font-size:10px;color:var(--sub)}
+.sign-day .ic{font-size:17px;display:block}
+.sign-day.got{border-color:var(--gold);background:linear-gradient(160deg,#3a2e1e,#2a2218);color:var(--gold)}
+.sign-day.today{outline:2px solid var(--gold);outline-offset:-2px}
+
+/* 商店 */
+.shop-item{display:flex;align-items:center;gap:10px;background:var(--c1);border:1px solid var(--c2);border-radius:12px;padding:10px 12px;margin-bottom:9px;text-align:left}
+.shop-item .si{font-size:24px}
+.shop-item .sb{flex:1}
+.shop-item .st{font-size:13px;font-weight:700}
+.shop-item .sd{font-size:10.5px;color:var(--sub);margin-top:2px}
+.shop-item .own{font-size:10px;color:var(--gold)}
+.shop-item button{background:var(--gold);color:#1a1612;border:none;border-radius:9px;font-size:12px;font-weight:800;padding:8px 11px}
+.shop-item button:disabled{background:var(--c2);color:var(--sub)}
+
+/* 游戏中道具栏 */
+.itembar{display:flex;gap:8px;margin:0 12px 8px}
+.itembar button{flex:1;background:var(--c1);border:1px solid var(--c2);border-radius:11px;color:var(--text);font-size:11px;padding:8px 2px;font-weight:700;position:relative}
+.itembar button .ic{display:block;font-size:16px}
+.itembar button b{color:var(--gold);font-size:11px}
+.itembar button.armed{border-color:var(--gold);box-shadow:0 0 10px rgba(212,175,55,.5)}
+
+/* 关卡选择 */
+.levels{padding:14px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;overflow-y:auto;max-height:none}
+.lv{aspect-ratio:1;border-radius:14px;border:1px solid var(--c2);background:var(--c1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer}
+.lv .n{font-size:19px;font-weight:800;color:var(--gold)}
+.lv .g{font-size:9px;color:var(--sub);letter-spacing:.5px}
+.lv .el{font-size:11px}
+.lv .bs{font-size:8.5px;color:#ffe27a}
+.lv.locked{opacity:.4}
+.lv.done{border-color:var(--gold);background:linear-gradient(160deg,#3a2e1e,#2a2218)}
+.introwrap{padding:0 16px 10px;text-align:center}
+.introwrap .title{font-size:14px;color:var(--gold);margin:6px 0}
+.introwrap .txt{font-size:11.5px;color:var(--sub);line-height:1.9}
+.sheng{display:inline-block;padding:2px 6px;border-radius:6px;background:var(--c2);margin:1px}
+.legend{padding:0 16px 8px;font-size:10.5px;color:var(--sub);line-height:1.9;text-align:center}
+
+/* 提示 */
+#toast{position:fixed;left:50%;bottom:60px;transform:translateX(-50%);background:rgba(30,24,16,.96);border:1px solid var(--gold);
+  color:var(--gold);font-size:12.5px;padding:10px 16px;border-radius:12px;z-index:200;opacity:0;transition:opacity .3s;max-width:80%;text-align:center}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="wrap">
+
+  <!-- ===== 关卡选择 ===== -->
+  <div class="screen active" id="s-levels">
+    <header>
+      <h1>🔮 天機五行消消樂</h1>
+      <div class="sub">五行相生得高分 · 相剋減分 · 天干地支六十關</div>
+    </header>
+    <div class="topbar">
+      <div class="tb">等級<br><b id="tbLv">Lv.1</b></div>
+      <div class="tb">靈晶<br><b id="tbCrystal">0</b> 💎</div>
+      <div class="tb">體力<br><b id="tbEnergy">5</b>/5 <small id="tbEnergyT"></small></div>
+    </div>
+    <div class="navbtns">
+      <button onclick="openTasks()"><span class="ic">📋</span>每日任務 <span class="badge" id="tbTaskDot"></span></button>
+      <button onclick="openShop()"><span class="ic">🛒</span>靈晶商店</button>
+      <button onclick="openSign()"><span class="ic">🎴</span>簽到</button>
+      <button onclick="openRank()"><span class="ic">🏆</span>排行榜</button>
+      <button onclick="openHelp()"><span class="ic">📖</span>玩法與特效</button>
+      <button onclick="openProfile()"><span class="ic">☯</span>我的修行</button>
+      <button class="weekly" onclick="startWeekly()">🎯 週賽模式 · 本週最佳 <b id="tbWeekBest">0</b></button>
+    </div>
+    <div class="introwrap">
+      <div class="title">☯ 相生鏈（連消同鏈 → 分數翻倍）</div>
+      <div class="txt">
+        <span class="sheng">木</span>→<span class="sheng">火</span>→<span class="sheng">土</span>→<span class="sheng">金</span>→<span class="sheng">水</span>→<span class="sheng">木</span>
+        &nbsp;|&nbsp; 相剋（同屏出現 → 扣分）
+      </div>
+    </div>
+    <div class="levels" id="levels"></div>
+    <div class="legend">💫 特殊方塊：4連→靈珠(消整行/列) · 5連→天珠(消全部同色) · L/T型→炸珠(炸周圍8格)</div>
+    <div style="padding:0 16px 20px;text-align:center;font-size:10.5px;color:var(--sub);line-height:1.8">
+      本遊戲為休閒益智娛樂，所有分數與道具均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。
+    </div>
+  </div>
+
+  <!-- ===== 游戏中 ===== -->
+  <div class="screen" id="s-game">
+    <header style="padding-left:44px">
+      <button class="back" onclick="quitGame()">←</button>
+      <h1 id="lvName">甲子</h1>
+      <div class="sub" id="lvSub">第一關 · 消除 12 個木</div>
+    </header>
+    <div class="hud">
+      <div class="box"><div class="k">分數</div><div class="v" id="hudScore">0</div></div>
+      <div class="box goal"><div class="k">目標</div><div class="v" id="hudGoal">0<small>/12</small></div></div>
+      <div class="box"><div class="k" id="hudRightK">剩餘步數</div><div class="v" id="hudMoves">25</div></div>
+    </div>
+    <div class="progwrap"><div class="progbar" id="progBar"></div><div class="progtxt" id="progTxt">0%</div></div>
+    <div class="chain" id="chainBar"></div>
+    <div id="boardWrap"><div id="board"></div><div id="bigFx"></div></div>
+    <div class="itembar">
+      <button id="ibBomb" onclick="useItem('bomb')"><span class="ic">💣</span>炸彈 <b id="cntBomb">0</b></button>
+      <button id="ibRecolor" onclick="useItem('recolor')"><span class="ic">🎨</span>換色 <b id="cntRecolor">0</b></button>
+      <button id="ibMoves" onclick="useItem('moves')"><span class="ic">➕</span>加步 <b id="cntMoves">0</b></button>
+    </div>
+  </div>
+</div>
+
+<!-- 结算 -->
+<div class="overlay" id="ovResult"><div class="panel">
+  <div class="starline" id="rStars">⭐</div>
+  <h2 id="rTitle">通關！</h2>
+  <div class="big" id="rScore">0</div>
+  <div class="row"><span>目標進度</span><b id="rGoal">0/0</b></div>
+  <div class="row"><span>最高連鎖</span><b id="rCombo">x1</b></div>
+  <div class="row"><span>相生加成</span><b id="rSheng">0 次</b></div>
+  <div class="row"><span>歷史最佳</span><b id="rBest">0</b></div>
+  <div class="row"><span>獲得靈晶</span><b id="rCrystal">+0</b></div>
+  <div class="row"><span>修行經驗</span><b id="rExp">+0</b></div>
+  <div class="btns">
+    <button class="btn-outline" onclick="quitGame()">選關</button>
+    <button class="btn-gold" id="rNextBtn" onclick="nextLevel()">下一關</button>
+  </div>
+  <div class="compliance">本遊戲為休閒益智娛樂，所有分數與道具均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。</div>
+</div></div>
+
+<!-- 通用弹窗 -->
+<div class="overlay" id="ovModal"><div class="panel" id="modalPanel"></div></div>
+<div id="toast"></div>
+
+<script>
+/* ==================== 五行常量 ==================== */
+var EL = {
+  mu:  {key:'mu',  name:'木', color:'#4caf7d', emoji:'🌳'},
+  huo: {key:'huo', name:'火', color:'#e0563f', emoji:'🔥'},
+  tu:  {key:'tu',  name:'土', color:'#c9a34e', emoji:'⛰️'},
+  jin: {key:'jin', name:'金', color:'#cfd6dd', emoji:'🪙'},
+  shui:{key:'shui',name:'水', color:'#4a90d9', emoji:'💧'}
+};
+var ELKEYS = ['mu','huo','tu','jin','shui'];
+var SHENG_NEXT = {mu:'huo', huo:'tu', tu:'jin', jin:'shui', shui:'mu'}; // a 生 b
+var KE_OF = {mu:'tu', tu:'shui', shui:'huo', huo:'jin', jin:'mu'};       // a 克 b
+var SHENG_ORDER = ['mu','huo','tu','jin','shui'];
+
+/* 天干地支 60 关 */
+var GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+var ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+var GAN_EL = {甲:'mu',乙:'mu',丙:'huo',丁:'huo',戊:'tu',己:'tu',庚:'jin',辛:'jin',壬:'shui',癸:'shui'};
+function jiazi(n){ return GAN[n%10] + ZHI[n%12]; }
+
+/* ==================== 本地存储 ==================== */
+var LS = {
+  get:function(k,d){ try{ var v=localStorage.getItem('wx_'+k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
+  set:function(k,v){ try{ localStorage.setItem('wx_'+k, JSON.stringify(v)); }catch(e){} }
+};
+var EMAX = 5, ENERGY_REG = 30*60*1000;
+
+/* 遊戲狀態 */
+var S = { cfg:null, grid:[], sel:null, score:0, moves:0, cleared:0, dropped:0, combo:0,
+  maxCombo:1, shengCnt:0, shengChainCount:0, busy:false, ended:false, armed:null,
+  lastSwap:null, timer:null, time:0, rng:null, newCells:[], bornCells:[], screen:'levels' };
+var SIZE = 8;
+
+function defaultProfile(){
+  return { level:1, exp:0, crystals:0, energy:EMAX, energyTs:Date.now(),
+    lastSign:'', signStreak:0, dailyDate:'', dailyTasks:[],
+    items:{bomb:1, recolor:1, moves:1}, totalScore:0,
+    weeklyBest:0, weeklyKey:'', unlocked:1, games:0 };
+}
+var P = LS.get('profile', null) || defaultProfile();
+(function mergeDefaults(){
+  var d=defaultProfile();
+  for(var k in d){ if(P[k]===undefined) P[k]=d[k]; }
+  if(!P.items) P.items=d.items;
+  else for(var ik in d.items){ if(P.items[ik]===undefined) P.items[ik]=d.items[ik]; }
+  if(!Array.isArray(P.dailyTasks)) P.dailyTasks=[];
+})();
+(function migrate(){
+  var old = LS.get('unlock', null);
+  if(typeof old==='number' && old>P.unlocked) P.unlocked=old;
+})();
+function saveProfile(){ LS.set('profile', P); }
+
+/* ==================== 工具函数 ==================== */
+function $(id){ return document.getElementById(id); }
+function pad2(n){ return n<10?'0'+n:''+n; }
+function todayStr(off){
+  var d = off? new Date(Date.now()+off) : new Date();
+  return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+}
+function hashStr(s){ var h=2166136261; for(var i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+function mulberry(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function weekKeyNow(){
+  var d=new Date(); var onejan=new Date(d.getFullYear(),0,1);
+  var w=Math.ceil(((d-onejan)/86400000 + onejan.getDay()+1)/7);
+  return d.getFullYear()+'-W'+w;
+}
+function toast(msg){
+  var t=$('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(function(){ t.classList.remove('show'); },1800);
+}
+
+/* ==================== 方块编码 ==================== */
+function baseEl(k){ if(k==null) return null; var i=k.indexOf(':'); if(i<0) return k; var b=k.slice(0,i); return ELKEYS.indexOf(b)>=0?b:null; }
+function spOf(k){ if(k==null) return null; var i=k.indexOf(':'); return i<0?null:k.slice(i+1); }
+function isEl(k){ return k && ELKEYS.indexOf(baseEl(k))>=0; }
+function isBlocker(k){ return k==='#ice' || k==='#rock'; }
+function isSp(k){ return k && !isBlocker(k) && k.indexOf(':')>=0; }
+function isMatchable(k){ return isEl(k) && spOf(k)!=='bao'; }
+function rndEl(){
+  if(S.rng) return ELKEYS[Math.floor(S.rng()*5)];
+  return ELKEYS[Math.floor(Math.random()*5)];
+}
+
+/* ==================== 玩家等级 ==================== */
+function levelInfo(){
+  var exp=P.exp, lv=1, need=400, acc=0;
+  while(exp>=acc+need){ acc+=need; lv++; need=Math.round(need*1.4); }
+  return {lv:lv, acc:acc, need:need, cur:exp-acc};
+}
+
+/* ==================== 体力 ==================== */
+function regenEnergy(){
+  if(P.energy>=EMAX){ P.energyTs=Date.now(); return; }
+  var now=Date.now(), d=now-P.energyTs;
+  if(d<ENERGY_REG) return;
+  var add=Math.floor(d/ENERGY_REG);
+  P.energy=Math.min(EMAX,P.energy+add);
+  P.energyTs = P.energy>=EMAX ? now : (P.energyTs+add*ENERGY_REG);
+  saveProfile();
+}
+function energyText(){
+  if(P.energy>=EMAX) return '';
+  var left = ENERGY_REG - (Date.now()-P.energyTs);
+  if(left<0) left=0;
+  var m=Math.ceil(left/60000);
+  return '('+m+'分)';
+}
+function spendEnergy(){
+  regenEnergy();
+  if(P.energy<=0){ return false; }
+  P.energy--; if(P.energy===EMAX-1) P.energyTs=Date.now();
+  saveProfile(); return true;
+}
+
+/* ==================== 每日任务 ==================== */
+function ensureDaily(){
+  var t=todayStr();
+  if(P.dailyDate!==t){ P.dailyDate=t; P.dailyTasks=genTasks(t); saveProfile(); }
+}
+function genTasks(dateStr){
+  var rng=mulberry(hashStr('task_'+dateStr));
+  var pool=['collect','collect','combo','special','score'];
+  var tasks=[], usedEls={};
+  for(var i=0;i<3;i++){
+    var type=pool[Math.floor(rng()*pool.length)];
+    var t={id:'t'+i, type:type, progress:0, done:false, claimed:false, target:0, el:null, reward:8, desc:''};
+    if(type==='collect'){
+      var el=ELKEYS[Math.floor(rng()*5)];
+      var tries=0; while(usedEls[el] && tries++<10){ el=ELKEYS[Math.floor(rng()*5)]; }
+      usedEls[el]=true;
+      t.el=el; t.target=30+Math.floor(rng()*4)*10; t.reward=8;
+      t.desc='消除 '+EL[el].emoji+' '+EL[el].name+' 方塊 '+t.target+' 個';
+    } else if(type==='combo'){
+      t.target=5; t.reward=9; t.desc='達成 '+t.target+' 次連擊（連鎖 x3 以上）';
+    } else if(type==='special'){
+      t.target=6; t.reward=10; t.desc='生成 '+t.target+' 個特殊方塊（靈珠/天珠/炸珠）';
+    } else {
+      t.target=1200+Math.floor(rng()*3)*600; t.reward=12; t.desc='單局得分達到 '+t.target;
+    }
+    tasks.push(t);
+  }
+  return tasks;
+}
+function bumpTasks(kind,n,el){
+  var changed=false;
+  P.dailyTasks.forEach(function(t){
+    if(t.done) return;
+    if(t.type!==kind) return;
+    if(kind==='collect' && t.el!==el) return;
+    t.progress=Math.min(t.target,(t.progress||0)+n);
+    if(t.progress>=t.target) t.done=true;
+    changed=true;
+  });
+  if(changed) saveProfile();
+}
+function taskCountDone(){ var n=0; P.dailyTasks.forEach(function(t){ if(t.done&&!t.claimed) n++; }); return n; }
+
+/* ==================== 签到 ==================== */
+function doSign(){
+  var t=todayStr();
+  if(P.lastSign===t) return null;
+  var y=todayStr(-86400000);
+  P.signStreak = (P.lastSign===y) ? P.signStreak+1 : 1;
+  P.lastSign=t;
+  var base=5, bonus = (P.signStreak%7===0) ? 20 : 0;
+  P.crystals += base+bonus;
+  saveProfile();
+  return {streak:P.signStreak, gain:base+bonus, bonus:bonus};
+}
+
+/* ==================== 商店（纯虚拟） ==================== */
+var SHOP = [
+  {id:'bomb',    name:'五行炸彈', icon:'💣', cost:15, desc:'遊戲中選中後炸掉周圍 3×3'},
+  {id:'recolor', name:'換色仙筆', icon:'🎨', cost:12, desc:'選中一方塊隨機換成其他五行'},
+  {id:'moves',   name:'加步靈符', icon:'➕', cost:10, desc:'本局剩餘步數 +5'}
+];
+function buyItem(id){
+  var it=null; for(var i=0;i<SHOP.length;i++) if(SHOP[i].id===id) it=SHOP[i];
+  if(!it) return;
+  if(P.crystals < it.cost){ toast('靈晶不足，完成每日任務可獲得'); return; }
+  P.crystals -= it.cost; P.items[id]=(P.items[id]||0)+1; saveProfile();
+  renderTop(); renderShop();
+  toast('已兌換 '+it.name+'（純虛擬道具）');
+}
+
+/* ==================== 关卡配置 ==================== */
+function levelConfig(i){
+  var ganEl = GAN_EL[GAN[i%10]];
+  var rng = mulberry(9973 + i*7919);
+  var goalType;
+  if(i<3){ goalType='collect'; }
+  else { var t=rng(); if(t<0.42) goalType='collect'; else if(t<0.66) goalType='clear'; else if(t<0.86) goalType='drop'; else goalType='time'; }
+  var moves = 28 - Math.floor(i/5); if(moves<18) moves=18;
+  var cfg = { idx:i, name:jiazi(i), el:ganEl, goalType:goalType,
+    scoreTarget: 400 + i*110, moves:moves, rng:rng };
+  if(goalType==='collect'){
+    cfg.collectEl = ganEl;
+    cfg.targetCount = 12 + Math.floor(i/3)*2;
+  } else if(goalType==='clear'){
+    cfg.blockers=[];
+    var iceN = 4 + Math.floor(i/8)*2;
+    var rockN = Math.floor(i/10);
+    var used={};
+    var brng=mulberry(31337+i*13);
+    var total=iceN+rockN;
+    for(var b=0;b<total;b++){
+      var r,c,guard=0;
+      do{ r=Math.floor(brng()*SIZE); c=Math.floor(brng()*SIZE); guard++; }while(used[r+','+c] && guard<60);
+      used[r+','+c]=true;
+      cfg.blockers.push({r:r,c:c,type: b<iceN?'#ice':'#rock'});
+    }
+  } else if(goalType==='drop'){
+    cfg.dropEl = ganEl;
+    cfg.dropNeed = 3 + Math.floor(i/12);
+  } else {
+    cfg.timeLimit = 30 + Math.floor(i/20)*5;
+    cfg.scoreTarget = 500 + i*90;
+  }
+  return cfg;
+}
+
+/* ==================== 棋盘生成 ==================== */
+function emptyGrid(){ var g=[]; for(var r=0;r<SIZE;r++){ g.push([]); for(var c=0;c<SIZE;c++) g[r].push(null); } return g; }
+function createsMatch(g,r,c,k){
+  if(c>=2 && g[r][c-1]===k && g[r][c-2]===k) return true;
+  if(r>=2 && g[r-1][c]===k && g[r-2][c]===k) return true;
+  return false;
+}
+function newGrid(){
+  var g=[], r, c;
+  for(r=0;r<SIZE;r++){ g.push([]);
+    for(c=0;c<SIZE;c++){
+      var k, guard=0;
+      do{ k=rndEl(); guard++; } while(guard<50 && createsMatch(g,r,c,k));
+      g[r].push(k);
+    }
+  }
+  return g;
+}
+function makeBoard(cfg){
+  S.rng = cfg.seedRng || null;
+  var g = newGrid();
+  if(cfg.goalType==='clear' && cfg.blockers){
+    cfg.blockers.forEach(function(b){ g[b.r][b.c]=b.type; });
+  }
+  if(cfg.goalType==='drop'){
+    var cnt=cfg.dropNeed, rng=mulberry(777+cfg.idx*31), placed={};
+    for(var n=0;n<cnt;n++){
+      var r=rng()<0.5?0:1, c=Math.floor(rng()*SIZE), guard=0;
+      while(placed[r+','+c] && guard++<40){ r=rng()<0.5?0:1; c=Math.floor(rng()*SIZE); }
+      placed[r+','+c]=true;
+      g[r][c]=cfg.dropEl+':bao';
+    }
+  }
+  return g;
+}
+
+/* ==================== 渲染 ==================== */
+function cellClass(k){
+  if(k==='#ice') return 'cell blk-ice';
+  if(k==='#rock') return 'cell blk-rock';
+  var b=baseEl(k), sp=spOf(k);
+  var cls='cell el-'+b;
+  if(sp==='lh'||sp==='lv'||sp==='tian'||sp==='zha') cls+=' sp-'+sp;
+  if(sp==='bao') cls+=' bao';
+  return cls;
+}
+function cellText(k){
+  if(k==='#ice') return '🧊';
+  if(k==='#rock') return '🪨';
+  var b=baseEl(k); if(!b) return '';
+  return EL[b]?EL[b].emoji:'';
+}
+function renderBoard(){
+  var b=$('board'); b.innerHTML='';
+  var newSet={}; (S.newCells||[]).forEach(function(kk){ newSet[kk]=true; });
+  var bornSet={}; (S.bornCells||[]).forEach(function(kk){ bornSet[kk]=true; });
+  for(var r=0;r<SIZE;r++){
+    for(var c=0;c<SIZE;c++){
+      var k=S.grid[r][c];
+      var d=document.createElement('div');
+      d.className = cellClass(k);
+      d.dataset.r=r; d.dataset.c=c;
+      d.textContent = cellText(k);
+      var kk=r+','+c;
+      if(newSet[kk]) d.classList.add('drop');
+      if(bornSet[kk]) d.classList.add('born');
+      d.addEventListener('click', onCellClick);
+      b.appendChild(d);
+    }
+  }
+  highlightSel();
+}
+function cellAt(r,c){ return $('board').children[r*SIZE+c]; }
+function highlightSel(){
+  var all=$('board').children;
+  for(var i=0;i<all.length;i++) all[i].classList.remove('sel');
+  if(S.sel){ var e=cellAt(S.sel.r,S.sel.c); if(e) e.classList.add('sel'); }
+}
+
+/* ==================== 输入 ==================== */
+function onCellClick(){
+  if(S.busy || S.ended) return;
+  var r=+this.dataset.r, c=+this.dataset.c;
+  var k=S.grid[r][c];
+  // 道具使用：炸弹 / 换色
+  if(S.armed){
+    if(isBlocker(k)){ toast('此格無法操作'); return; }
+    if(S.armed==='bomb'){ doBomb(r,c); }
+    else if(S.armed==='recolor'){ doRecolor(r,c); }
+    return;
+  }
+  if(isBlocker(k)){ toast('冰封/石障需要靠旁邊消除才可清除'); return; }
+  if(spOf(k)==='bao'){ toast('寶珠會自動掉落，無法交換'); return; }
+  if(!S.sel){ S.sel={r:r,c:c}; highlightSel(); return; }
+  if(S.sel.r===r && S.sel.c===c){ S.sel=null; highlightSel(); return; }
+  var ad=Math.abs(S.sel.r-r)+Math.abs(S.sel.c-c);
+  if(ad===1){
+    var a=S.sel; S.sel=null; highlightSel();
+    trySwap(a.r,a.c,r,c);
+  } else { S.sel={r:r,c:c}; highlightSel(); }
+}
+function swapCells(r1,c1,r2,c2){ var t=S.grid[r1][c1]; S.grid[r1][c1]=S.grid[r2][c2]; S.grid[r2][c2]=t; }
+
+function trySwap(r1,c1,r2,c2){
+  S.busy=true;
+  S.lastSwap={r:r2,c:c2}; // 特殊方塊生成在玩家落點
+  swapCells(r1,c1,r2,c2);
+  if(findRuns().length===0){
+    swapCells(r1,c1,r2,c2);
+    var e1=cellAt(r1,c1), e2=cellAt(r2,c2);
+    if(e1) e1.classList.add('ke'); if(e2) e2.classList.add('ke');
+    S.busy=false;
+    return;
+  }
+  if(S.moves<999) S.moves--;
+  updateHud();
+  resolveAll();
+}
+
+/* ==================== 找匹配 ==================== */
+function findRuns(){
+  var runs=[], r, c;
+  for(r=0;r<SIZE;r++){
+    c=0;
+    while(c<SIZE){
+      var k=S.grid[r][c];
+      if(isMatchable(k)){
+        var b=baseEl(k), c2=c+1;
+        while(c2<SIZE && isMatchable(S.grid[r][c2]) && baseEl(S.grid[r][c2])===b) c2++;
+        var len=c2-c;
+        if(len>=3){ var cells=[]; for(var x=c;x<c2;x++) cells.push({r:r,c:x}); runs.push({dir:'h',el:b,len:len,cells:cells}); }
+        c=c2;
+      } else c++;
+    }
+  }
+  for(c=0;c<SIZE;c++){
+    r=0;
+    while(r<SIZE){
+      var k2=S.grid[r][c];
+      if(isMatchable(k2)){
+        var b2=baseEl(k2), r2=r+1;
+        while(r2<SIZE && isMatchable(S.grid[r2][c]) && baseEl(S.grid[r2][c])===b2) r2++;
+        var len2=r2-r;
+        if(len2>=3){ var cells2=[]; for(var y=r;y<r2;y++) cells2.push({r:y,c:c}); runs.push({dir:'v',el:b2,len:len2,cells:cells2}); }
+        r=r2;
+      } else r++;
+    }
+  }
+  return runs;
+}
+function computeStep(){
+  var runs=findRuns();
+  if(!runs.length) return null;
+  var matched={}, hIdx={}, vIdx={};
+  runs.forEach(function(run,i){
+    run.cells.forEach(function(p){
+      var kk=p.r+','+p.c; matched[kk]=true;
+      var m = run.dir==='h'?hIdx:vIdx;
+      if(!m[kk]) m[kk]=[]; m[kk].push(i);
+    });
+  });
+  return {runs:runs, matched:matched, hIdx:hIdx, vIdx:vIdx};
+}
+
+/* ==================== 特殊方块规划 ==================== */
+function pickPivot(run, used){
+  var cand=run.cells;
+  if(S.lastSwap){
+    for(var i=0;i<cand.length;i++){
+      var kk=cand[i].r+','+cand[i].c;
+      if(cand[i].r===S.lastSwap.r && cand[i].c===S.lastSwap.c && !used[kk]) return cand[i];
+    }
+  }
+  var mid=cand[Math.floor(cand.length/2)];
+  if(!used[mid.r+','+mid.c]) return mid;
+  for(var j=0;j<cand.length;j++){ if(!used[cand[j].r+','+cand[j].c]) return cand[j]; }
+  return mid;
+}
+function planSpecials(st){
+  var creations=[], used={}, usedRuns={};
+  // 1) L/T 交叉 → 炸珠
+  for(var kk in st.matched){
+    if(st.hIdx[kk] && st.vIdx[kk]){
+      var p=kk.split(',');
+      creations.push({r:+p[0], c:+p[1], el:baseEl(S.grid[+p[0]][+p[1]]), sp:'zha'});
+      used[kk]=true;
+      st.hIdx[kk].forEach(function(i){ usedRuns[i]=true; });
+      st.vIdx[kk].forEach(function(i){ usedRuns[i]=true; });
+      break;
+    }
+  }
+  // 2) 5連 → 天珠
+  st.runs.forEach(function(run,i){
+    if(usedRuns[i]) return;
+    if(run.len>=5){
+      var pv=pickPivot(run,used);
+      creations.push({r:pv.r,c:pv.c,el:run.el,sp:'tian'});
+      used[pv.r+','+pv.c]=true; usedRuns[i]=true;
+    }
+  });
+  // 3) 4連 → 靈珠（消整行/整列）
+  st.runs.forEach(function(run,i){
+    if(usedRuns[i]) return;
+    if(run.len===4){
+      var pv=pickPivot(run,used);
+      creations.push({r:pv.r,c:pv.c,el:run.el,sp:(run.dir==='h'?'lh':'lv')});
+      used[pv.r+','+pv.c]=true; usedRuns[i]=true;
+    }
+  });
+  return {creations:creations, used:used};
+}
+
+/* ==================== 清除计算（含特殊连锁） ==================== */
+function computeClear(st, usedCells){
+  var clear={}, queue=[], actCount=0;
+  function add(r,c){
+    if(r<0||r>=SIZE||c<0||c>=SIZE) return;
+    var k=S.grid[r][c]; if(!k) return;
+    var kk=r+','+c;
+    if(usedCells[kk] || clear[kk]) return;
+    clear[kk]=true;
+    if(isSp(k) && spOf(k)!=='bao') queue.push({r:r,c:c,k:k});
+  }
+  for(var kk in st.matched){ if(!usedCells[kk]){ var p=kk.split(','); add(+p[0],+p[1]); } }
+  while(queue.length){
+    var q=queue.shift(); actCount++;
+    var sp=spOf(q.k);
+    if(sp==='lh'){ for(var x=0;x<SIZE;x++) add(q.r,x); }
+    else if(sp==='lv'){ for(var y=0;y<SIZE;y++) add(y,q.c); }
+    else if(sp==='zha'){ for(var dr=-1;dr<=1;dr++) for(var dc=-1;dc<=1;dc++) add(q.r+dr,q.c+dc); }
+    else if(sp==='tian'){ var b=baseEl(q.k);
+      for(var r2=0;r2<SIZE;r2++) for(var c2=0;c2<SIZE;c2++){ if(isMatchable(S.grid[r2][c2]) && baseEl(S.grid[r2][c2])===b) add(r2,c2); } }
+  }
+  // 相鄰冰封/石障一併清除
+  var snap=Object.keys(clear);
+  for(var i=0;i<snap.length;i++){
+    var p2=snap[i].split(','), r3=+p2[0], c3=+p2[1];
+    var nb=[[r3-1,c3],[r3+1,c3],[r3,c3-1],[r3,c3+1]];
+    for(var j=0;j<nb.length;j++){
+      var rr=nb[j][0], cc=nb[j][1];
+      if(rr<0||rr>=SIZE||cc<0||cc>=SIZE) continue;
+      if(isBlocker(S.grid[rr][cc])) clear[rr+','+cc]=true;
+    }
+  }
+  return {clear:clear, actCount:actCount};
+}
+
+/* ==================== 相生 / 相克判定 ==================== */
+function isShengChain(keys){
+  for(var i=0;i<keys.length;i++) for(var j=0;j<keys.length;j++){
+    if(i!==j && SHENG_NEXT[keys[i]]===keys[j]) return true;
+  }
+  return false;
+}
+function shengChainLen(keys){
+  var best=0;
+  for(var s=0;s<5;s++){
+    var run=0, cur=SHENG_ORDER[s];
+    while(keys.indexOf(cur)>=0){ run++; cur=SHENG_NEXT[cur]; if(run>5) break; }
+    if(run>best) best=run;
+  }
+  // 也檢查其中兩元素是否相鄰相生
+  if(best===0 && isShengChain(keys)) best=2;
+  return best;
+}
+function isKe(keys){
+  for(var i=0;i<keys.length;i++) for(var j=0;j<keys.length;j++){
+    if(i!==j && KE_OF[keys[i]]===keys[j]) return true;
+  }
+  return false;
+}
+
+/* ==================== 结算连锁 ==================== */
+function resolveAll(){
+  S.combo=0; S.shengChainCount=0;
+  S.busy=true;
+  cascadeStep();
+}
+function cascadeStep(){
+  if(S.ended) return;
+  var st=computeStep();
+  if(!st){ afterCascade(); return; }
+  S.combo++;
+  if(S.combo>S.maxCombo) S.maxCombo=S.combo;
+  var plan=planSpecials(st);
+  var cl=computeClear(st, plan.used);
+  applyStep(st, plan, cl);
+  setTimeout(function(){
+    if(S.ended) return;
+    for(var kk in cl.clear){ var p=kk.split(','); S.grid[+p[0]][+p[1]]=null; }
+    S.bornCells=[];
+    plan.creations.forEach(function(cb){
+      S.grid[cb.r][cb.c]=cb.el+':'+cb.sp;
+      S.bornCells.push(cb.r+','+cb.c);
+    });
+    S.newCells=[]; 
+    dropAndRefill();
+    renderBoard();
+    setTimeout(cascadeStep, 160);
+  }, 220);
+}
+function applyStep(st, plan, cl){
+  var elCounts={}, clearedCells=[], clearedEls=0, clearedBlk=0;
+  for(var kk in cl.clear){
+    var p=kk.split(','), r=+p[0], c=+p[1], k=S.grid[r][c];
+    if(!k) continue;
+    clearedCells.push({r:r,c:c,k:k});
+    if(isBlocker(k)) clearedBlk++;
+    else if(isEl(k)){ var b=baseEl(k); elCounts[b]=(elCounts[b]||0)+1; clearedEls++; }
+  }
+  var base = clearedEls*10 + clearedBlk*14 + cl.actCount*40;
+  var els=Object.keys(elCounts);
+  var sheng=isShengChain(els);
+  var chainLen=shengChainLen(els);
+  var ke=isKe(els);
+  var mult=1, label='', cls='plus';
+  if(sheng){
+    S.shengCnt++; S.shengChainCount++;
+    mult = 1 + 0.4*Math.min(S.combo,8);
+    if(chainLen>=3){ mult += 0.35; label='五行共鳴 x'+mult.toFixed(1); cls='res'; }
+    else { label='相生 x'+mult.toFixed(1); }
+  } else { S.shengChainCount=0; }
+  if(ke){ mult=0.5; label='相剋'; cls='ke'; }
+  var comboS = 1 + (S.combo-1)*0.5;
+  var gain = Math.round(base*mult*comboS);
+  if(ke) gain = -Math.round(base*0.5);
+  S.score += gain; if(S.score<0) S.score=0;
+
+  // 目标计数
+  if(S.cfg.goalType==='collect'){ S.cleared += (elCounts[S.cfg.collectEl]||0); }
+  // 任务
+  for(var eb in elCounts){ bumpTasks('collect', elCounts[eb], eb); }
+  if(S.combo>=3) bumpTasks('combo', 1);
+  if(plan.creations.length) bumpTasks('special', plan.creations.length);
+  if(S.cfg.scoreTarget && S.score>=S.cfg.scoreTarget) bumpTasks('score', S.cfg.scoreTarget);
+
+  // 飘字
+  var pc=clearedCells[Math.floor(clearedCells.length/2)] || {r:3,c:3};
+  if(S.combo>1) floatText(pc.r,pc.c,'連鎖 x'+S.combo,'combo');
+  if(sheng) floatText(pc.r,pc.c,label+' +'+gain, cls);
+  else if(ke) floatText(pc.r,pc.c,label, 'ke');
+  else if(gain>0) floatText(pc.r,pc.c,'+'+gain,'plus');
+  if(plan.creations.length){
+    var names={lh:'靈珠',lv:'靈珠',tian:'天珠',zha:'炸珠'};
+    var c0=plan.creations[0];
+    floatText(c0.r,c0.c,'✦ '+names[c0.sp],'res');
+  }
+
+  // 动画
+  clearedCells.forEach(function(p){
+    var e=cellAt(p.r,p.c); if(!e) return;
+    e.classList.add(isBlocker(p.k)?'rockpop':'pop');
+  });
+  // 大字特效
+  if(chainLen>=3) showBig('☯ 五行共鳴！', true);
+  else if(S.combo>=2) showBig('連擊 x'+S.combo);
+  // 粒子（特殊方块）
+  if(cl.actCount>0 || S.combo>=2){ burst(clearedCells, cl.actCount>0); }
+
+  updateHud();
+  S.pendingStep={ clearedCells:clearedCells };
+}
+function afterCascade(){
+  S.lastSwap=null;
+  S.busy=false;
+  checkEnd();
+}
+
+/* ==================== 下落补充 ==================== */
+function dropAndRefill(){
+  var r,c;
+  for(c=0;c<SIZE;c++){
+    var rr=SIZE-1;
+    while(rr>=0){
+      if(isBlocker(S.grid[rr][c])){ rr--; continue; }
+      var bot=rr, top=rr;
+      while(top-1>=0 && !isBlocker(S.grid[top-1][c])) top--;
+      var write=bot;
+      for(var x=bot;x>=top;x--){
+        if(S.grid[x][c]){ S.grid[write][c]=S.grid[x][c]; if(write!==x) S.grid[x][c]=null; write--; }
+      }
+      for(var y=write;y>=top;y--){ S.grid[y][c]=rndEl(); S.newCells.push(y+','+c); }
+      rr=top-1;
+    }
+  }
+  // 掉落目标：宝珠到底部
+  var got=0;
+  for(c=0;c<SIZE;c++){
+    var k=S.grid[SIZE-1][c];
+    if(spOf(k)==='bao'){ S.grid[SIZE-1][c]=null; got++; S.dropped++; }
+  }
+  if(got>0){ toast('寶珠歸位 +1'); dropAndRefill(); }
+}
+
+/* ==================== 特效 ==================== */
+function floatText(r,c,txt,cls){
+  var wrap=$('boardWrap'), board=$('board');
+  var bw=board.getBoundingClientRect(), wr=wrap.getBoundingClientRect();
+  var cellPx=bw.width/SIZE;
+  var d=document.createElement('div');
+  d.className='float '+cls;
+  d.textContent=txt;
+  d.style.left=(bw.left-wr.left+(c+0.5)*cellPx-24)+'px';
+  d.style.top=(bw.top-wr.top+(r+0.5)*cellPx-10)+'px';
+  wrap.appendChild(d);
+  setTimeout(function(){ if(d.parentNode) d.parentNode.removeChild(d); },1000);
+}
+function showBig(txt, gold){
+  var e=$('bigFx'); if(!e) return;
+  e.textContent=txt; e.className = gold?'show gold':'show';
+  clearTimeout(e._t); e._t=setTimeout(function(){ e.className=''; },860);
+}
+function burst(cells, strong){
+  var wrap=$('boardWrap'), board=$('board');
+  var bw=board.getBoundingClientRect(), wr=wrap.getBoundingClientRect();
+  var cellPx=bw.width/SIZE;
+  var picks=[];
+  for(var i=0;i<cells.length;i++) if(Math.random()<(strong?0.5:0.22)) picks.push(cells[i]);
+  if(picks.length>12) picks=picks.slice(0,12);
+  var colors=['#ffe27a','#ff9a5f','#9ce0ff','#7ef0a0','#fff'];
+  picks.forEach(function(p){
+    var n=strong?2:1;
+    for(var j=0;j<n;j++){
+      var s=document.createElement('div');
+      s.className='spark';
+      s.style.background=colors[Math.floor(Math.random()*colors.length)];
+      s.style.left=(bw.left-wr.left+(p.c+0.5)*cellPx-3)+'px';
+      s.style.top=(bw.top-wr.top+(p.r+0.5)*cellPx-3)+'px';
+      s.style.setProperty('--dx',(Math.random()*70-35)+'px');
+      s.style.setProperty('--dy',(-Math.random()*70-10)+'px');
+      wrap.appendChild(s);
+      (function(s){ setTimeout(function(){ if(s.parentNode) s.parentNode.removeChild(s); },740); })(s);
+    }
+  });
+}
+
+/* ==================== HUD ==================== */
+function updateHud(){
+  $('hudScore').textContent=S.score;
+  var cfg=S.cfg, goalHtml='', pct=0, right='', rightK='剩餘步數';
+  if(cfg.goalType==='collect'){
+    var t=cfg.targetCount;
+    goalHtml=Math.min(S.cleared,t)+'<small>/'+t+'</small>';
+    pct=Math.min(100,Math.round(S.cleared/t*100));
+  } else if(cfg.goalType==='clear'){
+    var left=blockerCount();
+    var total=cfg.blockers.length;
+    goalHtml=(total-left)+'<small>/'+total+'</small>';
+    pct=Math.min(100,Math.round((total-left)/Math.max(1,total)*100));
+  } else if(cfg.goalType==='drop'){
+    var t2=cfg.dropNeed;
+    goalHtml=Math.min(S.dropped,t2)+'<small>/'+t2+'</small>';
+    pct=Math.min(100,Math.round(S.dropped/t2*100));
+  } else if(cfg.goalType==='time'){
+    goalHtml=S.score+'<small>/'+cfg.scoreTarget+'</small>';
+    pct=Math.min(100,Math.round(S.score/cfg.scoreTarget*100));
+    rightK='剩餘時間';
+    right=S.time+'s';
+  } else {
+    goalHtml=S.score+'<small>/'+cfg.scoreTarget+'</small>';
+    pct=Math.min(100,Math.round(S.score/cfg.scoreTarget*100));
+  }
+  if(cfg.goalType!=='time' && cfg.goalType!=='score'){
+    right = (S.moves>=999? '∞' : S.moves);
+  } else if(cfg.goalType==='score'){
+    right = (S.moves>=999? '∞' : S.moves);
+  }
+  $('hudGoal').innerHTML=goalHtml;
+  $('hudRightK').textContent=rightK;
+  $('hudMoves').textContent=right;
+  $('progBar').style.width=pct+'%';
+  $('progTxt').textContent=pct+'%';
+  renderChainBar();
+  // 道具数量
+  if($('cntBomb')) $('cntBomb').textContent=P.items.bomb||0;
+  if($('cntRecolor')) $('cntRecolor').textContent=P.items.recolor||0;
+  if($('cntMoves')) $('cntMoves').textContent=P.items.moves||0;
+}
+function blockerCount(){
+  var n=0;
+  for(var r=0;r<SIZE;r++) for(var c=0;c<SIZE;c++) if(isBlocker(S.grid[r][c])) n++;
+  return n;
+}
+function renderChainBar(){
+  var cfg=S.cfg;
+  var g=GAN[cfg.idx%10], el=EL[cfg.el];
+  var tip='';
+  if(cfg.goalType==='collect') tip='消除 '+EL[cfg.collectEl].emoji+' '+EL[cfg.collectEl].name+' 方塊 '+cfg.targetCount+' 個';
+  else if(cfg.goalType==='clear') tip='清除全部 🧊冰封 / 🪨石障 方塊（靠相鄰消除）';
+  else if(cfg.goalType==='drop') tip='讓 '+EL[cfg.dropEl].emoji+' 寶珠 掉落到最底行 '+cfg.dropNeed+' 個';
+  else if(cfg.goalType==='time') tip='限時 '+cfg.timeLimit+' 秒內達到 '+cfg.scoreTarget+' 分';
+  else tip='達到 '+cfg.scoreTarget+' 分';
+  $('chainBar').innerHTML='<span class="ch on">'+g+'('+el.name+')</span>'+
+    '<span class="arrow">本關目標</span><span class="tip">'+tip+'</span>';
+}
+
+/* ==================== 结束判定 ==================== */
+function hasAnyMove(){
+  for(var r=0;r<SIZE;r++) for(var c=0;c<SIZE;c++){
+    if(!isMatchable(S.grid[r][c])) continue;
+    if(c<SIZE-1 && isMatchable(S.grid[r][c+1])){
+      swapCells(r,c,r,c+1); var m=findRuns().length>0; swapCells(r,c,r,c+1); if(m) return true;
+    }
+    if(r<SIZE-1 && isMatchable(S.grid[r+1][c])){
+      swapCells(r,c,r+1,c); var m2=findRuns().length>0; swapCells(r,c,r+1,c); if(m2) return true;
+    }
+  }
+  return false;
+}
+function reshuffle(){
+  toast('無可消除組合，重新洗牌');
+  var pool=[], r, c;
+  for(r=0;r<SIZE;r++) for(c=0;c<SIZE;c++) if(isMatchable(S.grid[r][c])) pool.push(S.grid[r][c]);
+  // 简单重排
+  for(var i=pool.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
+  var idx=0;
+  for(r=0;r<SIZE;r++) for(c=0;c<SIZE;c++) if(isMatchable(S.grid[r][c])) S.grid[r][c]=pool[idx++];
+  if(!hasAnyMove() || findRuns().length){ S.grid=makeBoard(S.cfg); }
+  renderBoard();
+}
+function goalMet(){
+  var cfg=S.cfg;
+  if(cfg.goalType==='collect') return S.cleared>=cfg.targetCount;
+  if(cfg.goalType==='clear') return blockerCount()===0;
+  if(cfg.goalType==='drop') return S.dropped>=cfg.dropNeed;
+  if(cfg.goalType==='time'||cfg.goalType==='score') return S.score>=cfg.scoreTarget;
+  return false;
+}
+function checkEnd(){
+  if(S.ended) return;
+  if(goalMet()){ endGame(true); return; }
+  if(S.cfg.goalType!=='time' && S.moves<=0){ endGame(false); return; }
+  if(!hasAnyMove()) reshuffle();
+}
+function starCount(win){
+  if(!win) return 0;
+  var r = S.score / Math.max(1, S.cfg.scoreTarget);
+  if(r>=1.15) return 3;
+  if(r>=0.65) return 2;
+  return 1;
+}
+function endGame(win){
+  if(S.ended) return;
+  S.ended=true;
+  if(S.timer){ clearInterval(S.timer); S.timer=null; }
+  var stars=starCount(win);
+  var gain = Math.round(S.score/120) + stars*3 + (win?2:0);
+  P.crystals += gain; P.exp += Math.max(0,S.score); P.totalScore += Math.max(0,S.score); P.games++;
+  // 最高分
+  var bestKey='best_'+S.cfg.idx;
+  var best=LS.get(bestKey,0);
+  if(S.score>best){ best=S.score; LS.set(bestKey, best); }
+  if(S.cfg.goalType==='time'){ /* nothing */ }
+  if(win && S.cfg.mode!=='weekly'){ LS.set('unlock', Math.max(LS.get('unlock',1), S.cfg.idx+2)); P.unlocked=Math.max(P.unlocked, S.cfg.idx+2); }
+  if(S.cfg.mode==='weekly' && S.score>P.weeklyBest){ P.weeklyBest=S.score; }
+  var lvBefore=levelInfo().lv;
+  saveProfile();
+  var lvAfter=levelInfo().lv;
+
+  $('rTitle').textContent = win? '🎉 通關！' : (S.cfg.goalType==='time'?'⏱ 時間到' :'⏱ 步數用完');
+  $('rStars').textContent = win? '⭐'.repeat(stars)+'☆'.repeat(3-stars) : '💤';
+  $('rScore').textContent=S.score;
+  if(S.cfg.goalType==='collect') $('rGoal').textContent=Math.min(S.cleared,S.cfg.targetCount)+'/'+S.cfg.targetCount;
+  else if(S.cfg.goalType==='clear') $('rGoal').textContent=(S.cfg.blockers.length-blockerCount())+'/'+S.cfg.blockers.length;
+  else if(S.cfg.goalType==='drop') $('rGoal').textContent=Math.min(S.dropped,S.cfg.dropNeed)+'/'+S.cfg.dropNeed;
+  else $('rGoal').textContent=S.score+'/'+S.cfg.scoreTarget;
+  $('rCombo').textContent='x'+S.maxCombo;
+  $('rSheng').textContent=S.shengCnt+' 次';
+  $('rBest').textContent=LS.get(bestKey,best);
+  $('rCrystal').textContent='+'+gain;
+  $('rExp').textContent='+'+(S.score>0?S.score:0);
+  $('rNextBtn').style.display = (win && S.cfg.mode!=='weekly' && S.cfg.idx+1<60)? 'block':'none';
+  $('ovResult').classList.add('show');
+  renderTop();
+  if(lvAfter>lvBefore) setTimeout(function(){ showLevelUp(lvAfter); },400);
+}
+
+/* ==================== 关卡选择 ==================== */
+function renderLevels(){
+  var wrap=$('levels'); wrap.innerHTML='';
+  var unlock=Math.max(P.unlocked, LS.get('unlock',1));
+  for(var i=0;i<60;i++){
+    var cfg=levelConfig(i);
+    var done=i+1<unlock, locked=i+1>unlock;
+    var d=document.createElement('div');
+    d.className='lv'+(locked?' locked':'')+(done?' done':'');
+    var bs=LS.get('best_'+i,0);
+    var gtag = cfg.goalType==='collect'?'🎯':cfg.goalType==='clear'?'🧊':cfg.goalType==='drop'?'⤓':'⏱';
+    d.innerHTML='<div class="n">'+cfg.name+'</div><div class="el">'+EL[cfg.el].emoji+' '+gtag+'</div>'+
+      '<div class="g">'+(locked?'🔒':'第'+(i+1)+'關')+'</div>'+
+      (bs>0?'<div class="bs">'+bs+'</div>':'');
+    if(!locked){ (function(i){ d.addEventListener('click', function(){ startLevel(i); }); })(i); }
+    wrap.appendChild(d);
+  }
+}
+function renderTop(){
+  regenEnergy();
+  $('tbLv').textContent='Lv.'+levelInfo().lv;
+  $('tbCrystal').textContent=P.crystals;
+  $('tbEnergy').textContent=P.energy;
+  $('tbEnergyT').textContent=energyText();
+  $('tbWeekBest').textContent=P.weeklyBest||0;
+  var dot=taskCountDone();
+  $('tbTaskDot').textContent = dot>0 ? ('●'+dot) : '';
+}
+function startLevel(i){
+  if(!spendEnergy()){ toast('體力不足，'+(energyText()||'每 30 分鐘恢復 1 點')); return; }
+  var cfg=levelConfig(i);
+  cfg.mode='level';
+  S.cfg=cfg;
+  S.grid=makeBoard(cfg);
+  var guard=0; while(!hasAnyMove() && guard++<30){ S.grid=makeBoard(cfg); }
+  resetGameState();
+  $('lvName').textContent=cfg.name;
+  $('lvSub').textContent='第'+(i+1)+'關 · '+goalShort(cfg);
+  show('s-game'); renderBoard(); updateHud();
+  $('ovResult').classList.remove('show');
+  if(cfg.goalType==='time') startTimer(cfg.timeLimit);
+}
+function goalShort(cfg){
+  if(cfg.goalType==='collect') return '消除 '+cfg.targetCount+' 個'+EL[cfg.collectEl].name;
+  if(cfg.goalType==='clear') return '清除全部障礙';
+  if(cfg.goalType==='drop') return '掉落 '+cfg.dropNeed+' 個寶珠';
+  if(cfg.goalType==='time') return cfg.timeLimit+' 秒內達 '+cfg.scoreTarget+' 分';
+  return '達到 '+cfg.scoreTarget+' 分';
+}
+function startWeekly(){
+  if(!spendEnergy()){ toast('體力不足，'+(energyText()||'')); return; }
+  var wk=weekKeyNow();
+  if(P.weeklyKey!==wk){ P.weeklyKey=wk; P.weeklyBest=0; saveProfile(); }
+  var cfg={ idx:0, name:'週賽 '+wk, el:'mu', goalType:'score', scoreTarget:2500,
+    moves:30, mode:'weekly', seedRng: mulberry(hashStr('weekly_'+wk)) };
+  cfg.idx = 0;
+  S.cfg=cfg;
+  S.grid=makeBoard(cfg);
+  var guard=0; while(!hasAnyMove() && guard++<30){ S.grid=makeBoard(cfg); }
+  resetGameState();
+  $('lvName').textContent='🎯 週賽';
+  $('lvSub').textContent='固定棋盤 · '+wk+' · 30 步內比高分';
+  show('s-game'); renderBoard(); updateHud();
+  $('ovResult').classList.remove('show');
+  toast('本週固定棋盤，大家一起比高分！');
+}
+function resetGameState(){
+  S.rng = S.cfg.seedRng || null;
+  S.sel=null; S.score=0; S.cleared=0; S.combo=0; S.maxCombo=1; S.shengCnt=0;
+  S.dropped=0; S.busy=false; S.ended=false; S.armed=null; S.lastSwap=null;
+  S.newCells=[]; S.bornCells=[];
+  S.moves = S.cfg.moves;
+  S.time = S.cfg.timeLimit||30;
+  if(S.timer){ clearInterval(S.timer); S.timer=null; }
+  var L=levelInfo();
+  toast('Lv.'+L.lv+' 修行中');
+}
+function startTimer(sec){
+  S.time=sec;
+  if(S.timer) clearInterval(S.timer);
+  S.timer=setInterval(function(){
+    if(S.ended) return;
+    S.time--; updateHud();
+    if(S.time<=0){ endGame(goalMet()); }
+  },1000);
+}
+function nextLevel(){ var n=S.cfg.idx+1; if(n<60) startLevel(n); else quitGame(); }
+function quitGame(){
+  if(S.timer){ clearInterval(S.timer); S.timer=null; }
+  S.ended=true; S.busy=false; S.armed=null;
+  $('ovResult').classList.remove('show');
+  show('s-levels'); renderLevels(); renderTop();
+}
+function show(id){
+  var all=document.querySelectorAll('.screen');
+  for(var i=0;i<all.length;i++) all[i].classList.remove('active');
+  $(id).classList.add('active');
+}
+
+/* ==================== 道具使用 ==================== */
+function useItem(id){
+  if(S.busy || S.ended || !S.grid){ return; }
+  if((P.items[id]||0)<=0){ toast('道具不足，可到靈晶商店兌換'); return; }
+  if(id==='moves'){ S.moves+=5; P.items.moves--; saveProfile(); updateHud(); toast('步數 +5'); return; }
+  if(id==='bomb' || id==='recolor'){
+    S.armed = (S.armed===id) ? null : id;
+    $('ibBomb').classList.toggle('armed', S.armed==='bomb');
+    $('ibRecolor').classList.toggle('armed', S.armed==='recolor');
+    toast(S.armed? (id==='bomb'?'請點擊要炸的方塊':'請點擊要換色的方塊') : '已取消');
+  }
+}
+function doBomb(r,c){
+  S.armed=null; $('ibBomb').classList.remove('armed'); $('ibRecolor').classList.remove('armed');
+  P.items.bomb--; saveProfile();
+  S.busy=true;
+  var cells=[];
+  for(var dr=-1;dr<=1;dr++) for(var dc=-1;dc<=1;dc++){
+    var rr=r+dr, cc=c+dc;
+    if(rr<0||rr>=SIZE||cc<0||cc>=SIZE) continue;
+    if(S.grid[rr][cc]) cells.push({r:rr,c:cc});
+  }
+  cells.forEach(function(p){ var e=cellAt(p.r,p.c); if(e) e.classList.add('pop'); });
+  burst(cells,true); showBig('💣 炸!');
+  setTimeout(function(){
+    cells.forEach(function(p){ S.grid[p.r][p.c]=null; });
+    S.newCells=[]; dropAndRefill(); renderBoard();
+    setTimeout(function(){ S.busy=false; resolveAll(); },160);
+  },220);
+  updateHud();
+}
+function doRecolor(r,c){
+  S.armed=null; $('ibBomb').classList.remove('armed'); $('ibRecolor').classList.remove('armed');
+  var cur=baseEl(S.grid[r][c]);
+  var opts=ELKEYS.filter(function(k){ return k!==cur; });
+  var nk=opts[Math.floor(Math.random()*opts.length)];
+  var sp=spOf(S.grid[r][c]);
+  S.grid[r][c]= nk + (sp?':'+sp:'');
+  P.items.recolor--; saveProfile();
+  var e=cellAt(r,c); if(e){ e.className=cellClass(S.grid[r][c]); e.textContent=cellText(S.grid[r][c]); e.classList.add('born'); }
+  updateHud();
+  toast('換色完成，找機會連消吧');
+}
+
+/* ==================== 弹窗 ==================== */
+function openModal(html){ $('modalPanel').innerHTML=html; $('ovModal').classList.add('show'); }
+function closeModal(){ $('ovModal').classList.remove('show'); }
+
+function openTasks(){
+  ensureDaily();
+  var rows='';
+  P.dailyTasks.forEach(function(t,i){
+    var pct=Math.round((t.progress||0)/t.target*100);
+    var btn;
+    if(t.claimed) btn='<button disabled>已領取</button>';
+    else if(t.done) btn='<button onclick="claimTask('+i+')">領取</button>';
+    else btn='<button disabled>進行中</button>';
+    rows+='<div class="modal-row'+(t.done?' done':'')+'">'+
+      '<div class="ri">'+(t.type==='collect'?'🎯':t.type==='combo'?'🔥':t.type==='special'?'✨':'💠')+'</div>'+
+      '<div class="rb"><div class="rt">'+t.desc+'</div>'+
+      '<div class="rd">進度 '+Math.min(t.progress||0,t.target)+'/'+t.target+' · 獎勵 💎'+t.reward+'</div>'+
+      '<div class="rp"><i style="width:'+pct+'%"></i></div></div>'+btn+'</div>';
+  });
+  openModal('<h2>📋 每日任務</h2><div style="font-size:11px;color:var(--sub);margin-bottom:10px">每日 0 點刷新，完成可得靈晶</div>'+
+    rows+
+    '<div class="btns"><button class="btn-gold" onclick="closeModal()">關閉</button></div>'+
+    '<div class="compliance">靈晶與道具均為遊戲內虛擬娛樂獎勵，不可充值購買、不可兌換現金。</div>');
+}
+function claimTask(i){
+  var t=P.dailyTasks[i];
+  if(!t || !t.done || t.claimed) return;
+  t.claimed=true; P.crystals+=t.reward; saveProfile();
+  openTasks(); renderTop();
+  toast('獲得 💎'+t.reward+' 靈晶');
+}
+function openShop(){
+  var rows='';
+  SHOP.forEach(function(it){
+    var can = P.crystals>=it.cost;
+    rows+='<div class="shop-item"><div class="si">'+it.icon+'</div>'+
+      '<div class="sb"><div class="st">'+it.name+' <span class="own">持有 '+(P.items[it.id]||0)+'</span></div>'+
+      '<div class="sd">'+it.desc+'</div></div>'+
+      '<button onclick="buyItem(\''+it.id+'\')" '+(can?'':'disabled')+'>💎'+it.cost+'</button></div>';
+  });
+  openModal('<h2>🛒 靈晶商店</h2><div style="font-size:11px;color:var(--sub);margin-bottom:10px">當前靈晶：💎'+P.crystals+'</div>'+
+    rows+
+    '<div style="font-size:10.5px;color:var(--sub);margin-top:6px">取得靈晶：完成每日任務 / 遊玩關卡 / 連續簽到</div>'+
+    '<div class="btns"><button class="btn-gold" onclick="closeModal()">關閉</button></div>'+
+    '<div class="compliance">本商店所有道具均為虛擬娛樂內容，僅以遊戲內靈晶兌換，<b>不可用真實金錢購買、不可提現、不可兌換任何實物或現金</b>，不涉及抽獎開箱或賭博。</div>');
+}
+function openSign(auto){
+  var streak=doSign();
+  var got={}; if(P.lastSign===todayStr()) got.today=true;
+  var dayIdx=((P.signStreak-1)%7); if(P.signStreak>0 && P.lastSign===todayStr()) dayIdx=((P.signStreak-1)%7);
+  var grid='';
+  for(var d=0;d<8;d++){
+    var cls='sign-day';
+    if(d<7 && P.signStreak>0 && P.lastSign===todayStr() && d<=((P.signStreak-1)%7)) cls+=' got';
+    if(d===7) { cls+=' got'; }
+    var label = d<7 ? ('第'+(d+1)+'天') : '第7天';
+    var icon = d<7 ? (d===6?'💎×25':'🎴') : '💎×25';
+    if(d===7) continue;
+    // 7 天展示 + 额外
+    grid+='<div class="'+cls+'"><span class="ic">'+(d===6?'🎁':'🎴')+'</span>'+label+'</div>';
+  }
+  // 补第7天额外
+  var extra='<div class="sign-day '+(P.signStreak>=7?'got':'')+'"><span class="ic">🎁</span>連續7天 +20</div>';
+  var msg='';
+  if(streak){ msg='<div style="color:var(--gold);font-size:13px;margin:6px 0">簽到成功！連續 '+streak.streak+' 天，獲得 💎'+streak.gain+(streak.bonus?'（含連續獎勵 +'+streak.bonus+'）':'')+'</div>'; }
+  else { msg='<div style="color:var(--sub);font-size:12px;margin:6px 0">今日已簽到 · 連續 '+P.signStreak+' 天</div>'; }
+  openModal('<h2>🎴 每日天機簽</h2>'+msg+
+    '<div class="sign-grid">'+grid+extra+'</div>'+
+    '<div style="font-size:10.5px;color:var(--sub);margin-bottom:6px">每天首次進入即可簽到，連續簽到 7 天額外獲得靈晶。</div>'+
+    '<div class="btns"><button class="btn-gold" onclick="closeModal()">知道了</button></div>'+
+    '<div class="compliance">簽到獎勵為遊戲內虛擬靈晶，不可兌換現金或實物。</div>');
+}
+function openRank(){
+  var rows='';
+  var any=false;
+  for(var i=0;i<60;i++){
+    var bs=LS.get('best_'+i,0);
+    if(bs>0){
+      any=true;
+      rows+='<div class="modal-row"><div class="ri">'+EL[levelConfig(i).el].emoji+'</div>'+
+        '<div class="rb"><div class="rt">第'+(i+1)+'關 '+jiazi(i)+'</div><div class="rd">'+goalShort(levelConfig(i))+'</div></div>'+
+        '<div style="font-weight:800;color:var(--gold)">'+bs+'</div></div>';
+    }
+  }
+  if(!any) rows='<div style="font-size:12px;color:var(--sub);padding:12px 0">還沒有紀錄，先去玩幾關吧！</div>';
+  openModal('<h2>🏆 本機排行榜</h2>'+
+    '<div class="modal-row"><div class="ri">🎯</div><div class="rb"><div class="rt">週賽 · '+weekKeyNow()+'</div>'+
+    '<div class="rd">本週最佳成績</div></div><div style="font-weight:800;color:var(--gold)">'+(P.weeklyBest||0)+'</div></div>'+
+    '<div style="font-size:11px;color:var(--sub);margin:10px 0 6px">各關最高分</div>'+rows+
+    '<div class="btns"><button class="btn-gold" onclick="closeModal()">關閉</button></div>'+
+    '<div class="compliance">排行紀錄僅儲存於本機裝置，不上傳伺服器，純為個人娛樂紀錄。</div>');
+}
+function openProfile(){
+  var L=levelInfo();
+  var pct=Math.round(L.cur/L.need*100);
+  openModal('<h2>☯ 我的修行</h2>'+
+    '<div style="font-size:34px;font-weight:900;color:var(--gold);margin:4px 0">Lv.'+L.lv+'</div>'+
+    '<div style="height:8px;background:var(--c2);border-radius:5px;overflow:hidden;margin:8px 12px">'+
+    '<i style="display:block;height:100%;width:'+pct+'%;background:linear-gradient(90deg,#8a6a20,#d4af37)"></i></div>'+
+    '<div style="font-size:11px;color:var(--sub);margin-bottom:12px">修行經驗 '+L.cur+' / '+L.need+'</div>'+
+    '<div class="row"><span>累計分數</span><b>'+(P.totalScore||0)+'</b></div>'+
+    '<div class="row"><span>遊玩局數</span><b>'+(P.games||0)+'</b></div>'+
+    '<div class="row"><span>靈晶</span><b>💎'+P.crystals+'</b></div>'+
+    '<div class="row"><span>體力</span><b>⚡'+P.energy+'/5</b></div>'+
+    '<div class="row"><span>連續簽到</span><b>'+(P.signStreak||0)+' 天</b></div>'+
+    '<div class="btns"><button class="btn-gold" onclick="closeModal()">關閉</button></div>'+
+    '<div class="compliance">等級與靈晶僅為本機遊戲進度，全部儲存於本機，不含任何付費內容。</div>');
+}
+function openHelp(){
+  openModal('<h2>📖 玩法與特效</h2>'+
+    '<div style="text-align:left;font-size:12px;color:var(--text);line-height:1.95">'+
+    '<b style="color:var(--gold)">基本玩法</b><br>點選方塊，再點相鄰方塊交換，連成 3 個以上同色即消除。<br><br>'+
+    '<b style="color:var(--gold)">特殊方塊</b><br>· 4 連 → <b>靈珠</b> ⇔⇕：消除整行或整列<br>· 5 連 → <b>天珠</b> ✦：消除全部同色<br>· L/T 型 → <b>炸珠</b> ✸：炸掉周圍 8 格<br>消除特殊方塊會觸發連鎖！<br><br>'+
+    '<b style="color:var(--gold)">五行共鳴</b><br>一次連消涵蓋相生鏈（木→火→土→金→水）可得大額加成；出現相剋組合則扣分。<br><br>'+
+    '<b style="color:var(--gold)">關卡目標</b><br>🎯 收集指定五行 · 🧊 清除冰封石障 · ⏱ 限時達分 · ⤓ 掉落寶珠<br><br>'+
+    '<b style="color:var(--gold)">道具</b><br>用靈晶兌換炸彈/換色/加步，遊戲中點擊使用。'+
+    '</div>'+
+    '<div class="btns"><button class="btn-gold" onclick="closeModal()">關閉</button></div>'+
+    '<div class="compliance">本遊戲為休閒益智娛樂，所有分數與道具均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。</div>');
+}
+function showLevelUp(lv){
+  openModal('<h2>🎊 等級提升</h2>'+
+    '<div style="font-size:46px;margin:6px 0">☯</div>'+
+    '<div style="font-size:30px;font-weight:900;color:var(--gold)">Lv.'+lv+'</div>'+
+    '<div style="font-size:12px;color:var(--sub);margin:8px 0">修行更上一層樓！繼續挑戰更高關卡吧。</div>'+
+    '<div class="btns"><button class="btn-gold" onclick="closeModal()">繼續</button></div>');
+}
+
+/* ==================== 测试钩子 ==================== */
+function testPattern(kind){
+  if(!S.cfg){ S.cfg=levelConfig(0); S.cfg.mode='level'; }
+  S.ended=false; S.busy=false; S.armed=null; S.lastSwap=null;
+  S.combo=0; S.maxCombo=1; S.shengCnt=0;
+  var g=[];
+  for(var r=0;r<SIZE;r++){ g.push([]); for(var c=0;c<SIZE;c++){ g[r].push(((r+c)%2===0)?'tu':'shui'); } }
+  if(kind==='h4'){ g[4][2]='mu'; g[4][3]='mu'; g[4][4]='mu'; g[4][5]='mu'; }
+  else if(kind==='h5'){ for(var c2=2;c2<=6;c2++) g[4][c2]='mu'; }
+  else if(kind==='lt'){ g[3][3]='mu'; g[3][4]='mu'; g[3][5]='mu'; g[4][3]='mu'; g[5][3]='mu'; }
+  S.grid=g; S.newCells=[]; S.bornCells=[];
+  S.score=0;
+  show('s-game'); renderBoard(); updateHud();
+  resolveAll();
+  return true;
+}
+
+/* ==================== 启动 ==================== */
+regenEnergy();
+ensureDaily();
+renderLevels();
+renderTop();
+
+// 每分鐘刷新体力显示
+setInterval(function(){ if(S.screen==='levels') renderTop(); }, 60000);
+S.screen='levels';
+
+// 落地页
+try{
+  if(window.ToolIntro && ToolIntro.mount){
+    ToolIntro.mount({
+      tool:'wuxing', icon:'🔮', title:'天機五行消消樂',
+      slogan:'三消玩法 × 五行相生相剋：<br>消除方塊連成相生鏈得分翻倍，相剋則扣分，<br>六十關以天干地支編排，越玩越有策略。',
+      steps:[
+        '選中一個方塊，再點相鄰方塊交換，連成 3 個以上同色即消除；',
+        '<b>特殊方塊</b>：4 連生成靈珠（消整行/列）、5 連生成天珠（消全部同色）、L/T 型生成炸珠（炸周圍）；',
+        '<b>相生共鳴</b>：木→火→土→金→水，一次連消落在相生鏈上分數成倍增，並有五行共鳴特效；相剋組合則扣分；',
+        '每關目標多樣：收集指定五行、清除冰封石障、限時達分、掉落寶珠；在步數內達標即通關；',
+        '累積分數可升級，完成每日任務、連續簽到可獲得靈晶，兌換炸彈/換色/加步道具（純虛擬）；',
+        '六十關以<b>天干地支</b>命名，從「甲子」起，另有每週固定棋盤的競技週賽。'
+      ],
+      note:'⚠️ 本遊戲為休閒益智娛樂，所有分數與道具均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。全程無需登入，資料僅存於本機。',
+      onEnter:function(){
+        show('s-levels'); renderLevels(); renderTop();
+        if(P.lastSign!==todayStr()){ setTimeout(function(){ openSign(true); },600); }
+      }
+    });
+  }
+}catch(e){}
+</script>
+</body>
+</html>

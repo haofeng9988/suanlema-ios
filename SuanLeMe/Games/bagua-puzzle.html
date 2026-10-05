@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1a1612">
+<title>天機八卦解謎 · 算了吗·易游</title>
+<script src="tool-intro.js?v=20261005"></script>
+<style>
+:root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a;--green:#4a8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;justify-content:center;overscroll-behavior:none;
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+#wrap{max-width:480px;width:100%;min-height:100vh;position:relative;background:radial-gradient(circle at 50% 0%,#2a2218,#12100c 70%);display:flex;flex-direction:column}
+button{font-family:inherit;cursor:pointer}
+.screen{display:none;flex-direction:column;flex:1}
+.screen.active{display:flex}
+header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:12px 16px 10px;text-align:center;border-bottom:2px solid var(--gold)}
+header h1{font-size:17px;color:var(--gold);letter-spacing:2px;margin:0}
+header .sub{font-size:10.5px;color:var(--sub);margin-top:3px;letter-spacing:1px}
+.back{position:absolute;left:10px;top:12px;font-size:20px;color:var(--gold);text-decoration:none;background:none;border:none;padding:4px 8px}
+
+/* ===== HUD ===== */
+.hud{display:flex;align-items:stretch;gap:8px;margin:10px 12px 6px}
+.hud .box{flex:1;background:var(--c1);border:1px solid var(--c2);border-radius:12px;padding:8px 10px;text-align:center}
+.hud .box .k{font-size:10px;color:var(--sub);letter-spacing:1px}
+.hud .box .v{font-size:18px;font-weight:800;color:var(--gold);line-height:1.3}
+.hud .box.goal .v{font-size:15px;color:var(--text)}
+.hud .box.goal .v b{color:var(--gold);font-size:18px}
+
+/* ===== 目标卦 ===== */
+.targetArea{margin:6px 12px;background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:14px 12px;text-align:center;position:relative}
+.targetArea .lab{font-size:11px;color:var(--sub);letter-spacing:1px}
+.targetArea .name{font-size:24px;color:var(--gold);font-weight:900;letter-spacing:3px;margin:2px 0 4px}
+.targetArea .meaning{font-size:11.5px;color:var(--sub);line-height:1.7}
+
+/* ===== 爻的可视化 ===== */
+.yao{display:flex;align-items:center;justify-content:center;gap:3px;padding:6px 4px;border-radius:10px;background:var(--c2);border:1px solid var(--c2);cursor:pointer;transition:all .12s;user-select:none}
+.yao:active{transform:scale(.96)}
+.yao .gap{width:8px;height:12px;background:transparent}
+.yao.yang .line{flex:1;height:7px;background:#d4af37;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.4)}
+.yao.yin .line{flex:1;height:7px;background:#cfd6dd;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.4)}
+.yao.flipping{animation:flip .35s ease}
+@keyframes flip{0%{transform:rotateY(0)}50%{transform:rotateY(90deg);background:var(--gold)}100%{transform:rotateY(0)}}
+
+/* ===== 卦构造区 ===== */
+.workArea{margin:6px 12px 10px;background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:14px 10px;position:relative}
+.workArea .lab{font-size:11px;color:var(--sub);letter-spacing:1px;text-align:center;margin-bottom:8px}
+.upperRow,.lowerRow{display:flex;flex-direction:column;gap:6px;max-width:200px;margin:0 auto}
+.upperRow .yao,.lowerRow .yao{width:160px;height:24px;padding:3px 8px}
+.upperLabel,.lowerLabel{font-size:10px;color:var(--sub);text-align:center;margin:6px 0 2px}
+.upperLabel b{color:var(--gold);font-size:12px;margin:0 4px}
+
+/* 上下分隔线 */
+.split{margin:8px auto;width:160px;height:1px;background:var(--c2);border-top:1px dashed var(--sub);opacity:.5}
+
+/* 操作按钮 */
+.actions{display:flex;gap:8px;padding:8px 12px 0}
+.actions button{flex:1;padding:11px;border-radius:12px;border:none;font-size:14px;font-weight:800}
+.btn-gold{background:var(--gold);color:#1a1612}
+.btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold)!important}
+.btn-disabled{opacity:.4}
+
+/* 提示与反馈 */
+.feedback{min-height:32px;text-align:center;font-size:13px;color:var(--gold);margin:6px 0 2px;padding:0 12px;line-height:1.6}
+.feedback.err{color:var(--red)}
+
+/* 关卡选择 */
+.levels{padding:14px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;overflow-y:auto}
+.lv{aspect-ratio:1;border-radius:14px;border:1px solid var(--c2);background:var(--c1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
+.lv .n{font-size:18px;font-weight:800;color:var(--gold)}
+.lv .g{font-size:9.5px;color:var(--sub);letter-spacing:.5px}
+.lv.locked{opacity:.4}
+.lv.done{border-color:var(--gold);background:linear-gradient(160deg,#3a2e1e,#2a2218)}
+.introwrap{padding:0 14px 16px}
+.introwrap .title{font-size:14px;color:var(--gold);margin:6px 0;text-align:center}
+.introwrap .txt{font-size:12px;color:var(--sub);line-height:1.9}
+
+/* 结算 */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
+.overlay.show{display:flex}
+.panel{background:linear-gradient(180deg,#2a2218,#1f1912);border:2px solid var(--gold);border-radius:18px;padding:22px 20px;max-width:340px;width:100%;text-align:center}
+.panel h2{margin:0 0 6px;font-size:20px;color:var(--gold);letter-spacing:1px}
+.panel .big{font-size:38px;font-weight:900;color:#fff;margin:6px 0;text-shadow:0 3px 10px rgba(212,175,55,.4)}
+.panel .row{display:flex;justify-content:space-between;padding:7px 2px;font-size:13px;color:var(--sub);border-bottom:1px dashed var(--c2)}
+.panel .row b{color:var(--text)}
+.panel .btns{display:flex;gap:10px;margin-top:16px}
+.panel button{flex:1;padding:12px;border-radius:12px;border:none;font-size:15px;font-weight:800}
+.starline{font-size:26px;letter-spacing:6px;margin:2px 0 8px}
+
+/* 底部合规 */
+.foot{font-size:10.5px;color:var(--sub);text-align:center;padding:6px 12px 18px;line-height:1.7}
+</style>
+</head>
+<body>
+<div id="wrap">
+
+  <!-- ===== 关卡选择 ===== -->
+  <div class="screen active" id="s-levels">
+    <header>
+      <h1>🔮 天機八卦解謎</h1>
+      <div class="sub">陰陽爻拼卦 · 有限步內合成目標卦象</div>
+    </header>
+    <div class="introwrap">
+      <div class="title">🪄 玩法</div>
+      <div class="txt">
+        點擊任一「爻」可切換陰陽；上方 3 爻 = <b>上卦</b>、下方 3 爻 = <b>下卦</b>。<br>
+        目標卦象（頂部）需在 <b>限定步數內</b> 拼出，步數越少星數越高。<br>
+        64 卦含<b>陰陽同卦</b>（如「乾」「坤」）最簡單；異卦難度遞增。
+      </div>
+    </div>
+    <div class="levels" id="levels"></div>
+    <div class="foot">
+      本遊戲為休閒益智娛樂，所有分數均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。<br>
+      命理僅供文化參考。
+    </div>
+  </div>
+
+  <!-- ===== 游戏中 ===== -->
+  <div class="screen" id="s-game">
+    <header style="padding-left:44px">
+      <button class="back" onclick="quitGame()">←</button>
+      <h1 id="lvName">乾 · 乾</h1>
+      <div class="sub" id="lvSub">第1關 · 5步以内拼出</div>
+    </header>
+    <div class="hud">
+      <div class="box goal"><div class="k">目標</div><div class="v" id="hudTarget">-</div></div>
+      <div class="box"><div class="k">剩餘步</div><div class="v" id="hudMoves">5</div></div>
+      <div class="box"><div class="k">最高星</div><div class="v" id="hudBest">-</div></div>
+    </div>
+
+    <!-- 目标卦显示 -->
+    <div class="targetArea">
+      <div class="lab">目標卦象</div>
+      <div class="yao" id="targetYao" style="cursor:default;background:var(--bg)">
+        <div class="line"></div>
+      </div>
+      <div class="name" id="targetName">乾</div>
+      <div class="meaning" id="targetMeaning">乾卦：純陽之象，象徵剛健、創造、領導、進取。</div>
+    </div>
+
+    <!-- 工作区（玩家拼卦） -->
+    <div class="workArea">
+      <div class="lab">你的卦象（點爻切換陰陽）</div>
+      <div class="upperLabel">上卦 · <b id="upperName">乾</b></div>
+      <div class="upperRow" id="upperRow"></div>
+      <div class="split"></div>
+      <div class="lowerLabel">下卦 · <b id="lowerName">乾</b></div>
+      <div class="lowerRow" id="lowerRow"></div>
+    </div>
+
+    <div class="feedback" id="feedback">點擊爻切換陰陽</div>
+    <div class="actions">
+      <button class="btn-outline" onclick="autoHint()">💡 提示</button>
+      <button class="btn-outline" onclick="resetWork()">↻ 重置</button>
+      <button class="btn-gold" id="submitBtn" onclick="checkWin()">提交</button>
+    </div>
+  </div>
+</div>
+
+<!-- 结算 -->
+<div class="overlay" id="ovResult"><div class="panel">
+  <div class="starline" id="rStars">⭐</div>
+  <h2 id="rTitle">通關！</h2>
+  <div class="big" id="rScore">0</div>
+  <div class="row"><span>使用步數</span><b id="rMoves">0</b></div>
+  <div class="row"><span>歷史最佳</span><b id="rBest">-</b></div>
+  <div class="btns">
+    <button class="btn-outline" onclick="quitGame()">選關</button>
+    <button class="btn-gold" id="rNextBtn" onclick="nextLevel()">下一關</button>
+  </div>
+</div></div>
+
+<script>
+/* ============ 64 卦数据 ============ */
+// 0=阴爻 ━ ━, 1=阳爻 ━━━
+// 文王八卦（按先天数序）：乾=111 兑=110 离=101 震=100 巽=011 坎=010 艮=001 坤=000
+var UPPER_8 = ['乾','兑','离','震','巽','坎','艮','坤'];
+var UPPER_YANG = {
+  '乾':[1,1,1], '兑':[1,1,0], '离':[1,0,1], '震':[1,0,0],
+  '巽':[0,1,1], '坎':[0,1,0], '艮':[0,0,1], '坤':[0,0,0]
+};
+var GUA_MEAN = {
+  '乾':'乾卦：純陽之象，象徵剛健、創造、領導、進取。',
+  '坤':'坤卦：純陰之象，象徵柔順、包容、承載、養育。',
+  '屯':'屯卦：天地交而難生，萬物始萌，艱難中孕育機會。',
+  '蒙':'蒙卦：山下出泉，蒙昧初開，啟蒙教化之時。',
+  '需':'需卦：雲上於天，等待時機，以耐心成事。',
+  '讼':'訟卦：天與水背向，爭訟之象，宜止不宜進。',
+  '师':'師卦：地中有水，兵眾之象，需紀律嚴明。',
+  '比':'比卦：水在地上，親比團結，相親相助。',
+  '小畜':'小畜卦：風行天上，小有所畜，蓄勢待發。',
+  '履':'履卦：上天下澤，履虎尾而不咥人，慎行禮讓。',
+  '泰':'泰卦：天地交而萬物通也，大吉之象。',
+  '否':'否卦：天地不交而萬物不通也，閉塞之時。',
+  '同人':'同人卦：天火同人，和同於人，眾志成城。',
+  '大有':'大有卦：火在天上，盛大豐有，宜包容。',
+  '谦':'謙卦：地中有山，外卑內高，大吉。',
+  '豫':'豫卦：雷出地奮，順勢而動，安樂備豫。',
+  '随':'隨卦：澤中有雷，隨時順勢，順民心。',
+  '蛊':'蠱卦：山下有風，整頓弊亂，革新圖治。',
+  '临':'臨卦：澤上有地，居上臨下，盛大之時。',
+  '观':'觀卦：風行地上，仰觀俯察，昭示典範。',
+  '噬嗑':'噬嗑卦：雷電交擊，咬合破阻，明刑弼教。',
+  '贲':'賁卦：山下有火，文飾之美，文明禮儀。',
+  '剥':'剝卦：山附於地，剝落之時，順勢止止。',
+  '复':'復卦：雷在地中，陽氣來復，轉機之始。',
+  '无妄':'無妄卦：天雷無妄，順乎自然，不可妄求。',
+  '大畜':'大畜卦：天在山中，大有積蓄，厚積薄發。',
+  '颐':'頤卦：山下有雷，養正頤養，慎養身心。',
+  '大过':'大過卦：澤滅木而大過，非常之時。',
+  '坎':'坎卦：水洊至，重險之象，守正以待。',
+  '离':'離卦：明兩作，重明之象，光明磊落。',
+  '咸':'咸卦：山上有澤，感應相和，心心相印。',
+  '恒':'恒卦：雷風恆，恆久之道，持之以恆。',
+  '遁':'遁卦：天下有山，退避隱遁，知機而退。',
+  '大壮':'大壯卦：雷在天上，陽氣壯盛，勿恃剛強。',
+  '晋':'晉卦：明出地上，進而光明，昇進之時。',
+  '明夷':'明夷卦：明入地中，韜光養晦，守正待明。',
+  '家人':'家人卦：風火家人，齊家治國，家道正矣。',
+  '睽':'睽卦：上火下澤，背向乖離，求同存異。',
+  '蹇':'蹇卦：山上有水，外難內止，反身修德。',
+  '解':'解卦：雷雨作，解難舒困，鬆綁得解。',
+  '损':'損卦：山下有澤，損下益上，適度取捨。',
+  '益':'益卦：風雷益，損上益下，進取有為。',
+  '夬':'夬卦：澤上有天，決斷果斷，去邪從正。',
+  '姤':'姤卦：天風姤，陰生於陽，慎防小人。',
+  '萃':'萃卦：澤上於地，聚萃之象，聚合人心。',
+  '升':'升卦：地中生木，循序漸進，柔美向上。',
+  '困':'困卦：澤無水，困頓之時，守志不餒。',
+  '井':'井卦：木上有水，井養而不窮，德澤長流。',
+  '革':'革卦：澤中有火，革故鼎新，順天應人。',
+  '鼎':'鼎卦：木上有火，鼎新革故，穩定之象。',
+  '震':'震卦：震來虩虩，戒懼修省，震驚奮發。',
+  '艮':'艮卦：艮其背，不獲其身，止於所當止。',
+  '渐':'漸卦：山上有木，循序漸進，嫁女吉利。',
+  '归妹':'歸妹卦：澤上有雷，女歸之象，宜守貞節。',
+  '丰':'豐卦：雷電皆至，盛大豐滿，盛極轉衰。',
+  '旅':'旅卦：火山旅，羈旅在外，守柔不爭。',
+  '巽':'巽卦：風行巽，小畜無阻，柔順入微。',
+  '兑':'兑卦：麗澤，悅澤相見，和悅愉悅。',
+  '涣':'渙卦：風行水上，渙散之象，凝聚人心。',
+  '节':'節卦：澤上有水，節制有度，恰到好處。',
+  '中孚':'中孚卦：澤上有風，中孚感化，誠信立身。',
+  '小过':'小過卦：山上有雷，小有所過，慎行小事。',
+  '既济':'既濟卦：水火既濟，萬事俱備，守成防退。',
+  '未济':'未濟卦：火在水上，未完成之象，繼續前行。'
+};
+
+// 64 卦（按周易序）：每个 = [上卦名, 下卦名]
+var GUA64 = [
+  ['乾','乾'],['坤','坤'],['坎','屯'],['艮','蒙'],['乾','需'],['坎','讼'],
+  ['坤','师'],['坎','比'],['巽','巽'],['乾','履'],['坤','泰'],['乾','否'],
+  ['乾','同人'],['离','大有'],['坤','谦'],['震','豫'],['兑','随'],['巽','蛊'],
+  ['坤','临'],['巽','观'],['震','噬嗑'],['艮','贲'],['艮','剥'],['震','复'],
+  ['乾','无妄'],['艮','大畜'],['艮','颐'],['兑','大过'],['坎','坎'],['离','离'],
+  ['兑','咸'],['震','恒'],['乾','遁'],['震','大壮'],['离','晋'],['坤','明夷'],
+  ['巽','家人'],['离','睽'],['坎','蹇'],['震','解'],['艮','损'],['巽','益'],
+  ['兑','夬'],['巽','姤'],['兑','萃'],['坤','升'],['兑','困'],['坎','井'],
+  ['兑','革'],['离','鼎'],['震','震'],['艮','艮'],['艮','渐'],['兑','归妹'],
+  ['震','丰'],['离','旅'],['巽','巽'],['兑','兑'],['巽','涣'],['兑','节'],
+  ['巽','中孚'],['艮','小过'],['坎','既济'],['离','未济']
+];
+var GUA_NAMES = [
+  '乾','坤','屯','蒙','需','讼','师','比','小畜','履','泰','否',
+  '同人','大有','谦','豫','随','蛊','临','观','噬嗑','贲','剥','复',
+  '无妄','大畜','颐','大过','坎','离','咸','恒','遁','大壮','晋','明夷',
+  '家人','睽','蹇','解','损','益','夬','姤','萃','升','困','井',
+  '革','鼎','震','艮','渐','归妹','丰','旅','巽','兑','涣','节',
+  '中孚','小过','既济','未济'
+];
+
+/* ============ 状态 ============ */
+var S = { cfg:null, work:[1,1,1,1,1,1], moves:0, maxMoves:0, target:[0,0,0,0,0,0], stars:0, screen:'levels' };
+function $(id){return document.getElementById(id);}
+
+/* ============ 爻渲染 ============ */
+// 直接用 onclick 属性写在 HTML 上，更稳定
+function renderYao(rows, yang){
+  rows.innerHTML = '';
+  for(var i=0;i<3;i++){
+    var y = yang[i];
+    var div = document.createElement('div');
+    div.className = 'yao ' + (y?'yang':'yin');
+    div.dataset.idx = i;
+    var line = document.createElement('div');
+    line.className = 'line';
+    div.appendChild(line);
+    if(y===0){
+      var gap = document.createElement('div');
+      gap.className = 'gap';
+      div.appendChild(gap);
+    }
+    rows.appendChild(div);
+  }
+}
+// 用事件委托：点 upperRow / lowerRow 时取 idx
+function bindWorkArea(){
+  $('upperRow').onclick = function(e){
+    var t = e.target.closest('.yao'); if(!t) return;
+    var i = +t.dataset.idx;
+    flipYao(i, $('upperRow'));
+  };
+  $('lowerRow').onclick = function(e){
+    var t = e.target.closest('.yao'); if(!t) return;
+    var i = +t.dataset.idx;
+    flipYao(i, $('lowerRow'));
+  };
+}
+function flipYao(localIdx, rows){
+  if(S.screen!=='game') return;
+  // upperRow = 0..2, lowerRow = 3..5
+  var absIdx = (rows.id==='lowerRow') ? (3 + localIdx) : localIdx;
+  S.work[absIdx] = 1 - S.work[absIdx];
+  // 局部更新这一爻 + 重算卦名
+  renderYao(rows, (rows.id==='lowerRow') ? S.work.slice(3) : S.work.slice(0,3));
+  // 给该爻加 .flipping 动画
+  var d = rows.children[localIdx]; if(d){ d.classList.add('flipping'); setTimeout(function(){d.classList.remove('flipping');},360); }
+  updateUpperLowerName();
+}
+
+/* 根据当前 work 算出上下卦名 */
+function yaoToGuaName(y){
+  // 上 3
+  for(var n in UPPER_YANG){
+    if(UPPER_YANG[n].join(',')===[y[0],y[1],y[2]].join(',')) return n;
+  }
+  return '?';
+}
+function updateUpperLowerName(){
+  $('upperName').textContent = yaoToGuaName(S.work.slice(0,3));
+  $('lowerName').textContent = yaoToGuaName(S.work.slice(3));
+}
+
+/* ============ 关卡 ============ */
+function levelConfig(i){
+  var pair = GUA64[i];
+  var targetName = GUA_NAMES[i];
+  // 难度评估：上下卦差异越大（爻差越多）→ 步数越多
+  var upperY = UPPER_YANG[pair[0]];
+  var lowerY = UPPER_YANG[pair[1]];
+  var target = upperY.concat(lowerY);
+  // 默认从「乾乾」（111111）开始，统计到 target 需翻转多少爻
+  var init = [1,1,1,1,1,1];
+  var diff = 0;
+  for(var k=0;k<6;k++) if(init[k]!==target[k]) diff++;
+  var maxMoves = diff + 1; // 多给 1 步空间
+  if(maxMoves<3) maxMoves=3;
+  if(maxMoves>8) maxMoves=8;
+  return {idx:i, name:targetName, upper:pair[0], lower:pair[1],
+    target:target, targetName:targetName, maxMoves:maxMoves,
+    init:init.slice()};
+}
+
+function startLevel(i){
+  S.cfg = levelConfig(i);
+  S.target = S.cfg.target.slice();
+  S.work = S.cfg.init.slice();
+  S.moves = 0;
+  S.screen = 'game';
+  $('lvName').textContent = S.cfg.targetName;
+  $('lvSub').textContent = '第'+(i+1)+'關 · '+S.cfg.maxMoves+'步以内';
+  // 渲染目标
+  var targetEl = $('targetYao');
+  targetEl.innerHTML = '';
+  for(var k=0;k<6;k++){
+    var y = S.target[k];
+    var line = document.createElement('div');
+    line.className = 'line';
+    if(y===0){
+      var gap = document.createElement('div');
+      gap.className = 'gap';
+    }
+    var div = document.createElement('div');
+    div.className = 'yao ' + (y?'yang':'yin');
+    div.style.width='32px'; div.style.height='24px'; div.style.padding='3px 6px';
+    div.appendChild(line);
+    if(y===0) div.appendChild(gap);
+    targetEl.appendChild(div);
+  }
+  $('targetName').textContent = S.cfg.targetName;
+  $('targetMeaning').textContent = GUA_MEAN[S.cfg.targetName] || '';
+  // 渲染工作区
+  renderYao($('upperRow'), S.work.slice(0,3));
+  renderYao($('lowerRow'), S.work.slice(3));
+  updateUpperLowerName();
+  $('hudMoves').textContent = S.cfg.maxMoves;
+  $('hudTarget').textContent = S.cfg.targetName;
+  var bestKey = 'bg_best_'+i;
+  var best = +localStorage.getItem(bestKey) || 0;
+  $('hudBest').textContent = best? '⭐'.repeat(best):'-';
+  $('feedback').textContent = '點擊爻切換陰陽'; $('feedback').classList.remove('err');
+  $('ovResult').classList.remove('show');
+  show('s-game');
+}
+
+function resetWork(){
+  S.work = S.cfg.init.slice();
+  S.moves = 0;
+  $('hudMoves').textContent = S.cfg.maxMoves;
+  $('hudTarget').textContent = S.cfg.targetName;
+  renderYao($('upperRow'), S.work.slice(0,3));
+  renderYao($('lowerRow'), S.work.slice(3));
+  updateUpperLowerName();
+  $('feedback').textContent = '已重置'; $('feedback').classList.remove('err');
+}
+
+function autoHint(){
+  // 高亮第一个不一致的爻
+  for(var i=0;i<6;i++){
+    if(S.work[i]!==S.target[i]){
+      var rows = i<3 ? $('upperRow') : $('lowerRow');
+      var idx = i<3?i:i-3;
+      var yao = rows.children[idx];
+      if(yao){ yao.classList.add('flipping'); setTimeout(function(){yao.classList.remove('flipping');}, 500); }
+      $('feedback').textContent = '提示：試著切換第 '+(i+1)+' 爻'; $('feedback').classList.remove('err');
+      return;
+    }
+  }
+  $('feedback').textContent = '已是目標卦！直接提交'; $('feedback').classList.remove('err');
+}
+
+function checkWin(){
+  var ok = true;
+  for(var i=0;i<6;i++){ if(S.work[i]!==S.target[i]){ ok=false; break; } }
+  if(ok){
+    // 用掉的步数：当前 work 与 init 的差异（注意：玩家可能多次切换抵消）
+    // 简单判定：实际步数 = work 翻转总次数（累计）；为简化按「步数 = maxMoves - 当前剩余」粗估
+    var used = S.cfg.maxMoves - +$('hudMoves').textContent;
+    // 真实步数：work 与 init 差异（玩家可能无效点击，按 diff 计）
+    var realDiff = 0;
+    for(var k=0;k<6;k++) if(S.work[k]!==S.cfg.init[k]) realDiff++;
+    var realUsed = realDiff; // 拼完至少要翻这么多爻
+    var stars = realUsed<=S.cfg.maxMoves-3 ? 3 : realUsed<=S.cfg.maxMoves-1 ? 2 : 1;
+    showResult(true, stars, realUsed);
+  } else {
+    $('feedback').textContent = '✗ 不對！再試試'; $('feedback').classList.add('err');
+    // 扣 1 步
+    var cur = +$('hudMoves').textContent;
+    cur--;
+    $('hudMoves').textContent = cur;
+    if(cur<=0){
+      showResult(false, 0, 0);
+    }
+  }
+}
+
+function showResult(win, stars, used){
+  $('rTitle').textContent = win? '🎉 通關！' : '💧 步數耗盡';
+  $('rStars').textContent = win? ('⭐'.repeat(stars)+'☆'.repeat(3-stars)) : '💧';
+  $('rScore').textContent = win? (stars*50) : 0;
+  $('rMoves').textContent = used;
+  var bestKey = 'bg_best_'+S.cfg.idx;
+  var best = +localStorage.getItem(bestKey) || 0;
+  if(win && stars>best){
+    best=stars; localStorage.setItem(bestKey, best);
+  }
+  $('rBest').textContent = best? '⭐'.repeat(best):'-';
+  $('rNextBtn').style.display = win? 'block':'none';
+  if(win){
+    var unl = Math.max(+(localStorage.getItem('bg_unlock')||1), S.cfg.idx+2);
+    localStorage.setItem('bg_unlock', unl);
+  }
+  $('ovResult').classList.add('show');
+}
+
+/* ============ 关卡列表 ============ */
+function renderLevels(){
+  var wrap = $('levels'); wrap.innerHTML='';
+  var unlock = +(localStorage.getItem('bg_unlock')||1);
+  for(var i=0;i<GUA_NAMES.length;i++){
+    var locked = i+1 > unlock;
+    var done = i+1 < unlock;
+    var name = GUA_NAMES[i];
+    var d = document.createElement('div');
+    d.className = 'lv' + (locked?' locked':'') + (done?' done':'');
+    d.innerHTML = '<div class="n">'+name+'</div><div class="g">'+(locked?'🔒':'第'+(i+1)+'關')+'</div>';
+    if(!locked){ (function(i){ d.addEventListener('click', function(){ startLevel(i); }); })(i); }
+    wrap.appendChild(d);
+  }
+}
+function nextLevel(){ var n=S.cfg.idx+1; if(n<GUA_NAMES.length) startLevel(n); else quitGame(); }
+function quitGame(){ S.screen='levels'; $('ovResult').classList.remove('show'); show('s-levels'); renderLevels(); }
+function show(id){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  $(id).classList.add('active');
+}
+
+/* ============ 启动 ============ */
+renderLevels();
+bindWorkArea();
+try{
+  if(window.ToolIntro && ToolIntro.mount){
+    ToolIntro.mount({
+      tool:'bagua', icon:'🔮', title:'天機八卦解謎',
+      slogan:'陰陽爻拼出目標卦象，<br>六十四卦皆為關卡，<br>純腦力解謎遊戲。',
+      steps:[
+        '每關給出<b>目標卦</b>（六十四卦之一）與<b>限定步數</b>；',
+        '每步點擊任一爻可切換陰陽；上方 3 爻 = <b>上卦</b>，下方 3 爻 = <b>下卦</b>；',
+        '在步數內拼出目標卦即通關，星數 = 剩餘步數；',
+        '「💡 提示」會高亮第一個需翻轉的爻；「↻ 重置」回到初始狀態；',
+        '64 關對應六十四卦，從「乾」「坤」等簡單卦到「明夷」「未濟」等難卦。',
+      ],
+      note:'⚠️ 本遊戲為休閒益智娛樂，命理僅供文化參考，不涉及任何真實賭博或金錢兌換。',
+      onEnter:function(){ show('s-levels'); renderLevels(); }
+    });
+  }
+}catch(e){}
+</script>
+</body>
+</html>

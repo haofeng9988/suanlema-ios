@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1a1612">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>天機百萬富翁 · 算了吗·易游</title>
+<script src="tool-intro.js?v=20261005"></script>
+<script src="share.js?v=20261005"></script>
+<script src="poster_bridge.js" defer></script>
+<style>
+:root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a;--green:#4a8}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overscroll-behavior:none}
+#wrap{max-width:480px;margin:0 auto;min-height:100vh;position:relative;background:var(--bg)}
+.screen{display:none}
+.screen.active{display:block}
+button{font-family:inherit}
+
+/* ---------- 通用 ---------- */
+header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:14px 16px;text-align:center;border-bottom:2px solid var(--gold);position:relative;border-radius:0 0 4px 4px}
+header h1{font-size:18px;color:var(--gold);letter-spacing:3px;margin:0}
+header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
+.bal{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--sub);text-align:right;line-height:1.35}
+.bal b{color:var(--gold);font-size:13px}
+.card{background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:16px;margin:14px}
+.card h2{font-size:15px;color:var(--gold);margin:0 0 12px;letter-spacing:1px}
+.btn{width:100%;padding:14px;background:linear-gradient(135deg,#d4af37,#b8912a);color:#0a0e14;border:none;border-radius:12px;font-size:16px;font-weight:900;letter-spacing:3px;cursor:pointer}
+.btn:active{opacity:.85}
+.btn.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold);font-weight:700;letter-spacing:1px}
+.btn.dim{background:var(--c1);border:1px solid var(--c2);color:var(--sub);font-weight:700;letter-spacing:1px}
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:rgba(0,0,0,.9);border:1px solid var(--c2);color:var(--text);font-size:13px;padding:10px 16px;border-radius:20px;z-index:99999;opacity:0;transition:.25s;pointer-events:none;max-width:88vw;text-align:center}
+.toast.show{opacity:1}
+
+/* ---------- 首页 ---------- */
+.hero-mini{text-align:center;padding:20px 14px 6px}
+.hero-mini .big{font-size:44px;line-height:1}
+.hero-mini h1{font-size:24px;color:var(--gold);letter-spacing:4px;margin:8px 0 4px}
+.hero-mini .slogan{font-size:12px;color:var(--sub);line-height:1.9}
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 14px}
+.mode{background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:14px 12px;cursor:pointer;position:relative;transition:.15s}
+.mode:active{transform:scale(.97)}
+.mode.pick{border-color:var(--gold);background:rgba(212,175,55,.12)}
+.mode .ic{font-size:26px}
+.mode .nm{font-size:14px;font-weight:800;color:var(--text);margin-top:8px}
+.mode .ds{font-size:10.5px;color:var(--sub);margin-top:4px;line-height:1.5;min-height:30px}
+.mode .fee{font-size:11px;color:var(--gold);margin-top:6px;font-weight:700}
+.mode.pick .nm{color:var(--gold)}
+.home-enter{padding:14px}
+.mini-note{font-size:11px;color:var(--sub);text-align:center;padding:6px 20px 26px;line-height:1.8}
+.mini-note b{color:var(--gold)}
+
+/* ---------- 对局页 ---------- */
+#s-game{padding-bottom:20px}
+.host-bar{background:linear-gradient(90deg,rgba(212,175,55,.14),rgba(212,175,55,.03));border-bottom:1px solid var(--c2);padding:9px 14px;font-size:12.5px;color:var(--text);line-height:1.5;min-height:38px;display:flex;align-items:center;gap:8px}
+.host-bar .av{font-size:16px;flex-shrink:0}
+.host-bar .tx{flex:1;transition:.2s}
+.host-bar .tx.alert{color:var(--gold);font-weight:700}
+.gtop{display:flex;align-items:center;gap:12px;padding:12px 14px 4px}
+.gtop .qmeta{flex:1}
+.gtop .qmeta .t1{font-size:11px;color:var(--sub)}
+.gtop .qmeta .t2{font-size:15px;color:var(--gold);font-weight:800;letter-spacing:1px}
+.ringbtn{background:transparent;border:1px solid var(--c2);border-radius:10px;color:var(--sub);font-size:11px;padding:8px 9px;cursor:pointer;line-height:1.2}
+.ringbtn b{display:block;color:var(--gold);font-size:12px}
+.timer{position:relative;width:66px;height:66px;flex-shrink:0}
+.timer svg{transform:rotate(-90deg);display:block}
+.timer .ringbg{fill:none;stroke:var(--c2);stroke-width:6}
+.timer .ringfg{fill:none;stroke:var(--gold);stroke-width:6;stroke-linecap:round;transition:stroke .3s}
+.timer.danger .ringfg{stroke:var(--red)}
+.timer .secs{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;color:var(--gold)}
+.timer.danger .secs{color:var(--red);animation:pulse .7s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.qcard{background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:16px;margin:12px 14px}
+.qcard .qidx{font-size:11px;color:var(--sub);margin-bottom:8px;display:flex;justify-content:space-between}
+.qcard .qidx b{color:var(--gold)}
+.qcard .qtext{font-size:16px;color:var(--text);line-height:1.7;font-weight:600;min-height:52px}
+.opts{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.opt{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--c2);border-radius:11px;padding:12px 13px;cursor:pointer;transition:.15s;text-align:left;color:var(--text);font-size:14px;line-height:1.5}
+.opt:active{transform:scale(.98)}
+.opt .k{width:24px;height:24px;flex-shrink:0;border-radius:50%;border:1px solid var(--gold);color:var(--gold);font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center}
+.opt.sel{border-color:var(--gold);background:rgba(212,175,55,.16)}
+.opt.correct{border-color:var(--green);background:rgba(74,170,136,.18)}
+.opt.correct .k{border-color:var(--green);color:var(--green)}
+.opt.wrong{border-color:var(--red);background:rgba(193,67,47,.18)}
+.opt.wrong .k{border-color:var(--red);color:var(--red)}
+.opt.gone{opacity:.22;pointer-events:none;text-decoration:line-through}
+.opt[disabled]{pointer-events:none}
+.audbar{margin-top:12px;display:none}
+.audbar .row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--sub);margin:5px 0}
+.audbar .row .lb{width:16px;color:var(--gold);font-weight:900}
+.audbar .track{flex:1;height:12px;background:var(--bg);border:1px solid var(--c2);border-radius:6px;overflow:hidden}
+.audbar .fill{height:100%;background:linear-gradient(90deg,#d4af37,#b8912a);width:0;transition:.5s}
+.audbar .pc{width:34px;text-align:right}
+.explain{margin-top:12px;font-size:12px;color:var(--sub);line-height:1.6;border-top:1px dashed var(--c2);padding-top:10px;display:none}
+.explain b{color:var(--gold)}
+
+.lifelines{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:14px}
+.life{background:linear-gradient(135deg,#3a2e1e,#2a2218);border:1px solid var(--gold);border-radius:12px;padding:12px 3px;text-align:center;cursor:pointer;position:relative;transition:.15s;color:var(--text)}
+.life:active{transform:scale(.95)}
+.life .e{font-size:24px;display:block;line-height:1.1}
+.life .t{font-size:10px;color:var(--gold);margin-top:6px;line-height:1.25;font-weight:800;letter-spacing:1px}
+.life .p{display:block;font-size:9px;color:var(--sub);margin-top:3px;font-weight:700}
+.life.used{opacity:.35;pointer-events:none;background:#1a1612;border-color:#3a2e1e}
+.life.used .e{filter:grayscale(1)}
+.life.used .t{color:var(--sub)}
+.life.used::after{content:'已用';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--red);font-size:11px;font-weight:900;background:rgba(26,22,18,.6);border-radius:12px}
+.life.new::before{content:'NEW';position:absolute;top:-6px;right:-4px;background:var(--red);color:#fff;font-size:9px;padding:2px 5px;border-radius:8px;font-weight:900;line-height:1}
+.walk{padding:0 14px 16px}
+.walk .wbtn{width:100%;padding:13px;background:linear-gradient(135deg,#3a2e1e,#2a2218);border:1px solid var(--gold);color:var(--gold);border-radius:12px;font-size:14px;font-weight:800;letter-spacing:1px;cursor:pointer}
+.walk .wbtn:active{opacity:.85}
+
+/* 奖梯抽屉 */
+.drawer{position:fixed;top:0;right:-100%;width:190px;max-width:64vw;height:100vh;background:linear-gradient(180deg,#221b14,#1a1612);border-left:2px solid var(--gold);z-index:8000;transition:right .25s;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.drawer.open{right:0}
+.drawer .dh{padding:12px;text-align:center;color:var(--gold);font-size:13px;font-weight:800;letter-spacing:2px;border-bottom:1px solid var(--c2);position:sticky;top:0;background:#221b14;z-index:2}
+.drawer .lv{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;font-size:11.5px;border-left:3px solid transparent}
+.drawer .lv .n{color:var(--sub);width:20px}
+.drawer .lv .m{color:var(--sub);font-variant-numeric:tabular-nums;flex:1;text-align:right}
+.drawer .lv .p{color:var(--sub);font-size:10px;width:52px;text-align:right}
+.drawer .lv.done{border-left-color:var(--gold);background:rgba(212,175,55,.06)}
+.drawer .lv.done .m{color:var(--gold)}
+.drawer .lv.cur{border-left-color:var(--gold);background:rgba(212,175,55,.18)}
+.drawer .lv.cur .n,.drawer .lv.cur .m,.drawer .lv.cur .p{color:var(--gold);font-weight:900}
+.drawer .lv.safe .n::after{content:'🔒'}
+.drawer-mask{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:7999;display:none}
+.drawer-mask.open{display:block}
+
+/* ---------- 结果页 ---------- */
+.rhero{text-align:center;padding:32px 14px 10px}
+.rhero .em{font-size:52px;line-height:1}
+.rhero h1{font-size:22px;color:var(--gold);letter-spacing:3px;margin:12px 0 4px}
+.rhero .reach{font-size:13px;color:var(--sub);line-height:1.9}
+.rbox{background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:18px;margin:8px 14px 14px;text-align:center}
+.rbox .prize{font-size:34px;font-weight:900;color:var(--gold);letter-spacing:1px}
+.rbox .plabel{font-size:11px;color:var(--sub);margin-top:4px}
+.rbox .title{margin-top:14px;display:inline-block;padding:7px 18px;border:1px solid var(--gold);border-radius:20px;color:var(--gold);font-size:14px;font-weight:800;letter-spacing:2px}
+.rrow{display:flex;justify-content:space-between;font-size:12.5px;padding:7px 2px;border-bottom:1px dashed var(--c2);color:var(--sub)}
+.rrow .v{color:var(--text);font-weight:700}
+.rrow .v.hl{color:var(--gold)}
+.ractions{padding:0 14px 30px;display:flex;flex-direction:column;gap:10px}
+
+/* ---------- 对战 ---------- */
+.vsbar{display:flex;align-items:center;gap:8px;padding:14px}
+.vsbar .side{flex:1;text-align:center}
+.vsbar .side .nm{font-size:12px;color:var(--sub);margin-bottom:6px}
+.vsbar .side .bar{height:14px;background:var(--bg);border:1px solid var(--c2);border-radius:7px;overflow:hidden}
+.vsbar .side .fill{height:100%;width:0;background:linear-gradient(90deg,#d4af37,#b8912a);transition:.4s}
+.vsbar .side.me .fill{background:linear-gradient(90deg,#4a8,#3a9d5d)}
+.vsbar .side .pg{font-size:10.5px;color:var(--sub);margin-top:5px}
+.vsbar .vs{font-size:15px;color:var(--gold);font-weight:900;letter-spacing:1px}
+.codebox{background:var(--bg);border:1px dashed var(--gold);border-radius:12px;padding:14px;text-align:center;margin:10px 0}
+.codebox .code{font-size:32px;font-weight:900;color:var(--gold);letter-spacing:8px;font-variant-numeric:tabular-nums}
+.codebox .lnk{font-size:11px;color:var(--sub);word-break:break-all;margin-top:8px;line-height:1.5}
+.inp{width:100%;padding:13px;background:var(--bg);border:1px solid var(--c2);border-radius:10px;color:var(--text);font-size:16px;text-align:center;letter-spacing:4px;margin:8px 0}
+.inp:focus{outline:none;border-color:var(--gold)}
+.offline-tip{background:rgba(193,67,47,.12);border:1px solid var(--red);border-radius:10px;padding:10px 12px;font-size:11.5px;color:var(--text);margin:10px 14px;line-height:1.6;display:none}
+.offline-tip b{color:var(--gold)}
+</style>
+</head>
+<body>
+<div id="wrap">
+
+  <!-- ========== 游戏首页 ========== -->
+  <section id="s-home" class="screen active">
+    <header>
+      <h1>💰 天機百萬富翁</h1>
+      <div class="sub">15 題衝百萬 · 易學 × 歷史</div>
+      <div class="bal" id="balHome">積分 <b>--</b><br>金幣 --</div>
+    </header>
+    <div class="hero-mini">
+      <div class="big">🏆</div>
+      <h1>天機百萬富翁</h1>
+      <div class="slogan">限時作答 · 錦囊助陣 · 答錯即止<br>衝上第 15 題，抱走終極大獎</div>
+    </div>
+    <div id="offlineTip" class="offline-tip">🎮 已進入 <b>單機暢玩</b> 模式，無需連線即可完整體驗。</div>
+    <div class="card" style="margin-top:6px">
+      <h2>🎮 選擇模式</h2>
+      <div class="modes" id="modes"></div>
+    </div>
+    <div class="home-enter">
+      <button class="btn" id="enterBtn">進 入 挑 戰</button>
+    </div>
+    <div class="mini-note">💡 第 <b>5</b> / <b>10</b> 題為保險線，過線即保底<br>答錯或逾時將結算至最近保險線</div>
+  </section>
+
+  <!-- ========== 对局页 ========== -->
+  <section id="s-game" class="screen">
+    <div class="host-bar"><span class="av">🎙</span><span class="tx" id="hostTx">昊峯大師：準備好了嗎？第一題來囉。</span></div>
+    <div class="gtop">
+      <button class="ringbtn" id="ladderBtn"><b id="ladderCur">$1,000</b>獎梯</button>
+      <div class="qmeta">
+        <div class="t1" id="gMode">天梯挑戰</div>
+        <div class="t2" id="gProg">第 1 / 15 題</div>
+      </div>
+      <div class="timer" id="timer">
+        <svg viewBox="0 0 66 66" width="66" height="66">
+          <circle class="ringbg" cx="33" cy="33" r="28"></circle>
+          <circle class="ringfg" id="ringFg" cx="33" cy="33" r="28" stroke-dasharray="175.9" stroke-dashoffset="0"></circle>
+        </svg>
+        <div class="secs" id="secs">30</div>
+      </div>
+    </div>
+    <div class="qcard">
+      <div class="qidx"><span id="qCat">第 1 題</span><span>已得 <b id="qPrize">0</b> 積分</span></div>
+      <div class="qtext" id="qText">載入題目中…</div>
+      <div class="opts" id="opts"></div>
+      <div class="audbar" id="audbar"></div>
+      <div class="explain" id="explain"></div>
+    </div>
+    <div class="lifelines" id="lifelines"></div>
+    <div class="walk"><button class="wbtn" id="walkBtn">🚪 帶著 0 積分離場</button></div>
+  </section>
+
+  <!-- 奖梯抽屉 -->
+  <div class="drawer-mask" id="drawerMask"></div>
+  <div class="drawer" id="drawer"><div class="dh">🏆 獎 梯</div><div id="ladderList"></div></div>
+
+  <!-- ========== 结果页 ========== -->
+  <section id="s-result" class="screen">
+    <div class="rhero">
+      <div class="em" id="rEmoji">🏆</div>
+      <h1 id="rH1">挑戰結束</h1>
+      <div class="reach" id="rReach">到達第 1 題</div>
+    </div>
+    <div class="rbox">
+      <div class="prize" id="rPrize">0</div>
+      <div class="plabel">本次獲得積分</div>
+      <div><span class="title" id="rTitle">稱號：初出茅廬</span></div>
+    </div>
+    <div class="card">
+      <div class="rrow"><span>到達題號</span><span class="v" id="rRowReach">1 / 15</span></div>
+      <div class="rrow"><span>是否過保險線</span><span class="v" id="rRowSafe">未過線</span></div>
+      <div class="rrow"><span>已用錦囊</span><span class="v" id="rRowLife">無</span></div>
+      <div class="rrow"><span>用時</span><span class="v" id="rRowTime">--</span></div>
+    </div>
+    <div class="ractions">
+      <button class="btn" id="againBtn">🔁 再 來 一 局</button>
+      <button class="btn ghost" id="shareBtn">📲 分 享 海 報</button>
+      <button class="btn dim" id="backBtn">← 返 回 首 頁</button>
+    </div>
+  </section>
+
+  <!-- ========== 对战 ========== -->
+  <section id="s-room" class="screen">
+    <header>
+      <h1>⚔️ 邀請對戰</h1>
+      <div class="sub">好友同題競速 · 先答對者得分</div>
+    </header>
+    <div id="roomLobby">
+      <div class="card">
+        <h2>🎯 創建房間</h2>
+        <div class="modes" id="roomModes" style="grid-template-columns:1fr 1fr"></div>
+        <button class="btn" id="createRoomBtn" style="margin-top:14px">創 建 房 間</button>
+        <div id="roomCodeBox" style="display:none">
+          <div class="codebox">
+            <div style="font-size:11px;color:var(--sub)">房間碼</div>
+            <div class="code" id="roomCode">------</div>
+            <div class="lnk" id="roomLink"></div>
+          </div>
+          <button class="btn ghost" id="copyLinkBtn">📋 複製邀請連結</button>
+        </div>
+      </div>
+      <div class="card">
+        <h2>🔑 加入房間</h2>
+        <input class="inp" id="joinCode" maxlength="6" placeholder="輸入 6 位房間碼" inputmode="latin">
+        <button class="btn ghost" id="joinBtn">加 入 房 間</button>
+      </div>
+      <div class="ractions" style="padding:0 0 30px">
+        <button class="btn dim" id="roomBackBtn">← 返 回 首 頁</button>
+      </div>
+    </div>
+    <div id="roomPlay" style="display:none">
+      <div class="vsbar">
+        <div class="side me">
+          <div class="nm">🙋 我</div>
+          <div class="bar"><div class="fill" id="meFill"></div></div>
+          <div class="pg" id="mePg">第 0 / 15 題</div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="side opp">
+          <div class="nm">😎 對手</div>
+          <div class="bar"><div class="fill" id="oppFill"></div></div>
+          <div class="pg" id="oppPg">等待對手…</div>
+        </div>
+      </div>
+      <div class="qcard">
+        <div class="qidx"><span id="rqCat">第 1 題</span><span>已得 <b id="rqPrize">0</b> 積分</span></div>
+        <div class="qtext" id="rqText">載入題目中…</div>
+        <div class="opts" id="rqOpts"></div>
+      </div>
+      <div class="ractions" style="padding:0 14px 30px">
+        <button class="btn dim" id="roomQuitBtn">← 離 開 房 間</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+'use strict';
+/* ============ 基础工具 ============ */
+function $(id){return document.getElementById(id);}
+var API='';
+try{API=localStorage.getItem('yx_api')||'';}catch(e){}
+// 离线检测：iOS App 内置版从 file:// 加载 → 纯本地游戏模式（不发任何网络请求）
+var OFFLINE=false;
+try{OFFLINE=(location.protocol==='file:')||(location.origin==='null');}catch(e){OFFLINE=false;}
+function tok(){try{return localStorage.getItem('yx_tk')||'';}catch(e){return '';}}
+function H(extra){var h=extra||{};var t=tok();if(t)h['X-Token']=t;return h;}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
+function toast(msg,ms){var t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(function(){t.classList.remove('show');},ms||2200);}
+function show(scr){
+  ['s-home','s-game','s-result','s-room'].forEach(function(id){$(id).classList.toggle('active',id===scr);});
+  window.scrollTo(0,0);
+}
+
+/* ============ 奖梯（本地镜像，服务端权威时以服务端为准） ============ */
+var LADDER=[
+ {idx:1,shown:'$1,000',prize:10},{idx:2,shown:'$2,000',prize:20},{idx:3,shown:'$4,000',prize:50},
+ {idx:4,shown:'$8,000',prize:100},{idx:5,shown:'$16,000',prize:200,safe:true},
+ {idx:6,shown:'$32,000',prize:400},{idx:7,shown:'$64,000',prize:800},{idx:8,shown:'$125,000',prize:1500},
+ {idx:9,shown:'$250,000',prize:3000},{idx:10,shown:'$500,000',prize:6000,safe:true},
+ {idx:11,shown:'$1,000,000',prize:12000},{idx:12,shown:'$2,000,000',prize:25000},
+ {idx:13,shown:'$4,000,000',prize:50000},{idx:14,shown:'$8,000,000',prize:100000},
+ {idx:15,shown:'$16,000,000',prize:200000,grand:true}
+];
+var TIME_BY_DIFF={easy:25,mid:40,hard:55};
+var MODES=[
+ {k:'ladder',ic:'🪜',nm:'天梯挑戰',ds:'經典 15 題，單人衝頂',fee:'入場 50 積分'},
+ {k:'yixue',ic:'☯️',nm:'易學主題場',ds:'八字/紫微/奇門/風水/黃曆',fee:'入場 100 積分'},
+ {k:'duel',ic:'⚔️',nm:'邀請對戰',ds:'好友同題競速',fee:'入場 50 積分'},
+ {k:'weekly',ic:'🏅',nm:'週賽大賽',ds:'每週固定題庫限時賽',fee:'入場 200 積分'}
+];
+function modeName(k){var m=MODES.filter(function(x){return x.k===k;})[0];return m?m.nm:k;}
+function titleFor(reached,prize){
+  if(reached>=15)return '天機百萬富翁';
+  if(reached>=12)return '百萬大師';
+  if(reached>=10)return '易學宗師';
+  if(reached>=7)return '天機高手';
+  if(reached>=5)return '紫微入門';
+  if(reached>=2)return '初出茅廬';
+  return '學徒';
+}
+
+/* ============ 状态 ============ */
+var S={sid:null,mode:'ladder',idx:1,prize:0,safePrize:0,safeLine:0,finished:false,
+       lifelines:{'5050':0,'ask_master':0,'audience':0,'switch':0,'time':0},
+       startedAt:0,used:[],room:null,demo:false,q:null,
+       roomIdx:1,roomPrize:0,oppIdx:0,oppPrize:0};
+
+/* ============ 倒计时环 ============ */
+var CIRC=2*Math.PI*28;
+var timer={total:0,left:0,raf:null,deadline:0};
+$('ringFg').setAttribute('stroke-dasharray',CIRC.toFixed(1));
+function ringDraw(left,total){
+  var ratio=total>0?Math.max(0,Math.min(1,left/total)):1;
+  $('ringFg').setAttribute('stroke-dashoffset',(CIRC*(1-ratio)).toFixed(1));
+  var sec=Math.ceil(left);$('secs').textContent=sec>=0?sec:0;
+  $('timer').classList.toggle('danger',left<=10);
+}
+function stopTimer(){if(timer.raf){cancelAnimationFrame(timer.raf);timer.raf=null;}}
+function startTimer(sec){
+  stopTimer();timer.total=sec;timer.deadline=Date.now()+sec*1000;
+  ringDraw(sec,sec);
+  function tick(){
+    var left=(timer.deadline-Date.now())/1000;
+    if(left<0)left=0;
+    ringDraw(left,timer.total);
+    if(left<=0){stopTimer();onTimeout();return;}
+    timer.raf=requestAnimationFrame(tick);
+  }
+  tick();
+}
+function addTime(sec){timer.deadline+=sec*1000;timer.total+=sec;ringDraw((timer.deadline-Date.now())/1000,timer.total);}
+
+/* ============ 奖梯渲染 ============ */
+function renderLadder(idx){
+  var html='';
+  for(var i=0;i<LADDER.length;i++){
+    var l=LADDER[i],cls='lv';
+    if(l.idx<idx||(S.finished&&l.idx<=S.idx))cls+=' done';
+    if(l.idx===idx&&!S.finished)cls+=' cur';
+    if(l.safe)cls+=' safe';
+    html+='<div class="'+cls+'"><span class="n">'+l.idx+'</span><span class="m">'+esc(l.shown)+'</span><span class="p">'+l.prize+'分</span></div>';
+  }
+  $('ladderList').innerHTML=html;
+}
+function ladderShown(i){var l=LADDER[i-1];return l?l.shown:'';}
+function ladderPrize(i){var l=LADDER[i-1];return l?l.prize:0;}
+function openDrawer(){renderLadder(S.idx);$('drawer').classList.add('open');$('drawerMask').classList.add('open');}
+function closeDrawer(){$('drawer').classList.remove('open');$('drawerMask').classList.remove('open');}
+$('ladderBtn').addEventListener('click',openDrawer);
+$('drawerMask').addEventListener('click',closeDrawer);
+$('ladderList').addEventListener('click',closeDrawer);
+
+/* ============ 主持人旁白 ============ */
+function host(text,alert){var el=$('hostTx');el.textContent='昊峯大師：'+text;el.classList.toggle('alert',!!alert);}
+var HOST_OK=['答得好！繼續向前。','漂亮，這題穩了。','大師點頭了，下一題。','不錯，氣勢如虹！','對了，保持節奏。'];
+function hostRandom(){host(HOST_OK[Math.floor(Math.random()*HOST_OK.length)],false);}
+
+/* ============ 首页 ============ */
+var pickedMode='ladder';
+function renderModes(){
+  var list=MODES.filter(function(m){return !(OFFLINE&&m.k==='duel');});
+  $('modes').innerHTML=list.map(function(m){
+    return '<div class="mode'+(m.k===pickedMode?' pick':'')+'" data-k="'+m.k+'">'
+      +'<div class="ic">'+m.ic+'</div><div class="nm">'+esc(m.nm)+'</div>'
+      +'<div class="ds">'+esc(m.ds)+'</div><div class="fee">'+esc(OFFLINE?'免費遊玩':m.fee)+'</div></div>';
+  }).join('');
+}
+$('modes').addEventListener('click',function(e){
+  var el=e.target.closest('.mode');if(!el)return;
+  pickedMode=el.getAttribute('data-k');renderModes();
+  if(pickedMode==='duel'){/* 对战单独入口 */}
+});
+$('enterBtn').addEventListener('click',function(){
+  if(OFFLINE){
+    // 离线（App 内置）：只提供单人天梯玩法
+    if(pickedMode==='duel'){toast('單人模式下暫不支援邀請對戰');return;}
+    startGame('ladder');return;
+  }
+  if(pickedMode==='duel'){show('s-room');resetRoom();return;}
+  startGame(pickedMode);
+});
+function loadBalance(){
+  if(OFFLINE){return;}
+  fetch(API+'/api/me',{headers:H()}).then(function(r){return r.json();}).then(function(d){
+    if(d&&d.ok&&d.user){$('balHome').innerHTML='積分 <b>'+esc(d.user.points)+'</b><br>金幣 '+esc(d.user.coins);}
+  }).catch(function(){});
+}
+
+/* ============ 对局逻辑 ============ */
+function setOffline(on){S.demo=on;var t=$('offlineTip');if(t)t.style.display=(on&&!OFFLINE)?'block':'none';}
+
+function startGame(mode){
+  S.mode=mode;S.finished=false;S.used=[];S.lifelines={'5050':0,'ask_master':0,'audience':0,'switch':0,'time':0};
+  S.lifelinePrices=S.lifelinePrices||{'5050':40,'ask_master':50,'audience':50,'switch':60,'time':40};
+  S.idx=1;S.prize=0;S.safePrize=0;S.startedAt=Date.now();
+  $('gMode').textContent=modeName(mode);
+  renderLifelines();renderLadder(1);updateWalk();updateProg();
+  show('s-game');
+  // 离线模式（App 内置 file://）：直接用内置题库开局，全程不发任何网络请求
+  if(OFFLINE){
+    S.demo=true;
+    S.sid='';
+    S.idx=1;S.prize=0;S.safePrize=0;
+    S.lifelines={'5050':1,'ask_master':1,'audience':1,'switch':1,'time':1};
+    S.lifelinePrices={};
+    setOffline(true);
+    renderLifelines();renderLadder(1);
+    updateWalk();updateProg();
+    $('qText').textContent='載入題目中…';$('opts').innerHTML='';
+    offlineQuestion(1);
+    host('準備好了嗎？第一題來囉。',false);
+    return;
+  }
+  host('準備好了嗎？第一題來囉。',false);
+  $('qText').textContent='載入題目中…';$('opts').innerHTML='';
+  fetch(API+'/api/millionaire/start',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({mode:mode})})
+    .then(function(r){return r.json().then(function(d){d._status=r.status;return d;});}).then(function(d){
+      if(!d||!d.ok){
+        // 未登录 / 积分不足 / 维护中：明确提示，不回退到固定离线题（否则每次同一批题）
+        setOffline(false);
+        var msg=(d&&d.msg)||'无法开始游戏';
+        if(d&&d.need_login){toast('請先登入後再開始遊戲');setTimeout(function(){location.href='home.html';},1400);}
+        else {toast('⚠️ '+msg);}
+        show('s-home');
+        return;
+      }
+      setOffline(false);
+      S.sid=d.sid;S.idx=d.q_index||1;S.prize=d.prize||0;S.safePrize=d.safe_prize||0;
+      if(Array.isArray(d.ladder)&&d.ladder.length)LADDER=d.ladder;
+      if(d.lifelines)S.lifelines=d.lifelines;
+      if(d.lifeline_prices)S.lifelinePrices=d.lifeline_prices;
+      renderLifelines();renderLadder(S.idx);
+      if(d.question)renderQuestion(d.question);else fetchNextFallback();
+    }).catch(function(){setOffline(false);toast('⚠️ 連線失敗，請重試');show('s-home');});
+}
+function fetchNextFallback(){
+  // 正常契约下 start/answer 都会带 question；此处仅在异常兜底，避免回退到固定离线题库造成「每次题目相同」
+  toast('⚠️ 題目載入異常，請重試');
+  setTimeout(function(){show('s-home');},1200);
+}
+function updateProg(){
+  $('gProg').textContent='第 '+S.idx+' / 15 題';
+  $('qCat').textContent='第 '+S.idx+' 題 · '+diffOf(S.idx);
+  $('qPrize').textContent=S.prize;
+  $('ladderCur').textContent=ladderShown(S.idx);
+  $('walkBtn').textContent='🚪 帶著 '+S.prize+' 積分離場';
+}
+function diffOf(i){if(i<=4)return '簡單';if(i<=9)return '中等';return '困難';}
+function diffKey(i){if(i<=4)return 'easy';if(i<=9)return 'mid';return 'hard';}
+function updateWalk(){}
+
+function renderQuestion(q){
+  S.q=q;$('qText').textContent=q.text||'（題面缺失）';
+  var opts=q.options||[];
+  $('opts').innerHTML=opts.map(function(o,i){
+    var K=['A','B','C','D'][i]||'?';
+    return '<button class="opt" data-i="'+i+'"><span class="k">'+K+'</span><span class="o">'+esc(o)+'</span></button>';
+  }).join('');
+  $('explain').style.display='none';$('explain').innerHTML='';
+  $('audbar').style.display='none';$('audbar').innerHTML='';
+  updateProg();
+  startTimer(TIME_BY_DIFF[diffKey(S.idx)]||30);
+}
+
+function lockOpts(){var os=$('opts').querySelectorAll('.opt');for(var i=0;i<os.length;i++)os[i].setAttribute('disabled','');}
+$('opts').addEventListener('click',function(e){
+  var el=e.target.closest('.opt');if(!el||el.hasAttribute('disabled'))return;
+  var i=parseInt(el.getAttribute('data-i'),10);
+  answer(i);
+});
+
+function answer(choice){
+  stopTimer();lockOpts();
+  if(choice!=null)$('opts').querySelector('.opt[data-i="'+choice+'"]').classList.add('sel');
+  if(S.demo){demoAnswer(choice);return;}
+  fetch(API+'/api/millionaire/answer',{method:'POST',headers:H({'Content-Type':'application/json'}),
+    body:JSON.stringify({sid:S.sid,choice:choice})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(!d||!d.ok){toast('提交失敗，請重試');unlockOpts();return;}
+      applyAnswer(d,choice);
+    }).catch(function(){toast('網絡異常，請重新作答');unlockOpts();});
+}
+function unlockOpts(){var os=$('opts').querySelectorAll('.opt');for(var i=0;i<os.length;i++)os[i].removeAttribute('disabled');}
+
+function applyAnswer(d,choice){
+  var correct=(d.correct===true),ci=(typeof d.correct_idx==='number')?d.correct_idx:-1;
+  highlight(ci,choice,correct);
+  if(d.explain){$('explain').innerHTML='💡 '+esc(d.explain);$('explain').style.display='block';}
+  if(correct){
+    S.prize=(typeof d.prize==='number')?d.prize:ladderPrize(S.idx);
+    if(typeof d.safe_prize==='number')S.safePrize=d.safe_prize;
+    updateProg();
+    hostRandom();
+    if(d.finished||S.idx>=15){setTimeout(function(){finish('win');},1500);return;}
+    setTimeout(function(){
+      S.idx=(typeof d.next_index==='number')?d.next_index:(S.idx+1);
+      var nq=d.next_q||d.question;
+      if(nq){renderQuestion(nq);}
+      else{fetchNextFallback();}
+    },1500);
+  }else{
+    host('很可惜……答案是 '+(['A','B','C','D'][ci]||'?')+'。',true);
+    if(typeof d.safe_prize==='number')S.safePrize=d.safe_prize;
+    setTimeout(function(){finish('lose');},1700);
+  }
+}
+function highlight(ci,choice,correct){
+  var os=$('opts').querySelectorAll('.opt');
+  for(var i=0;i<os.length;i++){
+    var el=os[i];el.removeAttribute('disabled');
+    if(i===ci)el.classList.add('correct');
+    if(i===choice&&!correct)el.classList.add('wrong');
+  }
+  lockOpts();
+}
+function onTimeout(){host('時間到！',true);answer(null);}
+
+/* ============ 结果 ============ */
+function finish(kind){
+  stopTimer();S.finished=true;
+  var reached=kind==='win'?15:S.idx;
+  var prize=kind==='win'?S.prize:(S.safePrize||0);
+  if(kind==='lose'&&S.safePrize===0)prize=0;
+  S.prize=prize;
+  var safe=reached>=10?10:(reached>=5?5:0);
+  showResult({reached:reached,prize:prize,title:titleFor(reached,prize),safe:safe,win:kind==='win'});
+  // 拉服务端结算（可选，服务端权威）
+  if(!S.demo&&S.sid){
+    fetch(API+'/api/millionaire/result/'+encodeURIComponent(S.sid),{headers:H()})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d&&d.ok){applyServerResult(d);}
+      }).catch(function(){});
+  }
+}
+function applyServerResult(d){
+  if(typeof d.prize==='number')$('rPrize').textContent=d.prize;
+  if(typeof d.reached==='number')$('rRowReach').textContent=d.reached+' / 15';
+  if(d.title)$('rTitle').textContent='稱號：'+d.title;
+  if(Array.isArray(d.used_lifelines)&&d.used_lifelines.length)$('rRowLife').textContent=d.used_lifelines.length+' 個';
+}
+function showResult(o){
+  $('rEmoji').textContent=o.win?'🏆':(o.prize>0?'🎖️':'💥');
+  $('rH1').textContent=o.win?'恭喜奪得大獎！':(o.prize>0?'挑戰結束':'下次再來');
+  $('rReach').textContent='到達第 '+o.reached+' 題';
+  $('rPrize').textContent=o.prize;
+  $('rTitle').textContent='稱號：'+o.title;
+  $('rRowReach').textContent=o.reached+' / 15';
+  $('rRowSafe').textContent=o.safe===10?'✅ 已過第二保險線':(o.safe===5?'✅ 已過第一保險線':'未過線');
+  $('rRowLife').textContent=S.used.length?S.used.length+' 個':'無';
+  var sec=Math.round((Date.now()-S.startedAt)/1000);
+  $('rRowTime').textContent=(sec>=60?Math.floor(sec/60)+' 分 ':'')+(sec%60)+' 秒';
+  S.lastReached=o.reached;S.lastTitle=o.title;
+  show('s-result');
+}
+
+/* ============ 锦囊 ============ */
+var LIFEDEF=[
+ {k:'5050',e:'✂️',t:'50:50'},
+ {k:'ask_master',e:'📞',t:'問大師'},
+ {k:'audience',e:'👥',t:'問觀眾'},
+ {k:'switch',e:'🔁',t:'換一題'},
+ {k:'time',e:'⏱',t:'加時15秒'}
+];
+function renderLifelines(){
+  $('lifelines').innerHTML=LIFEDEF.map(function(l){
+    var available=S.lifelines[l.k];
+    var used=(available===0 || available===undefined);
+    var price=(S.lifelinePrices&&S.lifelinePrices[l.k])||0;
+    var pr=price>0?('<span class="p">'+price+'積分</span>'):'';
+    return '<div class="life'+(used?' used':'')+'" data-k="'+l.k+'"><span class="e">'+l.e+'</span><span class="t">'+l.t+'</span>'+pr+'</div>';
+  }).join('');
+}
+$('lifelines').addEventListener('click',function(e){
+  var el=e.target.closest('.life');if(!el||el.classList.contains('used'))return;
+  useLifeline(el.getAttribute('data-k'));
+});
+function useLifeline(kind){
+  if(S.finished)return;
+  if(S.lifelines[kind]===0){toast('此錦囊已用過');return;}
+  if(S.demo){demoLifeline(kind);S.lifelines[kind]=1;S.used.push(kind);renderLifelines();return;}
+  fetch(API+'/api/millionaire/lifeline',{method:'POST',headers:H({'Content-Type':'application/json'}),
+    body:JSON.stringify({sid:S.sid,kind:kind})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(!d||!d.ok){toast((d&&d.msg)||'錦囊暫不可用');return;}
+      S.lifelines[kind]=1;S.used.push(kind);renderLifelines();
+      applyLifeline(kind,d.payload||d);
+    }).catch(function(){toast('網絡異常，錦囊未消耗');});
+}
+function applyLifeline(kind,p){
+  if(kind==='5050'&&p.remove){
+    (p.remove||[]).forEach(function(i){var el=$('opts').querySelector('.opt[data-i="'+i+'"]');if(el)el.classList.add('gone');});
+    host('去蕪存菁，剩下兩個選項。',false);
+  }else if(kind==='ask_master'){
+    host('大師提示：'+(p.hint||'再想想題幹的關鍵詞。'),true);
+  }else if(kind==='audience'){
+    showAudience(p.votes||[25,25,25,25]);
+    host('現場觀眾的投票結果出來了。',false);
+  }else if(kind==='switch'&&p.question){
+    host('換一道同難度的題目。',false);renderQuestion(p.question);
+  }else if(kind==='time'){
+    addTime(15);host('時間銀行加時 15 秒！',true);
+  }else{
+    host('此錦囊暫不可用。',false);
+  }
+}
+function showAudience(votes){
+  var K=['A','B','C','D'];
+  $('audbar').innerHTML=votes.map(function(v,i){
+    return '<div class="row"><span class="lb">'+K[i]+'</span><span class="track"><span class="fill" data-w="'+v+'"></span></span><span class="pc">'+v+'%</span></div>';
+  }).join('');
+  $('audbar').style.display='block';
+  setTimeout(function(){
+    var fs=$('audbar').querySelectorAll('.fill');
+    for(var i=0;i<fs.length;i++)fs[i].style.width=fs[i].getAttribute('data-w')+'%';
+  },60);
+}
+
+/* ============ 见好就收 ============ */
+$('walkBtn').addEventListener('click',function(){
+  if(S.finished)return;
+  if(S.demo){S.safePrize=S.prize;finish('lose');return;}
+  if(!confirm('確定帶著目前 '+S.prize+' 積分離場？'))return;
+  fetch(API+'/api/millionaire/walkaway',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({sid:S.sid})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d&&d.ok){S.prize=(typeof d.prize==='number')?d.prize:S.prize;S.safePrize=S.prize;
+        showResult({reached:S.idx,prize:S.prize,title:d.title||titleFor(S.idx,S.prize),safe:S.idx>=10?10:(S.idx>=5?5:0),win:false});}
+      else{S.safePrize=S.prize;finish('lose');}
+    }).catch(function(){S.safePrize=S.prize;finish('lose');});
+});
+
+/* ============ 结果页按钮 ============ */
+$('againBtn').addEventListener('click',function(){startGame(S.mode);});
+$('backBtn').addEventListener('click',function(){show('s-home');loadBalance();});
+$('shareBtn').addEventListener('click',function(){
+  var reached=S.lastReached||S.idx, prize=S.prize, title=S.lastTitle||titleFor(reached,prize);
+  try{
+    if(window.UnifiedShare&&UnifiedShare.open){
+      UnifiedShare.open({tool:'天機百萬富翁',name:title,score:prize+' 積分',level:'到達第 '+reached+' 題',
+        subtitle:'答對 '+reached+' 題 · 稱號「'+title+'」'});
+    }else{
+      posterFallback();
+    }
+  }catch(e){posterFallback();}
+});
+function posterFallback(){
+  // 直接调后端唯一海报入口（同 share.js 规范字段）
+  var reached=S.lastReached||S.idx,prize=S.prize,title=S.lastTitle||titleFor(reached,prize);
+  toast('正在生成海報…');
+  fetch(API+'/api/share/poster',{method:'POST',headers:H({'Content-Type':'application/json'}),
+    body:JSON.stringify({tool:'天機百萬富翁',name:title,score:prize+' 積分',level:'到達第 '+reached+' 題',
+      subtitle:'答對 '+reached+' 題 · 稱號「'+title+'」',brand:'算了吗',bg:'cool'})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d&&d.ok&&d.image){openImg('data:image/png;base64,'+d.image);}
+      else toast('海報生成失敗');
+    }).catch(function(){toast('海報生成失敗，請稍後再試');});
+}
+function openImg(src){
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.9);display:flex;align-items:center;justify-content:center;padding:16px';
+  ov.innerHTML='<img src="'+src+'" style="max-width:100%;max-height:88vh;border-radius:12px">';
+  ov.addEventListener('click',function(){ov.parentNode.removeChild(ov);});
+  document.body.appendChild(ov);
+  toast('長按圖片可保存 · 點任意處關閉',2600);
+}
+
+/* ============ 离线试玩（服务端未就绪的优雅降级） ============ */
+var DEMO_BANK=[
+ {t:'「天干」共有多少個？',o:['8','10','12','60'],a:1,e:'十天干：甲乙丙丁戊己庚辛壬癸。'},
+ {t:'十二地支中，「子」對應的生肖是？',o:['牛','鼠','虎','兔'],a:1,e:'子鼠、丑牛、寅虎、卯兔。'},
+ {t:'紫微斗數中，主「帝星」的是哪一顆？',o:['天府','紫微','天機','太陽'],a:1,e:'紫微星為北斗帝星，居紫微垣。'},
+ {t:'《易經》共有多少卦？',o:['32','48','64','81'],a:2,e:'六十四卦，由八卦兩兩相重而成。'},
+ {t:'「奇門遁甲」中的「三奇」不包括？',o:['乙','丙','丁','戊'],a:3,e:'三奇為乙、丙、丁；戊為六儀之首。'},
+ {t:'五行相生的順序是？',o:['金生水','金生木','火生金','土生火'],a:0,e:'金生水、水生木、木生火、火生土、土生金。'},
+ {t:'秦始皇統一六國是在西元前幾年？',o:['前221年','前210年','前202年','前256年'],a:0,e:'西元前221年，秦滅齊，統一六國。'},
+ {t:'「四庫全書」編纂於哪個朝代？',o:['明','元','清','宋'],a:2,e:'清乾隆年間編纂《四庫全書》。'},
+ {t:'八字的「月柱」以什麼為分界？',o:['農曆初一','節氣','朔望','立春'],a:1,e:'月柱以二十四節氣中的「節」為分界。'},
+ {t:'「河圖」中「一與六」對應的五行是？',o:['木','火','土','水'],a:3,e:'天一生水、地六成之，一六合水。'},
+ {t:'漢代「絲綢之路」的起點是？',o:['洛陽','長安','開封','咸陽'],a:1,e:'西漢張騫通西域，起點為長安。'},
+ {t:'紫微斗數「四化」不包括？',o:['化祿','化權','化科','化沖'],a:3,e:'四化為化祿、化權、化科、化忌。'},
+ {t:'二十四節氣中，白天最長的是？',o:['芒種','夏至','小暑','立夏'],a:1,e:'夏至日北半球白晝最長。'},
+ {t:'「太極生兩儀」中的「兩儀」指？',o:['天地','陰陽','日月','剛柔'],a:1,e:'兩儀即陰陽。'},
+ {t:'「天機」一詞最早見於哪部典籍？',o:['《論語》','《莊子》','《尚書》','《詩經》'],a:1,e:'《莊子·大宗師》有「其耆欲深者，其天機淺」。'}
+];
+function demoPick(i){return DEMO_BANK[(i-1)%DEMO_BANK.length];}
+// 离线出题：记录当前展示的完整题目（含答案），保证答题与锦囊判定一致
+function offlineQuestion(i,qObj){
+  S.idx=i;
+  var q=qObj||demoPick(i);
+  S.offQ=q;
+  renderQuestion({text:q.t,options:q.o});
+}
+function demoStart(){
+  S.sid='DEMO';S.demo=true;S.prize=0;S.safePrize=0;
+  offlineQuestion(1);
+  host('離線試玩模式：第一題。',false);
+}
+function demoAnswer(choice){
+  var q=S.offQ||demoPick(S.idx);
+  var correct=(choice===q.a);
+  if(choice!=null){var el=$('opts').querySelector('.opt[data-i="'+choice+'"]');if(el)el.classList.add('sel');}
+  if(correct){
+    S.prize=ladderPrize(S.idx);
+    if(S.idx===5||S.idx===10)S.safePrize=S.prize;
+    highlight(q.a,choice,true);
+    $('explain').innerHTML='💡 '+esc(q.e);$('explain').style.display='block';
+    updateProg();hostRandom();
+    if(S.idx>=15){setTimeout(function(){finish('win');},1400);return;}
+    setTimeout(function(){offlineQuestion(S.idx+1);},1400);
+  }else{
+    highlight(q.a,choice,false);
+    $('explain').innerHTML='💡 '+esc(q.e);$('explain').style.display='block';
+    host('很可惜……答案是 '+['A','B','C','D'][q.a]+'。',true);
+    setTimeout(function(){finish('lose');},1700);
+  }
+}
+function demoLifeline(kind){
+  var q=S.offQ||demoPick(S.idx);
+  if(kind==='5050'){
+    var wrong=[0,1,2,3].filter(function(i){return i!==q.a;});
+    wrong.sort(function(){return Math.random()-.5;});
+    wrong.slice(0,2).forEach(function(i){var el=$('opts').querySelector('.opt[data-i="'+i+'"]');if(el)el.classList.add('gone');});
+    host('去蕪存菁，剩下兩個選項。',false);
+  }else if(kind==='ask_master'){host('大師提示：留意題幹的關鍵詞，先排除明顯錯誤的選項。',true);}
+  else if(kind==='audience'){
+    var v=[8,8,8,8];var rest=76;
+    v[q.a]=60;var o=[0,1,2,3].filter(function(i){return i!==q.a;});
+    v[o[0]]=Math.floor(rest*.5);v[o[1]]=Math.floor(rest*.3);v[o[2]]=rest-v[o[0]]-v[o[1]];
+    showAudience(v);host('現場觀眾的投票結果出來了。',false);
+  }else if(kind==='switch'){
+    var qi=(S.idx+3)%DEMO_BANK.length;var n=DEMO_BANK[qi];
+    host('換一道同難度的題目。',false);offlineQuestion(S.idx,n);
+  }else if(kind==='time'){addTime(15);host('時間銀行加時 15 秒！',true);}
+}
+
+/* ============ 多人对战 ============ */
+var roomMode='ladder';
+function resetRoom(){
+  $('roomLobby').style.display='block';$('roomPlay').style.display='none';
+  $('roomCodeBox').style.display='none';
+  $('roomModes').innerHTML='<div class="mode'+(roomMode==='ladder'?' pick':'')+'" data-k="ladder"><div class="ic">🪜</div><div class="nm">天梯挑戰</div><div class="ds">經典題庫</div></div>'
+    +'<div class="mode'+(roomMode==='yixue'?' pick':'')+'" data-k="yixue"><div class="ic">☯️</div><div class="nm">易學主題</div><div class="ds">易學題庫</div></div>';
+  var code=roomCodeFromUrl();
+  if(code){$('joinCode').value=code;toast('偵測到房間碼 '+code+'，點「加入房間」');}
+}
+function roomCodeFromUrl(){
+  try{var m=/[?&]room=([A-Za-z0-9]{4,8})/.exec(location.search);return m?m[1].toUpperCase():'';}catch(e){return '';}
+}
+$('roomModes').addEventListener('click',function(e){
+  var el=e.target.closest('.mode');if(!el)return;roomMode=el.getAttribute('data-k');resetRoom();
+});
+$('roomBackBtn').addEventListener('click',function(){show('s-home');});
+$('createRoomBtn').addEventListener('click',function(){
+  fetch(API+'/api/millionaire/room/create',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({mode:roomMode})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(!d||!d.ok){toast('房間創建失敗，請稍後再試');return;}
+      S.room={id:d.room_id,code:(d.code||'').toUpperCase()};
+      $('roomCode').textContent=S.room.code;
+      var link=location.origin+'/millionaire?room='+S.room.code;
+      $('roomLink').textContent=link;
+      $('roomCodeBox').style.display='block';
+      toast('房間已創建，邀請好友加入吧');
+    }).catch(function(){toast('網絡異常，房間創建失敗');});
+});
+$('copyLinkBtn').addEventListener('click',function(){
+  var link=$('roomLink').textContent;
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(link).then(function(){toast('邀請連結已複製');}).catch(function(){prompt('複製此連結',link);});}
+  else{prompt('複製此連結',link);}
+});
+$('joinBtn').addEventListener('click',function(){
+  var code=($('joinCode').value||'').trim().toUpperCase();
+  if(code.length<4){toast('請輸入有效的房間碼');return;}
+  fetch(API+'/api/millionaire/room/join',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({code:code})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(!d||!d.ok){toast((d&&d.msg)||'加入失敗，請檢查房間碼');return;}
+      S.room=d.room||{code:code};
+      enterRoomPlay();
+    }).catch(function(){toast('網絡異常，加入失敗');});
+});
+function enterRoomPlay(){
+  S.roomIdx=1;S.roomPrize=0;S.oppIdx=0;S.oppPrize=0;
+  $('roomLobby').style.display='none';$('roomPlay').style.display='block';
+  updateBars();
+  var q=demoPick(1);renderRoomQ({text:q.t,options:q.o});
+  pollOpponent();
+}
+function updateBars(){
+  $('meFill').style.width=Math.round((S.roomIdx-1)/15*100)+'%';
+  $('mePg').textContent='第 '+S.roomIdx+' / 15 題 · '+S.roomPrize+' 積分';
+  $('oppFill').style.width=Math.round(S.oppIdx/15*100)+'%';
+  $('oppPg').textContent=(S.oppIdx>0?('第 '+S.oppIdx+' / 15 題 · '+S.oppPrize+' 積分'):'等待對手…');
+}
+var _oppPoll=null;
+function pollOpponent(){
+  if(_oppPoll)clearInterval(_oppPoll);
+  _oppPoll=setInterval(function(){
+    if(!S.room||!S.room.id)return;
+    fetch(API+'/api/millionaire/result/'+encodeURIComponent(S.room.id),{headers:H()})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d&&d.ok&&typeof d.opp_index==='number'){S.oppIdx=d.opp_index;S.oppPrize=d.opp_prize||0;updateBars();}
+      }).catch(function(){});
+  },4000);
+}
+function renderRoomQ(q){
+  S.q=q;
+  $('rqText').textContent=q.text||'（題面缺失）';
+  var opts=q.options||[];
+  $('rqOpts').innerHTML=opts.map(function(o,i){
+    var K=['A','B','C','D'][i]||'?';
+    return '<button class="opt" data-i="'+i+'"><span class="k">'+K+'</span><span class="o">'+esc(o)+'</span></button>';
+  }).join('');
+  $('rqCat').textContent='第 '+S.roomIdx+' 題 · '+diffOf(S.roomIdx);
+  $('rqPrize').textContent=S.roomPrize;
+}
+$('rqOpts').addEventListener('click',function(e){
+  var el=e.target.closest('.opt');if(!el||el.hasAttribute('disabled'))return;
+  var i=parseInt(el.getAttribute('data-i'),10);
+  $('rqOpts').querySelector('.opt[data-i="'+i+'"]').classList.add('sel');
+  var all=$('rqOpts').querySelectorAll('.opt');for(var j=0;j<all.length;j++)all[j].setAttribute('disabled','');
+  if(!S.room||!S.room.id){toast('房間未連線');return;}
+  fetch(API+'/api/millionaire/room/answer',{method:'POST',headers:H({'Content-Type':'application/json'}),
+    body:JSON.stringify({room_id:S.room.id,choice:i,q_index:S.roomIdx})})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d&&d.ok){
+        if(d.correct){
+          S.roomPrize=d.prize||ladderPrize(S.roomIdx);
+          if(S.roomIdx>=15){toast('🏆 你率先完成 15 題！');}
+          else{S.roomIdx++;setTimeout(function(){var q=d.question||demoPick(S.roomIdx);renderRoomQ(q);},900);}
+        }else{
+          toast('答錯了，對手有機會追上！');
+          setTimeout(function(){S.roomIdx++;var q=demoPick(S.roomIdx);renderRoomQ(q);},900);
+        }
+        if(typeof d.opp_index==='number'){S.oppIdx=d.opp_index;S.oppPrize=d.opp_prize||0;}
+        updateBars();
+      }else{toast('提交失敗');}
+    }).catch(function(){toast('網絡異常');});
+});
+$('roomQuitBtn').addEventListener('click',function(){if(_oppPoll)clearInterval(_oppPoll);resetRoom();show('s-home');});
+
+/* ============ 启动 ============ */
+renderModes();renderLadder(1);renderLifelines();loadBalance();
+if(OFFLINE){try{$('balHome').innerHTML='🏆 單機挑戰<br>離線暢玩';}catch(e){}}
+// 落地页（玩法说明 + 收费说明），点「进入工具」后落到游戏首页
+try{
+  ToolIntro.mount({
+    tool:'millionaire',
+    icon:'💰',
+    title:'天機百萬富翁',
+    slogan:'還原《百萬富翁》經典玩法：<br>15 道題衝上獎梯，限時作答、錦囊助陣、答錯即止。',
+    steps:[
+      '選擇模式（天梯挑戰 / 易學主題場 / 邀請對戰 / 週賽）並進入；',
+      '15 道題目由易到難，每題 <b>30 / 45 / 60 秒</b> 限時，倒計時環歸零即算逾時；',
+      '答對逐級登上獎梯，第 <b>5 題</b>、第 <b>10 題</b> 為保險線，過線即保底；',
+      '善用 <b>5 個錦囊</b>：50:50 / 問大師 / 問觀眾 / 換一題 / 加時 15 秒；',
+      '隨時可「見好就收」帶著積分離場；答錯或逾時結算至最近保險線，可分享戰績海報。'
+    ],
+    note:'⚠️ 入場與錦囊按會員積分計費；正確答案由服務端裁決，前端不會取得。<br>命理僅供文化參考 · 理性遊戲。',
+    onEnter:function(){show('s-home');loadBalance();}
+  });
+}catch(e){/* 无 ToolIntro 时直接进入首页 */}
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1a1612">
+<title>算了吗·易游</title>
+<style>
+:root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);
+ min-height:100vh;display:flex;justify-content:center;overscroll-behavior:none;
+ padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+#wrap{max-width:480px;width:100%;min-height:100vh;background:radial-gradient(circle at 50% 0%,#2a2218,#12100c 70%);padding-bottom:30px}
+.top{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 6px}
+.top .brand{font-size:20px;font-weight:900;color:var(--gold);letter-spacing:1px;text-shadow:0 2px 6px rgba(0,0,0,.45)}
+.top .ver{font-size:10px;color:var(--sub)}
+
+.hero{position:relative;margin:10px 16px 6px;border-radius:18px;padding:20px 18px 18px;overflow:hidden;
+ background:linear-gradient(135deg,#3a2a12,#6a4a18 45%,#a87c2a);border:1px solid rgba(212,175,55,.55);box-shadow:0 6px 22px rgba(0,0,0,.35)}
+.hero::after{content:'☯';position:absolute;right:-14px;bottom:-22px;font-size:120px;opacity:.12;transform:rotate(-12deg)}
+.hero .h-tag{display:inline-block;font-size:10px;font-weight:800;color:#fff;background:var(--red);border-radius:8px;padding:2px 9px;margin-bottom:8px;letter-spacing:1px}
+.hero .h-title{font-size:24px;font-weight:900;color:#fff;letter-spacing:1px;text-shadow:0 2px 8px rgba(0,0,0,.55);margin-bottom:5px}
+.hero .h-sub{font-size:12.5px;color:rgba(255,255,255,.86);letter-spacing:.3px;line-height:1.7}
+
+.zone-title{font-size:16px;font-weight:800;color:var(--gold);letter-spacing:1px;margin:16px 16px 10px;display:flex;align-items:center;justify-content:space-between}
+.zone-title .more{font-size:11px;color:var(--sub);font-weight:400}
+
+.card{border-radius:16px;padding:16px 18px;position:relative;overflow:hidden;cursor:pointer;border:1px solid rgba(212,175,55,.35);display:flex;align-items:center;gap:14px;min-height:92px;margin:0 16px 12px}
+.card:active{transform:scale(.985)}
+.card .c-art{font-size:50px;flex-shrink:0;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.card .c-body{flex:1;min-width:0}
+.card .c-name{font-size:19px;font-weight:800;color:#fff;margin-bottom:5px;text-shadow:0 2px 6px rgba(0,0,0,.45);letter-spacing:.5px}
+.card .c-desc{font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.5}
+.card .c-cta{margin-top:9px;display:inline-block;background:rgba(255,255,255,.94);color:#3a2408;padding:5px 16px;border-radius:16px;font-size:12.5px;font-weight:800}
+.card .c-tag{position:absolute;top:0;right:0;font-size:10px;font-weight:700;padding:4px 12px;border-bottom-left-radius:12px;color:#fff}
+.card.g-millionaire{background:linear-gradient(135deg,#5a3a10,#8a5a18 55%,#c9922f)}
+.card.g-millionaire .c-tag{background:#c1432f}
+.card.g-lingtian{background:linear-gradient(135deg,#1e3d24,#2f6b3a 55%,#4a9a52)}
+.card.g-lingtian .c-tag{background:#2e7d32}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:0 16px}
+.mini{border-radius:15px;padding:18px 12px 16px;cursor:pointer;border:1px solid rgba(212,175,55,.32);text-align:center;position:relative;overflow:hidden}
+.mini:active{transform:scale(.96)}
+.mini .m-art{font-size:40px;margin-bottom:8px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4))}
+.mini .m-name{font-size:15px;font-weight:800;color:var(--gold);margin-bottom:4px;letter-spacing:.4px}
+.mini .m-desc{font-size:11px;color:var(--sub);line-height:1.4}
+.mini.m-guacard{background:linear-gradient(150deg,#2e1e14,#4a2f16);border-color:rgba(212,175,55,.5)}
+.mini.m-guacard .m-name{color:#f0c862}
+.mini.m-xiuxing{background:linear-gradient(150deg,#152a2c,#1d4245);border-color:rgba(90,190,200,.4)}
+.mini.m-xiuxing .m-name{color:#7fd8e0}
+.mini.m-wuxing{background:linear-gradient(150deg,#231a2e,#3a2350);border-color:rgba(150,110,220,.4)}
+.mini.m-wuxing .m-name{color:#c9a6ff}
+.mini.m-quiz{background:linear-gradient(150deg,#1e2a16,#2f4520);border-color:rgba(130,200,90,.4)}
+.mini.m-quiz .m-name{color:#a6e07f}
+
+.foot{text-align:center;font-size:11px;line-height:1.8;color:var(--sub);padding:26px 24px 8px}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div class="top">
+    <div class="brand">🎮 算了吗·易游</div>
+    <div class="ver">v2.0</div>
+  </div>
+
+  <div class="hero" onclick="go('millionaire.html')">
+    <span class="h-tag">🔥 本期推薦</span>
+    <div class="h-title">算了吗·易游</div>
+    <div class="h-sub">易學主題益智遊戲合集 · 離線可玩<br>6 款遊戲 · 每日有驚喜</div>
+  </div>
+
+  <div class="zone-title"><span>🎮 精選玩法</span><span class="more">共 6 款</span></div>
+
+  <div class="card g-millionaire" onclick="go('millionaire.html')">
+    <div class="c-tag">🔥 熱門</div>
+    <div class="c-art">💰</div>
+    <div class="c-body">
+      <div class="c-name">天機百萬富翁</div>
+      <div class="c-desc">15 關闖獎梯 · 5 錦囊 · 益智問答</div>
+      <span class="c-cta">開始挑戰 →</span>
+    </div>
+  </div>
+
+  <div class="card g-lingtian" onclick="go('lingtian.html')">
+    <div class="c-tag">🌱 新</div>
+    <div class="c-art">🌾</div>
+    <div class="c-body">
+      <div class="c-name">靈田天機</div>
+      <div class="c-desc">五行靈植 · 種田偷菜 · 經營養成</div>
+      <span class="c-cta">進入靈田 →</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="mini m-guacard" onclick="go('gua-card.html')">
+      <div class="m-art">🃏</div>
+      <div class="m-name">天機卦卡</div>
+      <div class="m-desc">64 卦收集養成</div>
+    </div>
+    <div class="mini m-xiuxing" onclick="go('xiuxing.html')">
+      <div class="m-art">🧘</div>
+      <div class="m-name">天機修行</div>
+      <div class="m-desc">放置渡劫修仙</div>
+    </div>
+    <div class="mini m-wuxing" onclick="go('wuxing-match.html')">
+      <div class="m-art">🔮</div>
+      <div class="m-name">五行消消樂</div>
+      <div class="m-desc">相生相剋消除</div>
+    </div>
+    <div class="mini m-quiz" onclick="go('bagua-puzzle.html')">
+      <div class="m-art">☯</div>
+      <div class="m-name">八卦解謎</div>
+      <div class="m-desc">陰陽爻拼六十四卦</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    本應用為休閒益智遊戲合集，內容基於中國傳統文化題材，僅供娛樂參考。<br>
+    所有遊戲結果與積分均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。
+  </div>
+</div>
+
+<script>
+function go(f){ location.href = f; }
+</script>
+</body>
+</html>

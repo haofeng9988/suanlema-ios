@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1a1612">
+<title>天機修行 · 算了吗·易游</title>
+<script src="tool-intro.js?v=20261005"></script>
+<style>
+:root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a;
+ --qing:#4caf7d;--dan:#e0563f;--chi:#cfd6dd}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);
+ min-height:100vh;display:flex;justify-content:center;overscroll-behavior:none;
+ padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+#wrap{max-width:480px;width:100%;min-height:100vh;background:radial-gradient(circle at 50% 0%,#2a2218,#12100c 70%);display:flex;flex-direction:column}
+button{font-family:inherit;cursor:pointer}
+.screen{display:none;flex-direction:column;flex:1}
+.screen.active{display:flex}
+header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:11px 16px 9px;text-align:center;border-bottom:2px solid var(--gold)}
+header h1{font-size:17px;color:var(--gold);letter-spacing:2px;margin:0}
+header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
+
+/* 人物卡 */
+.charCard{margin:14px 12px;background:linear-gradient(160deg,#3a2e1e,#241c12);border:1px solid var(--gold);border-radius:16px;padding:18px 16px;text-align:center;position:relative;overflow:hidden}
+.charCard .aura{position:absolute;inset:0;background:radial-gradient(circle at 50% 30%,rgba(212,175,55,.15),transparent 60%);pointer-events:none}
+.charCard .av{font-size:80px;line-height:1;margin-bottom:6px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.5))}
+.charCard .name{font-size:18px;color:var(--gold);font-weight:900;letter-spacing:2px}
+.charCard .realm{font-size:12px;color:var(--text);margin:4px 0 10px;letter-spacing:1px}
+.expbar{background:var(--c2);height:10px;border-radius:5px;overflow:hidden;margin:6px 0 4px}
+.expbar .fill{height:100%;background:linear-gradient(90deg,#8a6a20,#d4af37);transition:width .4s}
+.charCard .expTxt{display:flex;justify-content:space-between;font-size:10px;color:var(--sub)}
+
+/* 资源 */
+.res{display:flex;gap:8px;margin:0 12px 14px}
+.res .r{flex:1;background:var(--c1);border:1px solid var(--c2);border-radius:11px;padding:8px 10px;text-align:center}
+.res .r .k{font-size:10px;color:var(--sub)}
+.res .r .v{color:var(--gold);font-size:14px;font-weight:800}
+
+/* 主操作 */
+.actions{padding:0 12px}
+.bigBtn{background:linear-gradient(180deg,var(--gold),#b08920);color:#1a1612;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:800;width:100%;margin-bottom:10px;letter-spacing:1px}
+.bigBtn:disabled{opacity:.4}
+.bigBtn.alt{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+
+/* 修为条 */
+.med{display:flex;gap:8px;margin:0 12px 14px}
+.med .m{flex:1;background:var(--c1);border:1px solid var(--c2);border-radius:11px;padding:9px 8px;text-align:center;font-size:11px;color:var(--sub);cursor:pointer}
+.med .m b{color:var(--gold);display:block;font-size:15px}
+.med .m .cd{font-size:9px;color:var(--sub)}
+
+/* 信息列表 */
+.sec{margin:0 12px 12px;background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:14px}
+.sec h3{font-size:13px;color:var(--gold);margin:0 0 10px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}
+.row{display:flex;justify-content:space-between;padding:7px 0;font-size:13px;border-bottom:1px dashed var(--c2);color:var(--sub)}
+.row:last-child{border:none}
+.row b{color:var(--text)}
+
+/* 境界进度 */
+.realmCard{margin:14px 12px;background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:14px}
+.realmCard h3{font-size:13px;color:var(--gold);margin:0 0 10px}
+.ring{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
+.ring .dot{width:32px;height:32px;border-radius:50%;background:var(--c2);color:var(--sub);font-size:10px;display:flex;align-items:center;justify-content:center;border:1px solid transparent}
+.ring .dot.past{background:#3a2e1e;color:var(--text);border-color:var(--gold)}
+.ring .dot.now{background:var(--gold);color:#1a1612;font-weight:800;box-shadow:0 0 12px rgba(212,175,55,.5)}
+.ring .dot.next{background:var(--c2);color:var(--sub);border-color:var(--gold);border-style:dashed}
+
+/* 吐纳动画 */
+.meditation{position:absolute;top:6px;right:6px;font-size:10px;color:var(--gold);background:rgba(0,0,0,.4);border-radius:6px;padding:2px 7px}
+
+/* 离线收益弹窗 */
+.offlineBox{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:110;padding:24px}
+.offlineBox.show{display:flex}
+.offlineBox .panel{background:linear-gradient(180deg,#2a2218,#1c1610);border:2px solid var(--gold);border-radius:18px;padding:22px 18px;max-width:340px;width:100%;text-align:center}
+.offlineBox h2{color:var(--gold);margin:0 0 6px}
+.offlineBox .big{font-size:38px;color:#fff;font-weight:900;margin:10px 0}
+.offlineBox .desc{font-size:12px;color:var(--sub);line-height:1.9;margin-bottom:12px}
+
+/* 底部 */
+.foot{font-size:10px;color:var(--sub);text-align:center;padding:10px 14px 16px;line-height:1.7}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.85);color:var(--gold);border:1px solid var(--gold);border-radius:10px;padding:9px 16px;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div id="wrap">
+
+  <div class="screen active" id="s-home">
+    <header>
+      <h1>☯ 天機修行</h1>
+      <div class="sub">打坐吐納 · 修煉渡劫 · 收集法寶</div>
+    </header>
+
+    <!-- 人物 -->
+    <div class="charCard" id="charCard">
+      <div class="aura"></div>
+      <div class="meditation" id="medMark">打坐中</div>
+      <div class="av" id="cAv">🧘</div>
+      <div class="name" id="cName">修行者</div>
+      <div class="realm" id="cRealm">煉氣 · 初期</div>
+      <div class="expbar"><div class="fill" id="cExp"></div></div>
+      <div class="expTxt"><span id="cExpTxt">0 / 100 經驗</span><span id="cLvl">Lv 1</span></div>
+    </div>
+
+    <!-- 资源 -->
+    <div class="res">
+      <div class="r"><div class="k">🌟 修為</div><div class="v" id="rXp">0</div></div>
+      <div class="r"><div class="k">💰 靈石</div><div class="v" id="rCoin">0</div></div>
+      <div class="r"><div class="k">⚡ 靈力</div><div class="v" id="rMana">0</div></div>
+    </div>
+
+    <!-- 操作 -->
+    <div class="actions">
+      <button class="bigBtn" id="btnMed" onclick="doMeditate()">🧘 打坐吐納（+修為）</button>
+      <button class="bigBtn alt" id="btnLiandan" onclick="doLiandan()">🔥 煉丹（+修為 +靈石）</button>
+    </div>
+
+    <!-- 丹药/法器 -->
+    <div class="med">
+      <div class="m" onclick="useMed('回氣丹')"><b>💊 回氣丹</b><span class="cd" id="mHuqi">+5 修為 · 無限</span></div>
+      <div class="m" onclick="useMed('聚靈丹')"><b>💠 聚靈丹</b><span class="cd" id="mJuli">+30 修為 · 剩 0</span></div>
+      <div class="m" onclick="useMed('破境丹')"><b>✨ 破境丹</b><span class="cd" id="mPo">+200 修為 · 剩 0</span></div>
+    </div>
+
+    <!-- 渡劫 -->
+    <div class="sec">
+      <h3>⚡ 渡劫<span id="duJieBtn"></span></h3>
+      <div id="duJieArea">
+        <div class="row" id="djReq"><span>要求</span><b>--</b></div>
+        <div class="row" id="djRew"><span>獎勵</span><b>--</b></div>
+        <button class="bigBtn" style="background:linear-gradient(180deg,var(--red),#8a2418);color:#fff;margin-top:8px" id="btnTdj" onclick="doTribulation()">⚡ 渡劫</button>
+      </div>
+    </div>
+
+    <!-- 境界 -->
+    <div class="realmCard">
+      <h3>🪄 境界進度</h3>
+      <div class="ring" id="realmBar"></div>
+      <div style="font-size:11px;color:var(--sub)">依次渡過十二境界方為「大乘」。</div>
+    </div>
+
+    <!-- 收藏 -->
+    <div class="sec">
+      <h3>📦 法寶收藏<span id="fabeiN">0/0</span></h3>
+      <div class="row"><span>丹藥煉製</span><b id="fblDan">0</b></div>
+      <div class="row"><span>靈植種植</span><b id="fblZhi">0</b></div>
+      <div class="row"><span>渡劫成功</span><b id="fblDj">0</b></div>
+      <div class="row"><span>修煉日數</span><b id="fblDay">1</b></div>
+    </div>
+
+    <div class="foot">
+      本遊戲為休閒放置養成娛樂，所有資源均為虛擬娛樂，<br>
+      不涉及任何真實賭博或金錢兌換。
+    </div>
+  </div>
+</div>
+
+<!-- 离线收益 -->
+<div class="offlineBox" id="offlineBox"><div class="panel">
+  <h2>☯ 歡迎回來</h2>
+  <div class="big" id="offXp">+0</div>
+  <div class="desc" id="offDesc">你在塵世中打坐，<br>一日之內又進修了些許功夫。</div>
+  <button class="bigBtn" onclick="closeOffline()">收下回歸</button>
+</div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 境界系统 ============ */
+var REALMS = [
+ {name:'煉氣初期',need:100,reward:{xp:50,coin:20,med:0}},
+ {name:'煉氣中期',need:300,reward:{xp:120,coin:50,med:1}},
+ {name:'煉氣後期',need:700,reward:{xp:300,coin:120,med:1}},
+ {name:'筑基初期',need:1500,reward:{xp:600,coin:300,med:2}},
+ {name:'筑基中期',need:3000,reward:{xp:1200,coin:500,med:1}},
+ {name:'筑基後期',need:6000,reward:{xp:2500,coin:800,med:2}},
+ {name:'金丹初期',need:12000,reward:{xp:5000,coin:1500,med:2}},
+ {name:'金丹中期',need:25000,reward:{xp:9000,coin:3000,med:3}},
+ {name:'金丹後期',need:50000,reward:{xp:16000,coin:5000,med:3}},
+ {name:'元嬰初期',need:100000,reward:{xp:30000,coin:8000,med:3}},
+ {name:'元嬰中期',need:200000,reward:{xp:60000,coin:12000,med:4}},
+ {name:'元嬰後期',need:400000,reward:{xp:120000,coin:20000,med:4}},
+];
+var AVATAR = ['🧘','🧙','🧝','🧛','🦸','🧚','🧞','🌟'];
+function realmIdx(){ return Math.min(REALMS.length-1, ST.realm); }
+
+/* ============ 存档 ============ */
+var KEY='xx_';
+function load(k,d){ try{ var v=localStorage.getItem(KEY+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } }
+function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
+var ST = {
+  xp: load('xp',0),
+  lvl: load('lvl',1),
+  realm: load('realm',0),
+  coin: load('coin',50),
+  mana: load('mana',100),
+  meds: load('meds',{'回氣丹':999,'聚靈丹':0,'破境丹':0}),
+  tdk: load('tdk',0),  // 渡劫成功次数
+  dlcnt: load('dlcnt',0),  // 炼丹次数
+  zhi: load('zhi',0),
+  lastTs: load('lastTs',Date.now()),
+  today: load('today',new Date().toISOString().slice(0,10)),
+  totalTs: load('totalTs',0),
+};
+function persist(){ save('xp',ST.xp);save('lvl',ST.lvl);save('realm',ST.realm);save('coin',ST.coin);save('mana',ST.mana);save('meds',ST.meds);save('tdk',ST.tdk);save('dlcnt',ST.dlcnt);save('zhi',ST.zhi);save('lastTs',ST.lastTs);save('today',ST.today);save('totalTs',ST.totalTs); }
+
+/* ============ 修为累加 & 离线收益 ============ */
+function fmtTime(sec){
+  if(sec<60) return sec+'秒';
+  if(sec<3600) return Math.floor(sec/60)+'分';
+  if(sec<86400) return Math.floor(sec/3600)+'時';
+  return Math.floor(sec/86400)+'天';
+}
+function offlineGain(){
+  var now=Date.now();
+  var sec=Math.max(0,Math.floor((now-ST.lastTs)/1000));
+  if(sec<60) return 0;
+  // 每秒 +1 修为（基础），离线效率 60%（防挂机刷）
+  var perSec=1*0.6;
+  var gain=Math.floor(sec*perSec);
+  ST.xp += gain;
+  ST.lastTs=now;
+  ST.totalTs=(ST.totalTs||0)+sec;
+  persist();
+  return {sec:sec,xp:gain};
+}
+function showOffline(g){
+  if(!g||!g.xp) return;
+  $('offXp').textContent = '+'+g.xp+' 修為';
+  var day=Math.floor(g.sec/86400);
+  var hour=Math.floor(g.sec/3600)%24;
+  var min=Math.floor(g.sec/60)%60;
+  $('offDesc').textContent='你離開了 '+fmtTime(g.sec)+'（'+day+'天'+hour+'時'+min+'分），\n歸來之際氣海已增厚了不少。';
+  $('offlineBox').classList.add('show');
+}
+function closeOffline(){ $('offlineBox').classList.remove('show'); }
+
+/* ============ 渲染 ============ */
+function $(id){return document.getElementById(id);}
+function toastMsg(t){ var el=$('toast'); el.textContent=t; el.classList.add('show'); setTimeout(function(){el.classList.remove('show');},1400); }
+
+function realmNeed(){ return REALMS[realmIdx()].need; }
+function realmNeedPrev(){ return realmIdx()>0 ? REALMS[realmIdx()-1].need : 0; }
+
+function render(){
+  // 头像（按境界）
+  var av = AVATAR[Math.min(AVATAR.length-1, Math.floor(ST.realm/3))];
+  $('cAv').textContent = av;
+  $('cName').textContent = '修行者';
+  var realmName = ST.realm>=REALMS.length ? '大乘' : REALMS[ST.realm].name;
+  $('cRealm').textContent = realmName;
+  // 经验条：当前境界进度（如果已满，进度填满）
+  var base = realmNeedPrev();
+  var top = realmNeed();
+  var pct = ST.realm>=REALMS.length ? 100 : Math.min(100, Math.max(0, (ST.xp-base)/(top-base)*100));
+  $('cExp').style.width=pct+'%';
+  $('cExpTxt').textContent = ST.realm>=REALMS.length? '已圓滿 · 諸境歸一' : (Math.floor(ST.xp-base))+' / '+(top-base);
+  $('cLvl').textContent = 'Lv '+(ST.lvl||1);
+  // 资源
+  $('rXp').textContent=Math.floor(ST.xp); $('rCoin').textContent=Math.floor(ST.coin); $('rMana').textContent=Math.floor(ST.mana);
+  // 丹药
+  $('mHuqi').textContent='+5 修為 · 剩 ∞';
+  $('mJuli').textContent='+30 修為 · 剩 '+(ST.meds['聚靈丹']||0);
+  $('mPo').textContent='+200 修為 · 剩 '+(ST.meds['破境丹']||0);
+  // 渡劫区
+  if(ST.realm>=REALMS.length){
+    $('djReq').innerHTML='<span>已圓滿</span><b>大乘之境，諸劫不動</b>';
+    $('djRew').innerHTML='<span>獎勵</span><b>無（已達頂峰）</b>';
+    $('btnTdj').disabled=true; $('btnTdj').textContent='已大乘';
+  } else {
+    var r=REALMS[ST.realm];
+    $('djReq').innerHTML='<span>要求</span><b>'+Math.floor(ST.xp)+' / '+r.need+' 修為</b>';
+    var rw=r.reward;
+    var rwStr=(rw.xp?'+'+rw.xp+'修為 ':'')+(rw.coin?'+'+rw.coin+'靈石 ':'')+(rw.med?'+'+rw.med+'破境丹':'');
+    $('djRew').innerHTML='<span>獎勵</span><b>'+rwStr.trim()+'</b>';
+    $('btnTdj').disabled = ST.xp < r.need;
+  }
+  // 境界环
+  var rb=$('realmBar'); rb.innerHTML='';
+  for(var i=0;i<REALMS.length;i++){
+    var d=document.createElement('div');
+    d.className='dot '+(i<ST.realm?'past':(i===ST.realm?'now':'next'));
+    d.textContent = i<ST.realm?'✓':(i===ST.realm?'●':'·');
+    rb.appendChild(d);
+  }
+  if(ST.realm>=REALMS.length){
+    var d=document.createElement('div'); d.className='dot now'; d.textContent='★'; rb.appendChild(d);
+  }
+  // 收藏
+  $('fabeiN').textContent=ST.tdk+'/12';
+  $('fblDan').textContent=ST.dlcnt;
+  $('fblZhi').textContent=ST.zhi;
+  $('fblDj').textContent=ST.tdk;
+  var days = Math.max(1, Math.ceil((Date.now()-(ST.lastTs||Date.now()))/86400000 + (ST.totalTs||0)/86400));
+  $('fblDay').textContent = days;
+}
+
+/* ============ 操作 ============ */
+function doMeditate(){
+  // 每秒 +1，每 200ms 一次按键 +0.2
+  ST.xp += 1; ST.mana += 0.5; persist(); render();
+  // 自动进度条动画
+  pulseXp();
+}
+function doLiandan(){
+  if(ST.mana<10){ toastMsg('靈力不足'); return; }
+  ST.mana -= 10;
+  ST.xp += 5;
+  ST.coin += 5;
+  ST.dlcnt++; ST.zhi++;
+  if(Math.random()<0.5) ST.meds['聚靈丹']=(ST.meds['聚靈丹']||0)+1;
+  if(Math.random()<0.2) ST.meds['破境丹']=(ST.meds['破境丹']||0)+1;
+  persist(); render(); toastMsg('煉丹成功 +5 修為 +5 靈石');
+}
+function useMed(name){
+  if(name==='回氣丹'){ ST.xp+=5; persist(); render(); toastMsg('服用回氣丹 +5 修為'); return; }
+  var n=ST.meds[name]||0;
+  if(n<=0){ toastMsg('丹藥不足'); return; }
+  ST.meds[name]--;
+  if(name==='聚靈丹') ST.xp+=30;
+  else if(name==='破境丹') ST.xp+=200;
+  persist(); render();
+  toastMsg('服用'+name+' +'+(name==='聚靈丹'?30:200)+' 修為');
+}
+function doTribulation(){
+  if(ST.realm>=REALMS.length){ toastMsg('已大乘'); return; }
+  var r=REALMS[ST.realm];
+  if(ST.xp<r.need){ toastMsg('修為未滿'); return; }
+  ST.xp -= r.need;
+  ST.realm++;
+  ST.lvl = (ST.lvl||1)+1;
+  ST.tdk++;
+  var rw=r.reward;
+  ST.xp += rw.xp; ST.coin += rw.coin;
+  if(rw.med) ST.meds['破境丹']=(ST.meds['破境丹']||0)+rw.med;
+  persist(); render();
+  toastMsg('⚡ 渡劫成功 · 進入'+(ST.realm<REALMS.length?REALMS[ST.realm].name:'大乘之境'));
+}
+function pulseXp(){ var el=$('cExp'); el.style.transition='all .2s'; var old=el.style.width; el.style.width=old; }
+
+/* ============ 计时器：每秒 +1 修为 +0.5 灵石 ============ */
+setInterval(function(){
+  ST.xp += 1;
+  ST.coin += 0.2;
+  ST.mana = Math.min(100, ST.mana + 0.5);
+  persist();
+  render();
+}, 1000);
+
+/* ============ 启动 ============ */
+var g=offlineGain();
+if(g && g.xp>0) showOffline(g); else render();
+try{
+  if(window.ToolIntro && ToolIntro.mount){
+    ToolIntro.mount({
+      tool:'xiuxing', icon:'☯', title:'天機修行',
+      slogan:'放置修仙養成 · 離線也長修為，<br>十二境界逐一渡劫 · 長期養成。',
+      steps:[
+        '進入即開始<b>打坐吐納</b>，每秒自動累積修為；',
+        '點「🧘 打坐」即時 +修為；點「🔥 煉丹」消耗靈力煉丹（可能出聚靈丹/破境丹）；',
+        '使用<b>回氣丹</b>/<b>聚靈丹</b>/<b>破境丹</b>加速修為（聚靈/破境需煉出）；',
+        '修為滿足條件後點「⚡ 渡劫」晉升境界（煉氣→筑基→金丹→元嬰→大乘），獎勵破境丹與靈石；',
+        '離線也長修為，回來可一鍵收下<b>離線收益</b>。'
+      ],
+      note:'⚠️ 本遊戲為休閒放置養成娛樂，所有資源（修為/靈石/靈力/丹藥）均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。',
+      onEnter:function(){}
+    });
+  }
+}catch(e){}
+</script>
+</body>
+</html>

@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<script src="notify.js"></script>
+<script src="share.js"></script>
+<script src="lt-art.js"></script>
+<script src="lt-char.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#1a1612">
+<title>🔮 昊峯天机 · 灵田天机</title>
+<style>
+:root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--gold2:#e8dcc8;--red:#c1432f;
+  --text:#e8dcc8;--sub:#9a8a6a;--green:#4a8;
+  --mu:#4caf7d;--huo:#e0563f;--tu:#c9a34e;--jin:#cfd6dd;--shui:#4a90d9}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+button{font-family:inherit;cursor:pointer}
+
+/* ===== 顶栏 ===== */
+/* v5.1：隐藏旧 header/卦象/队伍 chip，HUD 全套接管；保留元素免 break 引用 */
+header,.gua{display:none!important}
+.team-chip{display:none!important}
+header{background:linear-gradient(180deg,#2a2218,#1a1612);border-bottom:2px solid var(--gold);
+.team-chip{display:none!important}
+  padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:6px;min-width:0}
+.brand .logo{font-size:20px}
+.brand .nm{font-size:14.5px;color:var(--gold);font-weight:800;letter-spacing:1px;white-space:nowrap}
+.brand .nm b{font-weight:800}
+.res{display:flex;gap:6px;flex:none}
+.res .r{background:var(--c1);border:1px solid var(--c2);border-radius:10px;padding:5px 9px;
+  display:flex;align-items:center;gap:4px;font-size:12.5px;font-weight:800;color:var(--text);line-height:1}
+.res .r .ic{font-size:13px}
+.res .r.bi{color:var(--gold)}
+.res .r.en{color:#7fd1a8;position:relative}
+.res .r.en .bar{position:absolute;left:4px;right:4px;bottom:1px;height:2px;border-radius:2px;background:rgba(255,255,255,.12)}
+.res .r.en .bar i{display:block;height:100%;border-radius:2px;background:#7fd1a8}
+
+/* ===== 日卦横幅 ===== */
+.gua{margin:8px 10px 0;background:linear-gradient(135deg,#241d10,#1a1612);border:1px solid #4a3f28;
+  border-radius:14px;padding:9px 12px;display:flex;align-items:center;gap:10px;position:relative;overflow:hidden}
+.gua::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 12% 40%,rgba(212,175,55,.16),transparent 62%)}
+.gua .sym{font-size:26px;color:var(--gold);line-height:1;position:relative;text-shadow:0 0 12px rgba(212,175,55,.5)}
+.gua .txt{flex:1;min-width:0;position:relative}
+.gua .t1{font-size:13px;font-weight:800;color:var(--gold);letter-spacing:1px}
+.gua .t2{font-size:11.5px;color:var(--sub);margin-top:2px;line-height:1.45}
+.gua .tag{font-size:10px;color:#8a7a52;flex:none;position:relative}
+
+/* ===== 主区 ===== */
+main{flex:1;display:flex;flex-direction:column;padding:8px 10px 0;max-width:560px;width:100%;margin:0 auto}
+.canvas-wrap{position:relative;border-radius:16px;overflow:hidden;border:1px solid var(--c2);
+  box-shadow:0 8px 30px rgba(0,0,0,.45)}
+#field{display:block;width:100%;touch-action:manipulation}
+.fb-banner{position:absolute;left:8px;right:8px;top:8px;background:rgba(20,15,8,.82);border:1px solid #6a5a2a;
+  border-radius:10px;padding:7px 10px;font-size:11.5px;color:var(--gold2);text-align:center;line-height:1.5;display:none}
+.fb-banner.show{display:block}
+
+/* ===== 操作区 ===== */
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.actions button{background:var(--c1);border:1px solid var(--c2);border-radius:12px;color:var(--text);
+  padding:11px 4px;font-size:13px;font-weight:700;display:flex;flex-direction:column;align-items:center;gap:3px;transition:.12s}
+.actions button .ic{font-size:18px}
+.actions button:active{transform:scale(.96)}
+.actions button.primary{background:linear-gradient(135deg,#d4af37,#b8912a);color:#0a0e14;border-color:transparent}
+.actions button:disabled{opacity:.45}
+
+.hint{font-size:11.5px;color:var(--sub);text-align:center;line-height:1.6;margin:2px 0 8px}
+.hint b{color:var(--gold)}
+
+/* ===== 新手引导条 ===== */
+.guide{position:fixed;left:10px;right:10px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:30;
+  background:linear-gradient(135deg,#2a2218,#1d1710);border:1.5px solid var(--gold);border-radius:14px;
+  padding:11px 12px;display:none;align-items:center;gap:10px;box-shadow:0 10px 34px rgba(0,0,0,.6)}
+.guide.show{display:flex}
+.guide .steps{flex:1;display:flex;gap:6px;align-items:center;font-size:12px;color:var(--text);flex-wrap:wrap}
+.guide .st{display:flex;align-items:center;gap:3px;opacity:.55;font-weight:700}
+.guide .st.on{opacity:1;color:var(--gold)}
+.guide .st .n{display:inline-flex;width:16px;height:16px;border-radius:50%;background:var(--c2);color:var(--sub);
+  font-size:10px;align-items:center;justify-content:center}
+.guide .st.on .n{background:var(--gold);color:#1a1408}
+.guide .st.done{opacity:1;color:#7fd1a8}
+.guide .st.done .n{background:#7fd1a8;color:#0a0e14}
+.guide .cl{background:transparent;border:1px solid #4a3f28;color:var(--sub);border-radius:8px;
+  font-size:12px;padding:5px 9px;flex:none}
+
+/* ===== 底部抽屉 / 弹层 ===== */
+.mask{position:fixed;inset:0;background:rgba(0,0,0,.66);z-index:40;display:none;backdrop-filter:blur(1px)}
+.mask.show{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:45;background:linear-gradient(180deg,#241d10,#1a1612);
+  border-top:2px solid var(--gold);border-radius:18px 18px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom));
+  max-height:76vh;overflow-y:auto;transform:translateY(102%);transition:transform .26s ease}
+.sheet.show{transform:none}
+.sheet .sh-title{font-size:16px;color:var(--gold);font-weight:800;letter-spacing:1px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.sheet .sh-sub{font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.6}
+.sheet .sh-x{background:transparent;border:1px solid #4a3f28;color:var(--sub);width:30px;height:30px;border-radius:50%;font-size:14px}
+.seed-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.seed{background:var(--bg);border:2px solid var(--c2);border-radius:12px;padding:10px;display:flex;gap:9px;align-items:flex-start;transition:.12s;text-align:left}
+.seed:active{transform:scale(.98)}
+.seed.afford{border-color:#4a3f28}
+.seed.no{opacity:.45}
+.seed .se{font-size:26px;line-height:1;flex:none}
+.seed .sn{flex:1;min-width:0}
+.seed .sname{font-size:13.5px;font-weight:800;color:var(--text)}
+.seed .sname .rar{font-size:9.5px;padding:1px 5px;border-radius:6px;margin-left:4px;vertical-align:middle}
+.rar.r0{background:rgba(154,138,106,.2);color:var(--sub)}
+.rar.r1{background:rgba(212,175,55,.18);color:var(--gold)}
+.seed .smeta{font-size:10.5px;color:var(--sub);margin-top:3px;line-height:1.6}
+.seed .scost{font-size:11.5px;font-weight:800;color:var(--gold);margin-top:3px}
+.seed .scost small{color:var(--sub);font-weight:400}
+.el-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:3px;vertical-align:middle}
+
+/* 好友/偷菜列表 */
+.fld-row{display:flex;align-items:center;gap:10px;background:var(--bg);border:1px solid var(--c2);
+  border-radius:10px;padding:9px 11px;margin-bottom:8px}
+.fld-row .fe{font-size:22px;flex:none}
+.fld-row .fn{flex:1;min-width:0}
+.fld-row .fname{font-size:13px;font-weight:800}
+.fld-row .fmeta{font-size:10.5px;color:var(--sub);margin-top:2px}
+.fld-row button{padding:7px 12px;border-radius:9px;border:none;font-size:12.5px;font-weight:800;
+  background:linear-gradient(135deg,#d4af37,#b8912a);color:#0a0e14;flex:none}
+.fld-row button:disabled{opacity:.4;background:var(--c2);color:var(--sub)}
+.uid-in{width:100%;padding:11px;background:var(--bg);border:1px solid var(--c2);border-radius:10px;
+  color:var(--text);font-size:15px;margin-bottom:9px}
+.uid-in:focus{outline:none;border-color:var(--gold)}
+.sheet .go{width:100%;padding:12px;border-radius:10px;border:1px solid var(--gold);background:rgba(212,175,55,.14);
+  color:var(--gold);font-size:14.5px;font-weight:800}
+
+/* ===== v5 新面板 ===== */
+.v5-stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.v5-stat{background:linear-gradient(180deg,#2a2114,#1d1710);border:1px solid var(--c2);border-radius:12px;
+  padding:12px 10px;text-align:center}
+.v5-stat-n{font-size:20px;font-weight:900;color:var(--gold)}
+.v5-stat-l{font-size:11px;color:var(--sub);margin-top:3px}
+.v5-rules-t{font-size:13.5px;font-weight:800;color:var(--gold);margin:14px 0 5px}
+.v5-rules-b{font-size:12.5px;color:#cabfa8;line-height:1.65}
+.v5-pl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:6px}
+.v5-pl-cell{background:var(--bg);border:1px solid var(--c2);border-radius:10px;padding:7px 4px;text-align:center}
+.v5-pl-el{display:inline-block;font-size:10px;font-weight:800;border-radius:6px;padding:1px 5px;color:#0a0e14;margin-bottom:3px}
+.el-mu{background:#6fd055}.el-huo{background:#ff5a4d}.el-tu{background:#e0b53c}.el-jin{background:#f2d879}.el-shui{background:#4fb3e8}
+.v5-pl-nm{font-size:11.5px;font-weight:800;color:#f0e6d2}
+.v5-pl-pr{font-size:9.5px;color:var(--sub);margin-top:2px}
+.v5-poster{background:linear-gradient(160deg,#2a2114,#3a2c14 60%,#1d1710);border:2px solid var(--gold);
+  border-radius:16px;padding:22px 16px;box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.v5-poster-t{font-size:14px;font-weight:900;color:var(--gold);letter-spacing:1px}
+.v5-poster-big{font-size:44px;font-weight:900;color:#f5d06f;margin:10px 0 2px;text-shadow:0 2px 10px rgba(245,208,111,.4)}
+.v5-poster-sub{font-size:13px;color:#e8dcc8;font-weight:800}
+.v5-poster-row{display:flex;justify-content:space-around;margin:14px 0 8px;font-size:12px;color:#f0e6d2;font-weight:800}
+.v5-poster-foot{font-size:10.5px;color:var(--sub);margin-top:8px;border-top:1px dashed #4a3f28;padding-top:8px}
+
+/* ===== v5.3 商店 ===== */.shop-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:6px}
+.shop-cell{background:linear-gradient(180deg,#2a2114,#1d1710);border:1px solid var(--c2);border-radius:12px;padding:9px 11px}
+.shop-head{display:flex;align-items:center;gap:7px}
+.shop-nm{font-size:13.5px;font-weight:800;color:#f0e6d2;flex:1}
+.shop-own{font-size:11px;font-weight:800;color:#7fd1a8;background:rgba(127,209,168,.12);border-radius:7px;padding:1px 7px}
+.shop-meta{font-size:11px;color:var(--sub);margin:4px 0 7px}
+.shop-buy{display:flex;align-items:center;gap:8px}
+.shop-q{width:30px;height:30px;border-radius:8px;border:1px solid var(--c2);background:#241d10;color:#f0e6d2;
+  font-size:17px;font-weight:900;cursor:pointer;padding:0;line-height:1}
+.shop-qn{min-width:26px;text-align:center;font-size:15px;font-weight:900;color:#f5d06f}
+.shop-go{flex:1;height:32px;border-radius:9px;border:none;cursor:pointer;font-weight:900;font-size:13px;
+  background:linear-gradient(180deg,#f5d06f,#d4af37);color:#3a2808}
+
+/* ===== v5.6 天气 ===== */
+.v5-wx-big{display:flex;align-items:center;gap:14px;background:linear-gradient(160deg,#2a2114,#3a2c14);
+  border:1px solid var(--c2);border-radius:14px;padding:14px 16px}
+.v5-wx-em{font-size:44px;line-height:1}
+.v5-wx-nm{font-size:19px;font-weight:900;color:#f5d06f}
+.v5-wx-d{font-size:12px;color:#cabfa8;margin-top:4px;line-height:1.5}
+
+/* ===== v5.3 Toast ===== */
+
+/* ===== Toast ===== */
+#ltToast{position:fixed;left:0;right:0;top:calc(160px + env(safe-area-inset-top));z-index:60;
+  display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;padding:0 16px}
+.lt-t{pointer-events:auto;max-width:88vw;background:linear-gradient(180deg,#2a2114,#1d1710);border:1px solid var(--gold);
+  border-radius:12px;color:#f0e6d2;padding:10px 15px;font-size:13px;line-height:1.5;box-shadow:0 8px 26px rgba(0,0,0,.55);
+  transform:translateY(12px);opacity:0;transition:all .26s ease}
+.lt-t.show{transform:none;opacity:1}
+.lt-t b{color:var(--gold)}
+.lt-t .s{display:block;font-size:11.5px;color:#a99a78;margin-top:2px}
+
+/* ===== 组队竞赛 ===== */
+.actions button.wide{grid-column:1/-1;flex-direction:row;gap:6px;padding:12px 4px}
+.team-chip{margin:6px 10px 0;display:none;align-items:center;gap:6px;font-size:11.5px;font-weight:800;
+  color:#7fd1a8;background:rgba(127,209,168,.1);border:1px solid rgba(127,209,168,.32);
+  border-radius:9px;padding:5px 10px;line-height:1;cursor:pointer}
+.team-chip.show{display:flex}
+.team-chip b{color:#a8e6c6;font-weight:800}
+
+/* v5 主身重做：QQ 农场完整 HUD（覆盖于 canvas 之上） */
+.lt5-frame{position:absolute;inset:0;pointer-events:none;z-index:5}
+.lt5-frame>*{pointer-events:auto}
+.lt5-power{position:absolute;left:10px;top:14px;width:42px;height:42px;border-radius:50%;
+  background:#ef4c4c;border:2.5px solid #fff;box-shadow:0 4px 10px rgba(180,40,40,.45);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding:0}
+.lt5-card{position:absolute;left:62px;top:10px;display:flex;align-items:center;gap:8px;
+  background:linear-gradient(180deg,#f5d06f,#d4af37 55%,#a8743a 100%);border:2px solid #fff;
+  border-radius:18px;padding:4px 12px 4px 4px;box-shadow:0 4px 14px rgba(60,40,10,.25);
+  color:#3a2808;font-weight:800;min-width:200px}
+.lt5-avatar{flex:0 0 40px;width:40px;height:40px;border-radius:50%;overflow:hidden;
+  background:#fff;border:2px solid #fff;box-shadow:0 0 0 2px #a8743a}
+.lt5-avatar svg{display:block}
+.lt5-card-body{flex:1;min-width:0}
+.lt5-name{font-size:12.5px;font-weight:800;color:#3a2808;display:flex;align-items:center;gap:6px;line-height:1.05}
+.lt5-lv{background:#3a2808;color:#f5d06f;font-size:9.5px;font-weight:800;border-radius:7px;padding:1px 6px}
+.lt5-exp{margin-top:3px;height:5px;background:rgba(58,40,8,.30);border-radius:99px;overflow:hidden;
+  border:1px solid rgba(58,40,8,.40)}
+.lt5-exp-fill{height:100%;background:linear-gradient(90deg,#fff3a8,#ffd56e);transition:width .35s}
+.lt5-exp-tx{font-size:8.5px;color:#3a2808;margin-top:1px;letter-spacing:.3px;opacity:.85}
+
+/* 右上：金币/钻石/竹篮 */
+.lt5-top-r{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.lt5-coin{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:800;color:#3a2808;
+  background:linear-gradient(180deg,#f5d06f,#d4af37);border:2px solid #fff;border-radius:99px;
+  padding:3px 12px 3px 4px;box-shadow:0 4px 10px rgba(60,40,10,.20);min-width:88px;justify-content:flex-end}
+.lt5-coin-d{background:linear-gradient(180deg,#a6e0f7,#5fb8e8);color:#0f3a5a}
+.lt5-c-ic{width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;
+  justify-content:center;font-size:12px;font-weight:900;color:#fff;flex:0 0 22px;margin-left:-6px;
+  text-shadow:0 1px 1px rgba(0,0,0,.18)}
+.lt5-coin-y .lt5-c-ic{background:linear-gradient(180deg,#fff3a8,#e0b53c);color:#7a5a10}
+.lt5-coin-d .lt5-c-ic{background:linear-gradient(180deg,#9fd8ff,#4fb3e8);color:#fff}
+.lt5-basket{width:42px;height:42px;border-radius:50%;background:#fff;border:2.5px solid #a8743a;
+  cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 10px rgba(60,40,10,.18);margin-top:4px}
+.lt5-basket svg{display:block}
+/* v5.6 天气徽标 */
+.lt5-weather{display:flex;align-items:center;gap:4px;margin-top:4px;padding:3px 10px 3px 6px;
+  border-radius:99px;border:2px solid #fff;cursor:pointer;
+  background:linear-gradient(180deg,#ffe9a8,#f5c96f);box-shadow:0 4px 10px rgba(60,40,10,.20);
+  font-weight:900;font-size:11.5px;color:#5a3a10}
+.lt5-weather .lt5-w-ic{font-size:15px;line-height:1}
+.lt5-weather .lt5-w-tx{white-space:nowrap}
+.lt5-weather.w-rainy{background:linear-gradient(180deg,#bfe3f7,#6fb4dd);color:#123a56}
+.lt5-weather.w-cloudy{background:linear-gradient(180deg,#e6e9ee,#b8c0cc);color:#3a4048}
+
+/* 左侧 4 个金圆按钮 */
+.lt5-left{position:absolute;left:10px;top:66px;display:flex;flex-direction:column;gap:8px}
+.lt5-circ{width:38px;height:38px;border-radius:50%;border:2.5px solid #fff;
+  background:linear-gradient(180deg,#f5d06f,#d4af37 55%,#a8743a);cursor:pointer;padding:0;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 3px 8px rgba(60,40,10,.25);
+  position:relative}
+.lt5-circ svg{display:block}
+.lt5-circ.lt5-dot::after{content:'';position:absolute;right:-1px;top:0;width:11px;height:11px;
+  background:#ef4c4c;border:1.6px solid #fff;border-radius:50%}
+
+/* 中央大圆收获按钮 + 任务卡（v5.2：浮动在田块下方 12%，HUD 跟随 canvas 底部） */
+.lt5-center{position:absolute;left:0;right:0;bottom:12%;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:3}
+.lt5-harvest{width:60px;height:60px;border-radius:50%;background:transparent;border:none;cursor:pointer;
+  padding:0;display:block;pointer-events:auto;filter:drop-shadow(0 4px 8px rgba(60,40,10,.32))}
+.lt5-task{pointer-events:auto;display:flex;align-items:center;gap:6px;
+  background:linear-gradient(180deg,#fdf3d8,#f5d06f);border:2px solid #a8743a;border-radius:14px;
+  padding:4px 6px 4px 10px;color:#5a3a10;font-weight:800;font-size:12px;
+  box-shadow:0 3px 10px rgba(60,40,10,.18);min-width:220px;max-width:80%}
+.lt5-task-l{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.lt5-task-ic{font-size:15px;line-height:1}
+.lt5-task-done{background:linear-gradient(180deg,#c8f0c8,#8fd57f)!important;border-color:#4a9633!important}
+.lt5-task-go{width:26px;height:26px;border-radius:50%;background:#a8743a;color:#fff;border:1.5px solid #fff;
+  font-weight:900;cursor:pointer;padding:0;line-height:1;font-size:14px}
+
+/* 底部门牌（v5.3：缩小到 38px，右对齐紧凑，避免遮挡农场） */
+.lt5-plates{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:flex-end;gap:10px;padding:0 12px;z-index:3;pointer-events:none}
+.lt5-plate{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:0;
+  background:transparent;border:none;cursor:pointer;padding:0;color:#5a3a10;font-weight:800;font-size:10px;pointer-events:auto}
+.lt5-plate.lt5-plate-r{align-items:center}
+.lt5-pl-ic{width:38px;height:38px;border-radius:50%;background:linear-gradient(180deg,#fdf3d8,#f5d06f 60%,#d4af37);
+  border:2px solid #fff;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 7px rgba(60,40,10,.25);position:relative}
+.lt5-pl-ic svg{width:18px;height:18px}
+.lt5-pl-tx{background:rgba(60,40,10,.72);color:#f5d06f;font-size:9.5px;padding:1px 7px;border-radius:99px;
+  margin-top:1px;font-weight:800}
+.tm-load,.tm-msg{font-size:12.5px;color:var(--sub);padding:10px 2px;line-height:1.6}
+.tm-lock{font-size:13.5px;color:var(--gold);background:rgba(212,175,55,.1);border:1px solid #6a5a2a;
+  border-radius:12px;padding:16px 14px;text-align:center;line-height:1.7;font-weight:700}
+.tm-stats{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.tm-bonus{font-size:12.5px;font-weight:800;color:#7fd1a8;background:rgba(127,209,168,.1);
+  border:1px solid rgba(127,209,168,.35);border-radius:9px;padding:6px 10px}
+.tm-rankbtn{font-size:12.5px;font-weight:800;color:var(--gold);background:rgba(212,175,55,.12);
+  border:1px solid #6a5a2a;border-radius:9px;padding:6px 12px}
+.tm-mine{font-size:12.5px;color:var(--text);background:var(--bg);border:1px solid var(--c2);
+  border-radius:10px;padding:9px 11px;margin-bottom:12px}
+.tm-mine b{color:var(--gold)}
+.tm-sec-t{font-size:13px;font-weight:800;color:var(--gold);margin:12px 0 8px;display:flex;align-items:center;justify-content:space-between}
+.tm-refresh{font-size:11.5px;color:var(--sub);font-weight:400;border:1px solid #4a3f28;border-radius:7px;padding:3px 9px}
+.tm-create{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.tm-create .uid-in{margin-bottom:0;flex:1;min-width:0}
+.tm-create .go{width:auto;padding:11px 14px;flex:none;white-space:nowrap}
+.tm-lead{font-size:10px;background:rgba(212,175,55,.2);color:var(--gold);border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:middle}
+.tm-kick{padding:7px 10px!important;border-radius:9px;border:1px solid #7a3b30!important;font-size:12px!important;
+  font-weight:800;background:rgba(193,67,47,.15)!important;color:#e08a7a!important;flex:none}
+.tm-leave{margin-top:14px;border-color:#7a3b30!important;color:#e08a7a!important;background:rgba(193,67,47,.12)!important}
+#teamRankBox{margin-top:8px}
+#teamRankBox .fld-row{background:var(--bg);border:1px solid var(--c2)}
+.fld-row.tm-me{background:rgba(212,175,55,.08);border-color:#6a5a2a}
+.fld-row.tm-me .fname{color:var(--gold)}
+
+/* 品牌署名脚注 */
+.foot{text-align:center;font-size:10.5px;color:#6a5f45;padding:6px 0 10px;line-height:1.6}
+.foot b{color:var(--sub)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand"><span class="logo">🔮</span><span class="nm">昊峯天机 · 灵田天机</span></div>
+  <div class="res">
+    <div class="r bi"><span class="ic">🪙</span><span id="rLingbi">--</span></div>
+    <div class="r en"><span class="ic">⚡</span><span id="rEnergy">--</span><span class="bar"><i id="rEnergyBar" style="width:0%"></i></span></div>
+    <div class="r"><span class="ic">🎖️</span><span id="rLevel">Lv--</span></div>
+  </div>
+</header>
+
+<div class="gua" id="guaBanner">
+  <div class="sym" id="guaSym">☯</div>
+  <div class="txt">
+    <div class="t1" id="guaName">今日卦象 · 载入中</div>
+    <div class="t2" id="guaDesc">正在读取天机…</div>
+  </div>
+  <div class="tag">传统文化参考</div>
+</div>
+
+<div class="team-chip" id="teamChip"></div>
+
+<!-- v5 主身重做：HUD 全补齐（QQ 农场完整版）—— 顶部金棕头像卡 + 左 4 圆按钮 + 右上金币条/钻石条/竹篮 -->
+<main>
+  <div class="canvas-wrap">
+    <canvas id="field"></canvas>
+    <div class="fb-banner" id="fbBanner"></div>
+
+    <!-- v5：HUD 全套覆盖在 canvas 之上 -->
+    <div class="lt5-frame">
+      <!-- 左上：红色关机按钮 + 头像卡 -->
+      <div class="lt5-top-l">
+        <button class="lt5-power" id="lt5Power" title="退出">
+          <svg width="22" height="22" viewBox="0 0 22 22"><circle cx="11" cy="11" r="10" fill="none" stroke="#fff" stroke-width="2.4"/><rect x="9.5" y="5" width="2" height="6" rx="1" fill="#fff"/><path d="M11 4.5 L11 8.5" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>
+        </button>
+        <div class="lt5-card">
+          <div class="lt5-avatar">
+            <svg width="44" height="44" viewBox="0 0 44 44"><circle cx="22" cy="22" r="21" fill="#3f7fd0"/><ellipse cx="22" cy="11" rx="16" ry="4" fill="#c9a83a"/><path d="M10 11 q12 -14 24 0 Z" fill="#e8b86f"/><circle cx="22" cy="25" r="10" fill="#ffd9b0"/><circle cx="17" cy="25" r="1.6" fill="#3a2a18"/><circle cx="27" cy="25" r="1.6" fill="#3a2a18"/><path d="M18 29 q4 4 8 0" stroke="#c9663f" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="14" cy="27" r="2" fill="#ff9a8a" opacity="0.7"/><circle cx="30" cy="27" r="2" fill="#ff9a8a" opacity="0.7"/></svg>
+          </div>
+          <div class="lt5-card-body">
+            <div class="lt5-name"><span id="hudName">小小农夫</span><span class="lt5-lv">Lv<span id="hudLv">1</span></span></div>
+            <div class="lt5-exp"><div class="lt5-exp-fill" id="hudExpFill"></div></div>
+            <div class="lt5-exp-tx"><span id="hudExpCur">0</span>/<span id="hudExpMax">100</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- 右上：金币条 + 钻石条 + 竹篮 -->
+      <div class="lt5-top-r">
+        <div class="lt5-coin lt5-coin-y"><span class="lt5-c-ic">¥</span><span id="hudCoins">0</span></div>
+        <div class="lt5-coin lt5-coin-d"><span class="lt5-c-ic">◆</span><span id="hudDia">0</span></div>
+        <button class="lt5-basket" id="lt5Basket" title="仓库">
+          <svg width="34" height="34" viewBox="0 0 34 34"><path d="M5 14 L7 28 L27 28 L29 14 Z" fill="#a8743a" stroke="#5a3a14" stroke-width="1.6"/><path d="M5 14 q12 -10 24 0" fill="none" stroke="#7a5a2a" stroke-width="2"/><line x1="9" y1="14" x2="9" y2="28" stroke="#7a5a2a" stroke-width="1.4"/><line x1="13" y1="14" x2="13" y2="28" stroke="#7a5a2a" stroke-width="1.4"/><line x1="21" y1="14" x2="21" y2="28" stroke="#7a5a2a" stroke-width="1.4"/><line x1="25" y1="14" x2="25" y2="28" stroke="#7a5a2a" stroke-width="1.4"/><circle cx="17" cy="11" r="1.8" fill="#4caf50"/><circle cx="22" cy="9" r="1.8" fill="#ff5a4d"/></svg>
+        </button>
+        <!-- 天气徽标（点击看影响） -->
+        <button class="lt5-weather" id="lt5Weather" title="今日天气">
+          <span class="lt5-w-ic" id="hudWeatherIc">☀️</span>
+          <span class="lt5-w-tx" id="hudWeatherTx">晴天</span>
+        </button>
+      </div>
+      <!-- 左侧 4 个金圆按钮 -->
+      <div class="lt5-left">
+        <button class="lt5-circ" id="lt5Share" title="分享"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M4 12 L18 4 L11 19 L9 13 Z" fill="#fff"/><circle cx="4" cy="12" r="2" fill="#fff"/></svg></button>
+        <button class="lt5-circ" id="lt5Music" title="背景音"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M7 16 V7 L17 5 V14" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/><circle cx="6" cy="16" r="2.2" fill="#fff"/><circle cx="16" cy="14" r="2.2" fill="#fff"/></svg></button>
+        <button class="lt5-circ" id="lt5Cam" title="截图"><svg width="22" height="22" viewBox="0 0 22 22"><rect x="3" y="6" width="16" height="12" rx="2" fill="none" stroke="#fff" stroke-width="2"/><circle cx="11" cy="12" r="3.4" fill="none" stroke="#fff" stroke-width="2"/><rect x="8" y="4" width="6" height="3" rx="1" fill="#fff"/></svg></button>
+        <button class="lt5-circ" id="lt5Menu" title="菜单"><svg width="22" height="22" viewBox="0 0 22 22"><rect x="4" y="5" width="14" height="2.4" rx="1" fill="#fff"/><rect x="4" y="10" width="14" height="2.4" rx="1" fill="#fff"/><rect x="4" y="15" width="14" height="2.4" rx="1" fill="#fff"/></svg></button>
+      </div>
+      <!-- 中央大圆收获 + 任务卡 -->
+      <div class="lt5-center">
+        <button class="lt5-harvest" id="lt5Harvest" title="一键收获">
+          <svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="27" fill="#fff" stroke="#a8743a" stroke-width="3"/><circle cx="29" cy="29" r="23" fill="#f5d06f" opacity="0.45"/><path d="M14 28 q15 -14 30 0" fill="none" stroke="#a8743a" stroke-width="2.4" stroke-linecap="round"/><path d="M21 33 q8 -6 16 0 q-2 8 -8 8 q-6 0 -8 -8Z" fill="#a8743a" opacity="0.5"/></svg>
+        </button>
+        <div class="lt5-task" id="lt5Task">
+          <div class="lt5-task-l">
+            <span class="lt5-task-ic" id="lt5TaskIc">🖐️</span>
+            <span>完成1次收获 <span id="lt5TaskTx">(0/1)</span></span>
+          </div>
+          <button class="lt5-task-go" id="lt5TaskGo" title="去完成">→</button>
+        </div>
+      </div>
+      <!-- 底部门牌按钮 -->
+      <div class="lt5-plates">
+        <button class="lt5-plate" id="lt5P1"><div class="lt5-pl-ic"><svg width="22" height="22" viewBox="0 0 22 22"><path d="M3 9 L11 4 L19 9 L19 18 L3 18 Z" fill="#f5d06f" stroke="#a8743a" stroke-width="1.6"/><rect x="9" y="11" width="4" height="7" fill="#a8743a"/></svg></div><span class="lt5-pl-tx">仓库</span></button>
+        <button class="lt5-plate" id="lt5P2"><div class="lt5-pl-ic"><svg width="22" height="22" viewBox="0 0 22 22"><rect x="3" y="6" width="16" height="14" rx="1.5" fill="#f5d06f" stroke="#a8743a" stroke-width="1.6"/><rect x="7" y="3" width="8" height="4" fill="#a8743a"/><line x1="11" y1="10" x2="11" y2="16" stroke="#a8743a" stroke-width="1.6"/></svg></div><span class="lt5-pl-tx">商店</span></button>
+        <button class="lt5-plate lt5-plate-r" id="lt5P3"><div class="lt5-pl-ic"><svg width="22" height="22" viewBox="0 0 22 22"><circle cx="7" cy="8" r="3.2" fill="#f5d06f"/><circle cx="14" cy="9" r="3.6" fill="#a8743a"/><path d="M3 19 q4 -6 8 -2 M11 19 q4 -8 8 -2" fill="none" stroke="#a8743a" stroke-width="1.8"/></svg></div><span class="lt5-pl-tx">好友</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">点 <b>空地</b> 播种 ｜ 点 <b>成熟灵植</b> 收获 ｜ 点 <b>生长中</b> 选中后可浇水/护田</div>
+  <div class="foot">昊峯天机 · 灵田天机 &nbsp;|&nbsp; 五行生克为传统文化参考，请理性看待</div>
+</main>
+
+<!-- 新手引导条 -->
+<div class="guide" id="guideBar">
+  <div class="steps">
+    <span class="st on" data-step="0"><span class="n">1</span>选种</span>
+    <span style="color:#4a3f28">›</span>
+    <span class="st" data-step="1"><span class="n">2</span>收获</span>
+    <span style="color:#4a3f28">›</span>
+    <span class="st" data-step="2"><span class="n">3</span>偷菜</span>
+  </div>
+  <button class="cl" id="guideClose">知道了</button>
+</div>
+
+<!-- 遮罩 + 抽屉 -->
+<div class="mask" id="mask"></div>
+
+<!-- 种子抽屉 -->
+<div class="sheet" id="seedSheet">
+  <div class="sh-title"><span>选择灵植种子</span><button class="sh-x" id="seedX">✕</button></div>
+  <div class="sh-sub" id="seedSub">相邻五行相生（木→火→土→金→水）可增产，相克会拖慢成熟。</div>
+  <div class="seed-grid" id="seedGrid"></div>
+</div>
+
+<!-- 偷菜 / 好友抽屉 -->
+<div class="sheet" id="stealSheet">
+  <div class="sh-title"><span>👥 好友 · 串门偷菜</span><button class="sh-x" id="stealX">✕</button></div>
+  <div id="stealList" style="margin-top:4px"></div>
+</div>
+
+<!-- 组队竞赛抽屉 -->
+<div class="sheet" id="teamSheet">
+  <div class="sh-title"><span>👥 组队竞赛</span><button class="sh-x" id="teamX">✕</button></div>
+  <div class="sh-sub">会员可与好友组队，同队本周收获灵币计入团队总分；每名有贡献队员为全队加成 harvest 产量。</div>
+  <div id="teamBody"><div class="tm-load">正在读取队伍天机…</div></div>
+</div>
+
+<!-- 🧺 仓库 / 我的灵田战绩 -->
+<div class="sheet" id="barnSheet">
+  <div class="sh-title"><span>🧺 我的灵田</span><button class="sh-x" id="barnX">✕</button></div>
+  <div class="sh-sub">灵田战绩与今日概况</div>
+  <div id="barnBody"></div>
+</div>
+
+<!-- ⛅ 天气详情 -->
+<div class="sheet" id="weatherSheet">
+  <div class="sh-title"><span>🌤 今日天气</span><button class="sh-x" id="weatherX">✕</button></div>
+  <div class="sh-sub">天气影响当日收成 · 每日轮转（文化参考）</div>
+  <div id="weatherBody"></div>
+</div>
+
+<div class="sheet" id="rulesSheet">
+  <div class="sh-title"><span>☰ 玩法 · 灵植图鉴</span><button class="sh-x" id="rulesX">✕</button></div>
+  <div class="sh-sub">五行相生相克 · 每日卦象 · 兑换规则</div>
+  <div id="rulesBody"></div>
+</div>
+
+<!-- 🏪 商店 / 买种子 -->
+<div class="sheet" id="shopSheet">
+  <div class="sh-title"><span>🏪 灵植商店</span><button class="sh-x" id="shopX">✕</button></div>
+  <div class="sh-sub">用灵币购买种子存入背包；播种时优先消耗背包种子</div>
+  <div id="shopBody"></div>
+</div>
+
+<!-- 📷 分享海报 -->
+<div class="sheet" id="posterSheet">
+  <div class="sh-title"><span>📷 分享海报</span><button class="sh-x" id="posterX">✕</button></div>
+  <div class="sh-sub">生成你的灵田战报，分享给好友一起种田</div>
+  <div id="posterBody" style="text-align:center"></div>
+</div>
+
+<div id="ltToast"></div>
+
+<script>
+(function(){
+'use strict';
+/* ================= 常量 ================= */
+var EL={mu:{c:'#4caf7d',n:'木'},huo:{c:'#e0563f',n:'火'},tu:{c:'#c9a34e',n:'土'},jin:{c:'#cfd6dd',n:'金'},shui:{c:'#4a90d9',n:'水'}};
+var SHENG={mu:'huo',huo:'tu',tu:'jin',jin:'shui',shui:'mu'};
+var KE={mu:'tu',tu:'shui',shui:'huo',huo:'jin',jin:'mu'};
+
+/* ================= 状态 ================= */
+var S={me:null,gua:null,weather:null,plots:[],cfg:null,catalog:{plants:[],elements:{}},uid:null,team:null,teamBonus:0};
+var sel=-1;                 // 当前选中格
+var demo=false;             // 后端未就绪时的预览模式
+var needsLogin=false;       // 未登录（401）—— 不再误报「后端未就绪」
+// 离线检测：iOS App 内置版从 file:// 加载 → 纯本地游戏模式（不发任何网络请求）
+var OFFLINE=false;
+try{OFFLINE=(location.protocol==='file:')||(location.origin==='null');}catch(e){OFFLINE=false;}
+var LT_LOC='lt_local_';       // 离线存档键前缀
+var guideSteps={plant:false,harvest:false,steal:false};
+
+/* ================= 工具 ================= */
+function tok(){try{return localStorage.getItem('yx_tk')||''}catch(e){return ''}}
+function $(id){return document.getElementById(id)}
+function api(path,opt){
+  opt=opt||{};
+  var h=opt.headers||{};
+  h['X-Token']=tok();
+  if(opt.body&&!h['Content-Type'])h['Content-Type']='application/json';
+  opt.headers=h;opt.credentials='include';
+  return fetch(path,opt).then(function(r){
+    return r.json().catch(function(){return {ok:false,msg:'响应解析失败'}}).then(function(d){
+      if(d&&typeof d==='object'){d._status=r.status}
+      return d;
+    });
+  });
+}
+function toast(msg,sub,ms){
+  var w=$('ltToast');var el=document.createElement('div');el.className='lt-t';
+  el.innerHTML='<span>'+msg+(sub?'<span class="s">'+sub+'</span>':'')+'</span>';
+  w.appendChild(el);requestAnimationFrame(function(){el.classList.add('show')});
+  setTimeout(function(){el.classList.remove('show');setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el)},280)},ms||2200);
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function fmt(n){n=Number(n)||0;return n>=10000?(n/1000).toFixed(1)+'k':String(Math.round(n))}
+
+/* ================= Canvas 渲染 ================= */
+var cv=$('field'),ctx=cv.getContext('2d');
+var CW=0,CH=0,DPR=1;
+var parts=[],floats=[],ripples=[];   // 粒子池 / 飘字 / 点击反馈
+var COLS=5,ROWS=4;                  // v5：5×4=20 格（对齐参考图 20 块田）；引擎 PLOT_COUNT=6 不变，前 6 格点亮、后 14 格灰锁
+var PLOT_LIT=6;                      // 玩法/经济亮格数 = 后端 PLOT_COUNT
+var t0=performance.now();
+
+/* ---- 美术层装配状态（C 分身）：农夫 / 小偷 / 队伍 ---- */
+var farmer={pose:'idle',animUntil:0};      // 田间农夫（收获动作）
+var thief=null;                            // 偷菜时出现的小偷 {cx,cy,t0,dur}
+var lineup=[];                             // 可选：队伍列队（uid 列表）
+function artOK(){return !!(window.LTArt&&window.LTChar)}
+
+function resize(){
+  var wrap=cv.parentNode;
+  var w=wrap.clientWidth||Math.min(window.innerWidth-20,540);
+  // v5.2：版面拉长（1.40→1.62），更像手机竖屏农场；田块/场景按新高度重排
+  var h=Math.round(w*1.62);
+  DPR=Math.min(window.devicePixelRatio||1,2);
+  cv.style.height=h+'px';
+  cv.width=Math.round(w*DPR);cv.height=Math.round(h*DPR);
+  CW=w;CH=h;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+
+/* v5.2：拉长后田块仍居中，但高度调到合适的 0.295~0.525（5×4 共占 23% 高度，留出空间） */
+var FIELD={x0:0.130,y0:0.295,x1:0.870,y1:0.525};
+function cellRect(i){
+  var r=Math.floor(i/COLS),c=i%COLS;
+  var fx0=CW*FIELD.x0, fx1=CW*FIELD.x1;
+  var fy0=CH*FIELD.y0, fy1=CH*FIELD.y1;
+  var gapx=(fx1-fx0)*0.045, gapy=(fy1-fy0)*0.045;
+  var cw=((fx1-fx0)-gapx*(COLS-1))/COLS;
+  var ch=((fy1-fy0)-gapy*(ROWS-1))/ROWS;
+  return {x:fx0+c*(cw+gapx), y:fy0+r*(ch+gapy), w:cw, h:ch};
+}
+
+/* 昼夜天色：按本地小时插值 */
+function skyColors(){
+  var h=new Date().getHours()+new Date().getMinutes()/60;
+  var stops=[
+    {t:0,   top:[10,14,28], bot:[26,32,50]},   // 深夜
+    {t:5,   top:[24,26,48], bot:[70,58,74]},   // 黎明
+    {t:7.5, top:[70,96,150],bot:[180,150,120]},// 日出
+    {t:12,  top:[86,132,190],bot:[150,178,150]},// 正午
+    {t:17,  top:[96,120,168],bot:[190,150,110]},// 午后
+    {t:19.5,top:[60,60,110], bot:[150,96,70]}, // 黄昏
+    {t:22,  top:[16,20,40],  bot:[30,36,56]},  // 入夜
+    {t:24,  top:[10,14,28],  bot:[26,32,50]}
+  ];
+  var a=stops[0],b=stops[stops.length-1];
+  for(var i=0;i<stops.length-1;i++){if(h>=stops[i].t&&h<=stops[i+1].t){a=stops[i];b=stops[i+1];break}}
+  var k=b.t===a.t?0:(h-a.t)/(b.t-a.t);k=Math.max(0,Math.min(1,k));
+  function mix(u,v){return 'rgb('+Math.round(u[0]+(v[0]-u[0])*k)+','+Math.round(u[1]+(v[1]-u[1])*k)+','+Math.round(u[2]+(v[2]-u[2])*k)+')'}
+  return {top:mix(a.top,b.top),bot:mix(a.bot,b.bot)};
+}
+
+function roundRect(x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();
+}
+
+function emitParticle(i){
+  var pl=S.plots[i];if(!pl||pl.state!=='growing')return;
+  if(parts.length>=60)return;
+  var r=cellRect(i),el=EL[pl.element]||EL.mu;
+  parts.push({x:r.x+r.w*(0.3+Math.random()*0.4),y:r.y+r.h*0.6,
+    vx:(Math.random()-0.5)*0.25,vy:-(0.2+Math.random()*0.4),
+    life:1,color:el.c,size:1.6+Math.random()*2.2});
+}
+
+function drawLegacyScene(dt,now){
+  var sky=skyColors();
+  var g=ctx.createLinearGradient(0,0,0,CH);
+  g.addColorStop(0,sky.top);g.addColorStop(1,sky.bot);
+  ctx.fillStyle=g;ctx.fillRect(0,0,CW,CH);
+
+  // 星点（夜里）
+  var hr=new Date().getHours();
+  if(hr>=19||hr<5){
+    ctx.save();ctx.fillStyle='rgba(255,255,255,.5)';
+    for(var s=0;s<22;s++){
+      var sx=((s*97.13)%CW),sy=((s*53.7)%(CH*0.5));
+      var tw=0.4+0.6*Math.abs(Math.sin(now/900+s));
+      ctx.globalAlpha=tw*0.6;ctx.fillRect(sx,sy,1.4,1.4);
+    }
+    ctx.restore();
+  }
+
+  for(var i=0;i<6;i++)drawPlotLegacy(i,now);
+
+  // 粒子
+  for(var p=parts.length-1;p>=0;p--){
+    var pa=parts[p];pa.x+=pa.vx;pa.y+=pa.vy;pa.life-=dt/1400;
+    if(pa.life<=0){parts.splice(p,1);continue}
+    ctx.globalAlpha=Math.max(0,pa.life)*0.85;ctx.fillStyle=pa.color;
+    ctx.beginPath();ctx.arc(pa.x,pa.y,pa.size,0,7);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  // 点击涟漪
+  for(var rp=ripples.length-1;rp>=0;rp--){
+    var rr=ripples[rp];rr.r+=dt*0.13;rr.life-=dt/620;
+    if(rr.life<=0){ripples.splice(rp,1);continue}
+    ctx.globalAlpha=Math.max(0,rr.life)*0.5;ctx.strokeStyle='#d4af37';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(rr.x,rr.y,rr.r,0,7);ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+
+  // 收获飘字
+  ctx.textAlign='center';
+  for(var f=floats.length-1;f>=0;f--){
+    var fl=floats[f];fl.y-=dt*0.045;fl.life-=dt/1500;
+    if(fl.life<=0){floats.splice(f,1);continue}
+    ctx.globalAlpha=Math.max(0,Math.min(1,fl.life*1.6));
+    ctx.font='800 16px -apple-system,PingFang SC,sans-serif';
+    ctx.fillStyle=fl.color||'#d4af37';
+    ctx.shadowColor='rgba(0,0,0,.7)';ctx.shadowBlur=6;
+    ctx.fillText(fl.text,fl.x,fl.y);
+    ctx.shadowBlur=0;
+  }
+  ctx.globalAlpha=1;ctx.textAlign='start';
+}
+
+function drawPlotLegacy(i,now){
+  var r=cellRect(i),pl=S.plots[i]||{state:'empty'};
+  var isSel=(i===sel);
+
+  // 耕地底
+  ctx.save();
+  roundRect(r.x,r.y,r.w,r.h,14);
+  var soil=ctx.createLinearGradient(r.x,r.y,r.x,r.y+r.h);
+  soil.addColorStop(0,'rgba(74,58,36,.92)');soil.addColorStop(1,'rgba(48,36,22,.94)');
+  ctx.fillStyle=soil;ctx.fill();
+  ctx.clip();
+  // 犁沟纹理
+  ctx.strokeStyle='rgba(140,110,70,.22)';ctx.lineWidth=1;
+  for(var ly=r.y+12;ly<r.y+r.h;ly+=11){
+    ctx.beginPath();ctx.moveTo(r.x+6,ly);ctx.lineTo(r.x+r.w-6,ly);ctx.stroke();
+  }
+  ctx.restore();
+
+  // 边线
+  ctx.save();roundRect(r.x+0.5,r.y+0.5,r.w-1,r.h-1,14);
+  ctx.lineWidth=isSel?2.4:1.2;
+  ctx.strokeStyle=isSel?'#d4af37':'rgba(212,175,55,.32)';
+  if(isSel){ctx.shadowColor='rgba(212,175,55,.55)';ctx.shadowBlur=12;}
+  ctx.stroke();ctx.restore();
+
+  var cx=r.x+r.w/2,cy=r.y+r.h/2;
+  var el=EL[pl.element]||EL.mu;
+
+  if(pl.state==='empty'||!pl.state){
+    ctx.save();ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.font='300 34px -apple-system,sans-serif';ctx.fillStyle='rgba(212,175,55,.55)';
+    ctx.fillText('＋',cx,cy-4);
+    ctx.font='500 11px -apple-system,PingFang SC,sans-serif';ctx.fillStyle='rgba(154,138,106,.85)';
+    ctx.fillText('空地 · 点击播种',cx,cy+24);
+    ctx.restore();
+    return;
+  }
+
+  var emoji=pl.emoji||'🌱';
+  var prog=Math.max(0,Math.min(1,pl.progress||0));
+  var isRipe=(pl.state==='ripe'||pl.ripe);
+
+  // 生长光环
+  if(pl.state==='growing'){
+    ctx.save();
+    var rad=Math.min(r.w,r.h)*0.34;
+    // 进度环
+    ctx.beginPath();ctx.arc(cx,cy,rad+11,-Math.PI/2,-Math.PI/2+Math.PI*2*prog);
+    ctx.strokeStyle=el.c;ctx.lineWidth=4;ctx.lineCap='round';
+    ctx.shadowColor=el.c;ctx.shadowBlur=10;ctx.stroke();
+    // 环底
+    ctx.beginPath();ctx.arc(cx,cy,rad+11,0,Math.PI*2);
+    ctx.strokeStyle='rgba(255,255,255,.10)';ctx.lineWidth=4;ctx.shadowBlur=0;ctx.stroke();
+    ctx.restore();
+  }
+
+  // 成熟光晕
+  if(isRipe){
+    ctx.save();
+    var pulse=0.55+0.45*Math.sin(now/360);
+    var rg=ctx.createRadialGradient(cx,cy,4,cx,cy,Math.min(r.w,r.h)*0.52);
+    rg.addColorStop(0,'rgba(212,175,55,'+(0.42*pulse)+')');
+    rg.addColorStop(1,'rgba(212,175,55,0)');
+    ctx.fillStyle=rg;ctx.beginPath();ctx.arc(cx,cy,Math.min(r.w,r.h)*0.52,0,7);ctx.fill();
+    ctx.restore();
+  }
+
+  // 护田结界（金色描边）
+  if(pl.protect_until&&pl.protect_until*1000>Date.now()){
+    ctx.save();
+    var pp=0.5+0.5*Math.sin(now/520);
+    roundRect(r.x+5,r.y+5,r.w-10,r.h-10,12);
+    ctx.setLineDash([7,5]);ctx.lineDashOffset=-now/70;
+    ctx.lineWidth=2.4;ctx.strokeStyle='rgba(212,175,55,'+(0.55+0.4*pp)+')';
+    ctx.shadowColor='#d4af37';ctx.shadowBlur=12;ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font='500 10px -apple-system,PingFang SC,sans-serif';ctx.fillStyle='#d4af37';
+    ctx.textAlign='left';ctx.fillText('🛡️护田',r.x+10,r.y+18);
+    ctx.restore();
+  }
+
+  // emoji 灵植（成熟跳动）
+  var bob=isRipe?Math.sin(now/190)*5:0;
+  ctx.save();
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.font=(isRipe?'44px ':'38px ')+'-apple-system,"Noto Color Emoji",sans-serif';
+  ctx.fillText(emoji,cx,cy+bob-4);
+  ctx.restore();
+
+  // 名称 + 状态
+  ctx.save();ctx.textAlign='center';
+  ctx.font='700 11.5px -apple-system,PingFang SC,sans-serif';
+  ctx.fillStyle='rgba(232,220,200,.92)';
+  ctx.fillText((pl.name||'')+(pl.element?'':'') ,cx,r.y+r.h-30);
+  ctx.font='500 10.5px -apple-system,PingFang SC,sans-serif';
+  if(isRipe){
+    ctx.fillStyle='#d4af37';
+    ctx.fillText('✨ 可收获'+(pl.yield_preview?' +'+Math.round(pl.yield_preview):''),cx,r.y+r.h-14);
+  }else{
+    ctx.fillStyle=el.c;
+    ctx.fillText('生长中 '+(pl.remain_sec!=null?Math.max(0,Math.ceil(pl.remain_sec))+'s':'')+' · '+Math.round(prog*100)+'%',cx,r.y+r.h-14);
+    // 被偷标记
+    if(pl.stolen_pct>0){
+      ctx.fillStyle='#c1432f';
+      ctx.font='500 10px -apple-system,sans-serif';
+      ctx.fillText('被偷 '+Math.round(pl.stolen_pct*100)+'%',cx,r.y+r.h-27);
+    }
+  }
+  ctx.restore();
+}
+
+/* ================= 美术层装配（C）：农田场景 + 人物 + 动作 ================= */
+function plPlotView(i){
+  var pl=S.plots[i]||{};
+  var st=pl.state||'empty';
+  var prog=pl.progress;
+  if(prog==null){if(st==='ripe'||pl.ripe)prog=1;else if(st==='growing')prog=0.5;else prog=0}
+  return {
+    element:pl.element||'mu',
+    state:st,
+    progress:Math.max(0,Math.min(1,prog)),
+    ripe:(st==='ripe'||pl.ripe===true),
+    selected:(i===sel)
+  };
+}
+function drawEffects(dt,now){
+  // 粒子（生长中的格子）
+  for(var p=parts.length-1;p>=0;p--){
+    var pa=parts[p];pa.x+=pa.vx;pa.y+=pa.vy;pa.life-=dt/1400;
+    if(pa.life<=0){parts.splice(p,1);continue}
+    ctx.globalAlpha=Math.max(0,pa.life)*0.85;ctx.fillStyle=pa.color;
+    ctx.beginPath();ctx.arc(pa.x,pa.y,pa.size,0,7);ctx.fill();
+  }
+  ctx.globalAlpha=1;
+
+  // 点击涟漪
+  for(var rp=ripples.length-1;rp>=0;rp--){
+    var rr=ripples[rp];rr.r+=dt*0.13;rr.life-=dt/620;
+    if(rr.life<=0){ripples.splice(rp,1);continue}
+    ctx.globalAlpha=Math.max(0,rr.life)*0.5;ctx.strokeStyle='#d4af37';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(rr.x,rr.y,rr.r,0,7);ctx.stroke();
+  }
+  ctx.globalAlpha=1;
+
+  // 飘字
+  ctx.textAlign='center';
+  for(var f=floats.length-1;f>=0;f--){
+    var fl=floats[f];fl.y-=dt*0.045;fl.life-=dt/1500;
+    if(fl.life<=0){floats.splice(f,1);continue}
+    ctx.globalAlpha=Math.max(0,Math.min(1,fl.life*1.6));
+    ctx.font='800 16px -apple-system,PingFang SC,sans-serif';
+    ctx.fillStyle=fl.color||'#d4af37';
+    ctx.shadowColor='rgba(0,0,0,.7)';ctx.shadowBlur=6;
+    ctx.fillText(fl.text,fl.x,fl.y);
+    ctx.shadowBlur=0;
+  }
+  ctx.globalAlpha=1;ctx.textAlign='start';
+}
+
+function drawArtScene(dt,now){
+  var hour=new Date().getHours()+new Date().getMinutes()/60;
+
+  /* 1. 农田背景（天色/远山/地面/田埂/房屋/树/灌木/小路） */
+  LTArt.drawFarm(ctx,CW,CH,now,hour);
+
+  /* 2. 逐格田块（v5：5×4=20 格：前 6 格从 state.plots 渲染；后 14 格灰锁"可开垦"） */
+  var total=COLS*ROWS;             // 20
+  for(var i=0;i<total;i++){
+    var r=cellRect(i);
+    var cx=r.x+r.w/2,cy=r.y+r.h/2;
+    var lit=(i<PLOT_LIT);
+    var pl=lit?(S.plots[i]||{}):{};
+    var st=lit?(pl.state||'empty'):'';
+    var view;
+
+    if(lit){
+      view=plPlotView(i);          // {element,state,progress,ripe,selected}
+    }else{
+      // 未开垦格：传 locked 标记，LTArt.drawPlot 自动画灰土+金黄小锁
+      view={locked:true,state:'locked',element:'tu',progress:0,ripe:false,selected:false};
+    }
+
+    /* 2.1 画田块（菱形立体砖；锁定格画灰土+锁） */
+    LTArt.drawPlot(ctx,r.x,r.y,r.w,r.h,view,now);
+
+    /* 2.2 画灵植（仅前 6 格生长中/成熟时） */
+    if(lit&&st&&st!=='empty'){
+      var prog=view.progress;
+      if(st==='growing'){
+        LTArt.drawProgressRing(ctx,cx,cy,Math.min(r.w,r.h)*0.34+9,prog,now);
+      }
+      // 成熟光晕由 LTArt.drawPlant 内部处理
+      LTArt.drawPlant(ctx,cx,cy,view,now);
+    }
+
+    /* 护田结界（金色虚线框叠在田块上） —— 仅前 6 格 */
+    if(lit&&pl.protect_until&&pl.protect_until*1000>Date.now()){
+      var pp=0.5+0.5*Math.sin(now/520);
+      ctx.save();
+      roundRect(r.x+5,r.y+5,r.w-10,r.h-10,12);
+      ctx.setLineDash([7,5]);ctx.lineDashOffset=-now/70;
+      ctx.lineWidth=2.4;ctx.strokeStyle='rgba(212,175,55,'+(0.55+0.4*pp)+')';
+      ctx.shadowColor='#d4af37';ctx.shadowBlur=12;ctx.stroke();
+      ctx.setLineDash([]);ctx.shadowBlur=0;
+      ctx.font='500 10px -apple-system,PingFang SC,sans-serif';ctx.fillStyle='#d4af37';
+      ctx.textAlign='left';ctx.fillText('🛡️护田',r.x+10,r.y+18);
+      ctx.restore();
+    }
+
+    /* 作物名称 / 状态文字（保留） —— 仅前 6 格 */
+    if(lit&&st&&st!=='empty'){
+      var elc=(EL[pl.element]||{}).c||'#d4af37';
+      ctx.save();ctx.textAlign='center';
+      ctx.font='700 11.5px -apple-system,PingFang SC,sans-serif';
+      ctx.fillStyle='rgba(232,220,200,.92)';
+      ctx.fillText((pl.name||''),cx,r.y+r.h-30);
+      ctx.font='500 10.5px -apple-system,PingFang SC,sans-serif';
+      if(view.ripe){
+        ctx.fillStyle='#d4af37';
+        ctx.fillText('✨ 可收获'+(pl.yield_preview?' +'+Math.round(pl.yield_preview):''),cx,r.y+r.h-14);
+      }else{
+        ctx.fillStyle=elc;
+        ctx.fillText('生长中 '+(pl.remain_sec!=null?Math.max(0,Math.ceil(pl.remain_sec))+'s':'')+' · '+Math.round(prog*100)+'%',cx,r.y+r.h-14);
+        if(pl.stolen_pct>0){
+          ctx.fillStyle='#c1432f';
+          ctx.font='500 10px -apple-system,sans-serif';
+          ctx.fillText('被偷 '+Math.round(pl.stolen_pct*100)+'%',cx,r.y+r.h-27);
+        }
+      }
+      ctx.restore();
+    }else if(!lit){
+      // 灰锁格：底部小字"可开垦"
+      ctx.save();ctx.textAlign='center';
+      ctx.font='600 9.5px -apple-system,PingFang SC,sans-serif';
+      ctx.fillStyle='rgba(212,175,55,.55)';
+      ctx.fillText('可开垦',cx,r.y+r.h-10);
+      ctx.restore();
+    }
+  }
+
+  /* 3. 效果层（粒子/涟漪/飘字） */
+  drawEffects(dt,now);
+
+  /* 4. 田间农夫：主身修复——站底部操作栏上方，避免被锁格压住；收获时移到操作格 */
+  var fx=CW*0.5,fy=CH-32;
+  if(farmer.animUntil>now&&farmer.cell!=null){
+    var fr=cellRect(farmer.cell);fx=fr.x+fr.w*0.5;fy=fr.y+fr.h-4;
+  }
+  LTChar.draw(ctx,fx,fy,{kind:'farmer',pose:farmer.pose,scale:0.92},now);
+  if(farmer.animUntil&&farmer.animUntil<=now&&farmer.pose!=='idle'){farmer.pose='idle';farmer.cell=null}
+
+  /* 5. 偷菜小偷：出场约 0.8s */
+  if(thief){
+    var el2=now-thief.t0;
+    if(el2>=thief.dur){thief=null}
+    else{
+      var tx=thief.cx-el2*0.34;
+      var ty=thief.cy;
+      ctx.save();
+      ctx.globalAlpha=el2>thief.dur-220?Math.max(0,(thief.dur-el2)/220):1;
+      LTChar.draw(ctx,tx,ty,{kind:'thief',pose:'sneak',scale:0.95},now);
+      ctx.restore();
+    }
+  }
+
+  /* 6. 组队 sheet 队员列队（可选） */
+  var tbs=$('teamSheet');
+  if(tbs&&tbs.classList.contains('show')&&lineup.length){
+    LTChar.drawLineup(ctx,CW/2,CH-10,lineup.length,{kind:'mate'},now);
+  }
+
+  /* 7. 天气叠层（v5.6）：晴天暖光 / 阴天灰蒙 / 雨天雨丝 —— 覆盖全场景 */
+  if(LTArt.drawWeather){ LTArt.drawWeather(ctx,CW,CH,now,(S.weather&&S.weather.key)||'sunny'); }
+
+  /* 8. 顶部 HUD（金棕头像卡 + 金币/钻石条）—— 主身修复：改由 HTML 层 #hudLtHead 渲染（避开 fbBanner 遮挡；lt-art 的 drawHUD 仍保留以备画 canvas 内层时调用） */
+  /* try{LTArt.drawHUD(ctx,CW,CH,S,now)}catch(e){} */
+}
+
+function draw(dt,now){
+  if(artOK())drawArtScene(dt,now);
+  else drawLegacyScene(dt,now);
+}
+
+var last=performance.now();
+function loop(now){
+  var dt=Math.min(64,now-last);last=now;
+  if(Math.random()<0.22){
+    // 随机给生长中的格子喷粒子
+    var gs=[];for(var i=0;i<S.plots.length;i++){if(S.plots[i]&&S.plots[i].state==='growing')gs.push(i)}
+    if(gs.length)emitParticle(gs[Math.floor(Math.random()*gs.length)]);
+  }
+  draw(dt,now);
+  requestAnimationFrame(loop);
+}
+
+/* ================= 交互 ================= */
+function hitTest(x,y){
+  // C 分身 v4：仅前 6 格可点击（玩法/经济亮格数 = 后端 PLOT_COUNT），后 19 灰锁不响应
+  for(var i=0;i<PLOT_LIT;i++){var r=cellRect(i);if(x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h)return i}
+  return -1;
+}
+cv.addEventListener('click',function(e){
+  var rect=cv.getBoundingClientRect();
+  var x=(e.clientX-rect.left),y=(e.clientY-rect.top);
+  ripples.push({x:x,y:y,r:6,life:1});
+  var i=hitTest(x,y);if(i<0)return;
+  var pl=S.plots[i];
+  if(!pl||pl.state==='empty'){openSeed(i);return}
+  if(pl.state==='ripe'||pl.ripe){doHarvest(i);return}
+  // 生长中：选中
+  sel=i;
+  toast('已选中 '+esc(pl.name||'灵植'),'可点「💧浇水」加速 或 「🛡️护田」防护',1600);
+});
+
+/* ================= 数据加载 ================= */
+function applyState(st){
+  if(!st)return;
+  if(st.me)S.me=st.me;
+  if(st.gua)S.gua=st.gua;
+  if(st.weather)S.weather=st.weather;
+  if(st.cfg)S.cfg=st.cfg;
+  if(st.plots)S.plots=st.plots;
+  if(st.bag)S.bag=st.bag;
+  if('team' in st)S.team=st.team;
+  if(st.bonus)S.teamBonus=(st.bonus.pct!=null?st.bonus.pct:st.bonus);
+  renderTop();renderGua();renderWeather();renderTeamChip();renderHud();
+  // 清理失效选中
+  if(sel>=0){var p=S.plots[sel];if(!p||p.state==='empty')sel=-1;}
+  if(S.cfg&&S.cfg.enabled===0){
+    $('fbBanner').textContent='游戏暂时关闭维护中，请稍后再来 🙏';$('fbBanner').classList.add('show');
+  }else{$('fbBanner').classList.remove('show')}
+  if(S.cfg&&S.cfg.notice){$('fbBanner').textContent=S.cfg.notice;$('fbBanner').classList.add('show')}
+}
+
+/* 队伍小标（已入队时显示在日卦下方） */
+function renderTeamChip(){
+  var chip=$('teamChip');if(!chip)return;
+  var t=S.team;
+  if(t&&t.id){
+    var pct=S.teamBonus;
+    if(pct==null)pct=0;
+    var pctTxt=(Math.round(Number(pct)*1000)/10)+'%';
+    chip.innerHTML='👥 '+esc(t.name||'我的队伍')+' · 加成 <b>+'+pctTxt+'</b>';
+    chip.classList.add('show');
+    chip.onclick=openTeamSheet;
+  }else{
+    chip.classList.remove('show');
+    chip.onclick=null;
+  }
+}
+
+/* 主身 v5：HTML 顶部 HUD 数据填充（真实数据优先） */
+function renderHud(){
+  var me=S.me||{};
+  var name=me.name||(S.cfg&&S.cfg.user_name)||'小小农夫';
+  var lv=me.level||1;
+  var exp=Number(me.exp||0),mx=Number(me.exp_need||me.maxExp||100);
+  var coins=Number(me.lingbi||0);
+  var dia=Number(me.points||0);      // 钻石位显示站点积分
+  $('hudName').textContent=name;
+  $('hudLv').textContent=lv;
+  $('hudExpFill').style.width=Math.min(100,Math.round(exp/mx*100))+'%';
+  $('hudExpCur').textContent=Math.round(exp);
+  $('hudExpMax').textContent=mx;
+  $('hudCoins')&&($('hudCoins').textContent=formatN(coins));
+  $('hudDia')&&($('hudDia').textContent=formatN(dia));
+  renderTasks();
+}
+/* 真实任务链：收获 → 播种 → 偷菜 → 组队 */
+function renderTasks(){
+  var g=guideSteps||{};
+  var done=(g.harvest?1:0);
+  var tx=$('lt5TaskTx');
+  if(tx)tx.textContent='('+done+'/1)';
+  var ic=$('lt5TaskIc');
+  if(ic)ic.textContent=g.harvest?'✅':'🖐️';
+  var box=$('lt5Task');
+  if(box)box.classList.toggle('lt5-task-done',!!g.harvest);
+}
+function formatN(n){
+  n=Number(n)||0;
+  if(n>=100000000)return (n/100000000).toFixed(1)+'亿';
+  if(n>=10000)return (n/10000).toFixed(1)+'万';
+  if(n>=1000)return (n/1000).toFixed(1)+'k';
+  return String(Math.round(n));
+}
+
+function renderTop(){
+  var me=S.me||{};
+  var rL=$('rLingbi');if(rL)rL.textContent=fmt(me.lingbi);
+  var rE=$('rEnergy');if(rE)rE.textContent=(me.energy!=null?me.energy:'--')+'/'+(me.energy_max||100);
+  var pct=me.energy_max?Math.min(100,100*me.energy/me.energy_max):0;
+  var rEB=$('rEnergyBar');if(rEB)rEB.style.width=pct+'%';
+  var rLv=$('rLevel');if(rLv)rLv.textContent='Lv'+(me.level||1);
+  if(typeof renderHud==='function')renderHud();
+}
+function renderGua(){
+  var g=S.gua||{};
+  var gs=$('guaSym');if(gs)gs.textContent=g.sym||'☯';
+  var gn=$('guaName');if(gn)gn.textContent=(g.name?('今日卦象 · '+g.name):'今日卦象');
+  var gd=$('guaDesc');if(gd)gd.textContent=g.desc||'今日五行平顺，宜耕宜收。';
+}
+/* v5.6 天气徽标渲染 */
+function renderWeather(){
+  var w=S.weather||{};
+  var ic=$('hudWeatherIc'),tx=$('hudWeatherTx'),btn=$('lt5Weather');
+  if(ic)ic.textContent=w.emoji||'☀️';
+  if(tx)tx.textContent=w.name||'晴天';
+  if(btn){btn.className='lt5-weather'+(w.key?(' w-'+w.key):'')}
+}
+
+function loadAll(){
+  // 离线（iOS App 内置）：直接进入本地游戏模式，不发任何网络请求
+  if(OFFLINE){
+    loadLocalState();
+    return Promise.resolve(enterDemo()).then(function(){ applyState({}); });
+  }
+  return Promise.all([
+    api('/api/game/state').catch(function(e){return {ok:false,_net:e}}),
+    api('/api/game/catalog').catch(function(e){return {ok:false,_net:e}})
+  ]).then(function(res){
+    var st=res[0],cat=res[1],okAny=false;
+    // 401（未登录/token 过期）：直接弹登录界面，不再误报「后端未就绪」
+    var unauth=(st&&st._status===401)||(cat&&cat._status===401||(st&&st.need_login));
+    if(unauth){
+      demo=false;needsLogin=true;
+      try{if(window.LoginGate&&LoginGate.show){LoginGate.show('登录后即可进入灵田天机');return}}catch(e){}
+      return;
+    }
+    if(st&&st.ok){applyState(st);okAny=true}
+    if(cat&&cat.ok){S.catalog={plants:cat.plants||[],elements:cat.elements||{}};okAny=true}
+    if(!okAny){enterDemo()}
+    else{demo=false;needsLogin=false}
+  }).then(function(){ if(!demo&&!needsLogin){ refreshState(); } });  /* 首次加载后刷新一次队伍/加成 */
+}
+function enterDemo(){
+  demo=true;
+  var now=Date.now()/1000;
+  S.me={level:1,exp:0,lingbi:200,energy:100,energy_max:100,redeemed_today:0,redeem_cap:500};
+  S.gua={key:'qian',name:'乾 ☰',sym:'☰',desc:'全田产量 +10%'};
+  S.weather={key:'sunny',name:'晴天',emoji:'☀️',sym:'☀',desc:'阳光充足，作物旺盛（产量 +8%）',buff:{yield:1.08}};
+  S.cfg={enabled:1,steal_pct:0.2,steal_cap:0.3,protect_pct:0.05,notice:''};
+  S.plots=[
+    {idx:0,element:'mu',plant:'qingzhi',name:'青芝',emoji:'🌿',state:'growing',progress:0.62,ripe:false,remain_sec:48,stolen_pct:0,protect_until:0,yield_preview:45},
+    {idx:1,element:'huo',plant:'hongjiao',name:'赤焰椒',emoji:'🌶️',state:'ripe',progress:1,ripe:true,remain_sec:0,stolen_pct:0.2,protect_until:0,yield_preview:60},
+    {idx:2,element:'tu',plant:'huangsu',name:'黄粟',emoji:'🌾',state:'growing',progress:0.25,ripe:false,remain_sec:95,stolen_pct:0,protect_until:0,yield_preview:45},
+    {idx:3,element:'jin',plant:'baijin',name:'白金稻',emoji:'🌾',state:'growing',progress:0.8,ripe:false,remain_sec:22,stolen_pct:0,protected:true,protect_until:now+3600,yield_preview:58},
+    {idx:4,element:'shui',plant:'xuanlian',name:'玄莲',emoji:'🪷',state:'empty'},
+    {idx:5,element:'mu',plant:'tengdou',name:'藤灵豆',emoji:'🫛',state:'ripe',progress:1,ripe:true,remain_sec:0,stolen_pct:0,protect_until:0,yield_preview:96}
+  ];
+  S.catalog={plants:[
+    {key:'qingzhi',name:'青芝',emoji:'🌿',element:'mu',seed_cost:20,mature_sec:120,yield_base:45,rarity:'常'},
+    {key:'hongjiao',name:'赤焰椒',emoji:'🌶️',element:'huo',seed_cost:22,mature_sec:130,yield_base:50,rarity:'常'},
+    {key:'huangsu',name:'黄粟',emoji:'🌾',element:'tu',seed_cost:20,mature_sec:120,yield_base:45,rarity:'常'},
+    {key:'baijin',name:'白金稻',emoji:'🌾',element:'jin',seed_cost:25,mature_sec:150,yield_base:58,rarity:'常'},
+    {key:'xuanlian',name:'玄莲',emoji:'🪷',element:'shui',seed_cost:24,mature_sec:140,yield_base:55,rarity:'常'},
+    {key:'tengdou',name:'藤灵豆',emoji:'🫛',element:'mu',seed_cost:30,mature_sec:180,yield_base:72,rarity:'稀'},
+    {key:'danxia',name:'丹霞花',emoji:'🌸',element:'huo',seed_cost:32,mature_sec:190,yield_base:78,rarity:'稀'},
+    {key:'yunzhu',name:'碧云竹',emoji:'🎍',element:'mu',seed_cost:34,mature_sec:200,yield_base:85,rarity:'稀'},
+    {key:'yuzan',name:'玉簪果',emoji:'🍐',element:'jin',seed_cost:34,mature_sec:200,yield_base:85,rarity:'稀'},
+    {key:'hanlu',name:'寒露藻',emoji:'🍃',element:'shui',seed_cost:30,mature_sec:180,yield_base:72,rarity:'稀'}
+  ],elements:EL};
+  applyState({});
+  if(OFFLINE){
+    // 离线（App 内置）：无任何「重试/网络」提示，体验与正常游戏一致
+    toast('歡迎來到靈田天機','本地離線暢玩',2000);
+  }else{
+    toast('数据加载中…','网络较慢，正在重试',2600);
+    $('fbBanner').textContent='⚠️ 暂时连不上灵田服务，正在自动重试…';
+    $('fbBanner').classList.add('show');
+  }
+}
+
+/* 状态轮询（仅真实模式） */
+function tick(){
+  if(needsLogin)return;         // 未登录：等待用户登录，勿反复重试刷提示
+  if(demo&&!OFFLINE){loadAll();return}
+  // OFFLINE：本地点本地推——每秒根据 planted_at/mature_at 重算进度
+  if(OFFLINE){
+    var now=Date.now()/1000;
+    var dirty=false;
+    (S.plots||[]).forEach(function(p){
+      if(!p||p.state!=='growing'||!p.mature_at)return;
+      var total=p.mature_at-(p.planted_at||(p.mature_at-(p.remain_sec||120)));
+      var done=Math.min(1,Math.max(0,(now-(p.planted_at||(p.mature_at-total)))/Math.max(1,total)));
+      var newProg=Math.round(done*1000)/1000;
+      if(Math.abs((p.progress||0)-newProg)>0.01){p.progress=newProg;dirty=true;}
+      p.remain_sec=Math.max(0,Math.round(p.mature_at-now));
+      if(now>=p.mature_at&&!p.ripe){p.ripe=true;p.state='ripe';dirty=true;}
+    });
+    if(dirty){applyState({});saveLocalState();}
+    return;
+  }
+  api('/api/game/state').then(function(st){
+    if(st&&st.ok){applyState(st)}
+    else if(st&&(st._status===401||st.need_login)){loadAll()}  // token 过期 → 触发重新走登录流程
+  }).catch(function(){});
+}
+setInterval(tick,15000);
+// 离线：1 秒推进一次（不依赖 tick(15秒) 间隔，体验更顺畅）
+setInterval(function(){if(OFFLINE)tick();},1000);
+
+/* ================= 种子抽屉 ================= */
+function elDot(e){var c=(EL[e]||{}).c||'#999';var n=(EL[e]||{}).n||'';return '<span class="el-dot" style="background:'+c+'"></span>'+n}
+function openSeed(i){
+  sel=i;
+  var grid=$('seedGrid'),me=S.me||{};
+  var plants=S.catalog.plants&&S.catalog.plants.length?S.catalog.plants:[];
+  $('seedSub').innerHTML='第 '+(i+1)+' 号田 · 相邻五行相生（木→火→土→金→水）可增产，相克会拖慢成熟。';
+  grid.innerHTML=plants.map(function(p){
+    var afford=(me.lingbi||0)>=(p.seed_cost||0);
+    return '<button class="seed '+(afford?'afford':'no')+'" data-k="'+esc(p.key)+'">'+
+      '<span class="se">'+esc(p.emoji)+'</span>'+
+      '<span class="sn"><span class="sname">'+esc(p.name)+
+        '<span class="rar '+(p.rarity==='稀'?'r1':'r0')+'">'+esc(p.rarity||'常')+'</span></span>'+
+      '<span class="smeta">'+elDot(p.element)+' · 成熟 '+Math.round((p.mature_sec||0)/60*10)/10+'分 · 产 '+esc(p.yield_base)+'</span>'+
+      '<span class="scost">🪙 '+esc(p.seed_cost)+' <small>种子</small></span></span></button>';
+  }).join('')||'<div style="color:#9a8a6a;padding:10px">种子目录载入中…</div>';
+  Array.prototype.forEach.call(grid.querySelectorAll('.seed'),function(b){
+    b.onclick=function(){doPlant(i,b.getAttribute('data-k'))};
+  });
+  showSheet('seedSheet');
+}
+
+/* ================= 动作 ================= */
+function disableCheck(){
+  if(S.cfg&&S.cfg.enabled===0){toast('游戏维护中','暂时无法操作');return true}
+  return false;
+}
+function doPlant(idx,key){
+  if(disableCheck())return;
+  if(OFFLINE){doPlantLocal(idx,key);return;}
+  api('/api/game/plant',{method:'POST',body:JSON.stringify({idx:idx,plant:key})}).then(function(d){
+    if(d&&d.ok){
+      hideSheet();
+      if(d.state)applyState(d.state);
+      guideSteps.plant=true;updateGuide();
+      toast('🌱 播种成功','灵植开始生长，记得回来收获',2000);
+    }else{toast('播种失败',(d&&d.msg)||'灵币不足或该田已占用')}
+  }).catch(function(){toast('网络异常','请稍后重试')});
+}
+function doHarvest(i){
+  if(disableCheck())return;
+  var r=cellRect(i);
+  if(OFFLINE){doHarvestLocal(i,r);return;}
+  api('/api/game/harvest',{method:'POST',body:JSON.stringify({idx:i})}).then(function(d){
+    if(d&&d.ok){
+      var gain=d.gain||0;
+      floats.push({x:r.x+r.w/2,y:r.y+r.h/2,text:'🪙 +'+Math.round(gain),life:1,color:'#d4af37'});
+      // 农夫收获动作（约 0.6s）
+      farmer.pose='harvest';farmer.cell=i;
+      farmer.animUntil=performance.now()+600;
+      if(d.state)applyState(d.state);
+      guideSteps.harvest=true;updateGuide();
+      var det=d.detail||{};
+      var sub=det.stolen?'（含相生加成 · 被偷 '+Math.round((det.stolen||0))+'）':'产量已入灵币';
+      toast('✨ 收获 +'+Math.round(gain)+' 灵币',sub,2200);
+    }else{toast('还不能收获',(d&&d.msg)||'灵植尚未成熟')}
+  }).catch(function(){toast('网络异常','请稍后重试')});
+}
+$('btnWater')&&($('btnWater').onclick=function(){
+  if(disableCheck())return;
+  if(sel<0||!S.plots[sel]||S.plots[sel].state!=='growing'){toast('请先选中一株生长中的灵植','点一下田里的灵植即可选中');return}
+  if(OFFLINE){doWaterLocal(sel);return;}
+  api('/api/game/water',{method:'POST',body:JSON.stringify({idx:sel})}).then(function(d){
+    if(d&&d.ok){if(d.state)applyState(d.state);toast('💧 浇水完成','成熟时间已缩短')}
+    else{toast('浇水失败',(d&&d.msg)||'体力不足')}
+  }).catch(function(){toast('网络异常','请稍后重试')});
+});
+$('btnProtect')&&($('btnProtect').onclick=function(){
+  if(disableCheck())return;
+  if(sel<0||!S.plots[sel]||S.plots[sel].state==='empty'){toast('请先选中一块灵田','点一下田里的灵植即可选中');return}
+  api('/api/game/protect',{method:'POST',body:JSON.stringify({idx:sel})}).then(function(d){
+    if(d&&d.ok){if(d.state)applyState(d.state);toast('🛡️ 护田成功','当日被偷上限降至 '+(S.cfg?Math.round((S.cfg.protect_pct||0.05)*100):5)+'%')}
+    else{toast('护田失败',(d&&d.msg)||'灵币不足（需 30）')}
+  }).catch(function(){toast('网络异常','请稍后重试')});
+});
+$('btnRedeem')&&($('btnRedeem').onclick=function(){
+  if(disableCheck())return;
+  var me=S.me||{};var cap=me.redeem_cap||500;var left=Math.max(0,cap-(me.redeemed_today||0));
+  var v=prompt('兑换站点积分（1 灵币 = 1 积分）\n今日剩余可兑：'+left,'');
+  if(v==null)return;
+  var amount=parseInt(v,10);
+  if(!amount||amount<=0){toast('请输入有效数量');return}
+  api('/api/game/redeem',{method:'POST',body:JSON.stringify({amount:amount})}).then(function(d){
+    if(d&&d.ok){if(d.state)applyState(d.state);toast('🏦 兑换成功 +'+Math.round(d.added||amount)+' 积分','已计入站点积分',2400)}
+    else{toast('兑换失败',(d&&d.msg)||'超出今日上限或灵币不足')}
+  }).catch(function(){toast('网络异常','请稍后重试')});
+});
+$('btnRank')&&($('btnRank').onclick=function(){
+  api('/api/game/rank?type=day').then(function(d){
+    if(d&&d.ok&&d.rows&&d.rows.length){
+      var lines=d.rows.map(function(r,i){return (i+1)+'. '+r.name+'  🪙'+Math.round(r.score)});
+      toast('🏆 今日收获榜','<div style="white-space:pre-line;margin-top:4px">'+esc(lines.join('\n'))+'</div>',4200);
+    }else{toast('🏆 今日榜','暂无数据，快去收获上榜吧')}
+  }).catch(function(){toast('排行榜加载失败')});
+});
+$('btnShare')&&($('btnShare').onclick=function(){
+  var me=S.me||{};
+  var text='我在《灵田天机》种下一季天机，Lv'+(me.level||1)+'，灵币 🪙'+fmt(me.lingbi)+'。';
+  try{
+    if(window.ShareInvite&&ShareInvite.share){ShareInvite.share({text:text,path:'/lingtian'});return}
+  }catch(e){}
+  try{
+    if(window.UnifiedShare&&UnifiedShare.open){
+      UnifiedShare.open({tool:'灵田天机',name:'昊峯天机',score:'',level:'',subtitle:text});return
+    }
+  }catch(e){}
+  if(navigator.share){navigator.share({title:'昊峯天机 · 灵田天机',text:text,url:location.origin+'/lingtian'}).catch(function(){});}
+  else{alert(text+'\n'+location.origin+'/lingtian')}
+});
+
+/* ================= v5 HUD 按钮（带空值保护，兼容主身删除的旧 actions 面板） ================= */
+function v5harvestAll(){
+  var ripeIdxs=[];
+  for(var i=0;i<(S.plots||[]).length;i++){var p=S.plots[i];if(p&&(p.state==='ripe'||p.ripe===true))ripeIdxs.push(i)}
+  if(!ripeIdxs.length){toast('没有成熟灵植','再等一会儿 ☕');return}
+  var i=0;function next(){if(i>=ripeIdxs.length){return}doHarvest(ripeIdxs[i]);i++;setTimeout(next,180)}
+  next();
+}
+function $safe(id,fn){var el=$(id);if(el)el.onclick=fn;}
+$safe('lt5Harvest',v5harvestAll);
+$safe('lt5TaskGo',v5harvestAll);
+$safe('lt5Share',function(){var el=$('btnShare');if(el)el.onclick();else{if(window.ShareInvite)ShareInvite.share&&ShareInvite.share({text:'昊峯天机·灵田天机',path:'/lingtian'})}});
+$safe('lt5Basket',openBarnSheet);      // 🧺 仓库/背包
+$safe('lt5Menu',openRulesSheet);       // ☰ 菜单：玩法/图鉴/规则
+$safe('lt5Cam',openPosterSheet);       // 📷 相机：生成分享海报
+$safe('lt5Music',function(){
+  var on=!localStorage.getItem('lt_mute');
+  if(on){localStorage.setItem('lt_mute','1');toast('🔇 已静音','背景音将不播放')}
+  else{localStorage.removeItem('lt_mute');toast('🔊 已开启音效','')}
+  var m=$('lt5Music');if(m)m.classList.toggle('lt5-dot',!on);
+});
+$safe('lt5Power',function(){if(history.length>1){history.back()}else{location.href='home.html'}});
+$safe('lt5P1',openBarnSheet);          // 仓库
+$safe('lt5P2',openShopSheet);          // 商店
+$safe('lt5P3',openFriendsSheet);       // 好友
+
+/* ================= 偷菜 ================= */
+$('btnSteal')&&($('btnSteal').onclick=openFriendsSheet);
+$('uidGo')&&($('uidGo').onclick=function(){openFriendsSheet()});
+function doSteal(uid,idx){
+  api('/api/game/steal',{method:'POST',body:JSON.stringify({uid:parseInt(uid,10),idx:idx})}).then(function(d){
+    if(d&&d.ok){
+      if(d.state)applyState(d.state);
+      guideSteps.steal=true;updateGuide();
+      // 小偷从被偷田位置竄出（约 0.8s）
+      var sr=(idx>=0&&idx<COLS*ROWS)?cellRect(idx):{x:CW/2,y:CH/2,w:0,h:0};
+      thief={cx:sr.x+sr.w/2,cy:sr.y+sr.h+2,t0:performance.now(),dur:800};
+      floats.push({x:sr.x+(sr.w||80)/2,y:sr.y+((sr.h||80)/2),text:'溜了！',life:1,color:'#e08a7a'});
+      toast('🐾 偷到了！+'+Math.round(d.gain||0)+' 灵币','悄悄收下别人的好运~',2600);
+      // 标灰该行
+      Array.prototype.forEach.call($('stealList').querySelectorAll('.fld-row button'),function(b){
+        if(b.getAttribute('data-i')===String(idx)){b.disabled=true;b.textContent='已偷';}
+      });
+    }else{toast('偷收失败',(d&&d.msg)||'未成熟 / 已达上限 / 非好友')}
+  }).catch(function(){toast('网络异常','请稍后重试')});
+}
+
+/* ================= 组队竞赛 ================= */
+function pctTxt(p){p=Number(p);if(!isFinite(p)||p<0)p=0;return (Math.round(p*1000)/10)+'%'}
+function openTeamSheet(){
+  showSheet('teamSheet');
+  $('teamBody').innerHTML='<div class="tm-load">正在读取队伍天机…</div>';
+  fetchTeam();
+}
+function fetchTeam(){
+  api('/api/game/team').then(function(d){
+    if(d&&d.ok){
+      S.team=d.team||null;
+      lineup=(S.team&&S.team.members)?S.team.members:[];   // 组队 sheet 列队用
+      if(d.bonus)S.teamBonus=(d.bonus.pct!=null?d.bonus.pct:d.bonus);
+      renderTeamChip();
+      renderTeamMain(d);
+    }else{
+      S.team=null;renderTeamChip();renderTeamErr(d);
+    }
+  }).catch(function(){S.team=null;renderTeamChip();renderTeamErr(null)});
+}
+function amLeader(t){
+  var mems=(t&&t.members)||[];
+  for(var i=0;i<mems.length;i++){if(S.me&&String(mems[i].uid)===String(S.me.uid))return !!mems[i].is_leader}
+  return !!(S.me&&t&&t.leader_id!=null&&String(t.leader_id)===String(S.me.uid));
+}
+function renderTeamMain(d){
+  var vip=d.vip||{};
+  if(!vip.ok){
+    $('teamBody').innerHTML='<div class="tm-lock">👑 组队竞赛为会员专属<br>'+
+      '<span style="font-size:12px;color:#9a8a6a;font-weight:400;line-height:1.6">开通会员后，即可与好友组队参赛、共享团队加成</span></div>';
+    return;
+  }
+  var pct=(d.bonus&&d.bonus.pct!=null)?d.bonus.pct:S.teamBonus;
+  var html='<div class="tm-stats"><span class="tm-bonus">👥 团队加成 +'+pctTxt(pct)+'</span>'+
+    '<button class="tm-rankbtn" id="tmRankBtn">🏆 周榜</button></div>';
+  html+='<div class="tm-mine">我 · 本周贡献 <b>🪙 '+fmt(d.my_contrib)+'</b></div>';
+  var t=d.team;
+  if(t&&t.id){
+    html+='<div class="tm-sec-t"><span>👥 '+esc(t.name)+'</span>'+
+      '<span style="font-size:11.5px;color:#9a8a6a;font-weight:400">第 '+esc(t.rank||'-')+' 名</span></div>';
+    html+='<div class="tm-mine" style="margin-bottom:0">团队本周分 <b>🪙 '+fmt(t.score)+
+      '</b> · 队长 '+esc(t.leader_name||'-')+'</div>';
+    var mems=t.members||[],meL=amLeader(t);
+    html+='<div class="tm-sec-t">队员 ('+mems.length+'/'+((d.cfg&&d.cfg.team_max)||5)+')</div>';
+    mems.forEach(function(m){
+      var isMe=(S.me&&String(m.uid)===String(S.me.uid));
+      html+='<div class="fld-row'+(isMe?' tm-me':'')+'"><span class="fe">'+(m.is_leader?'👑':'🧑🌾')+'</span>'+
+        '<span class="fn"><span class="fname">'+esc(m.name||('UID '+m.uid))+
+          (m.is_leader?'<span class="tm-lead">队长</span>':'')+(isMe?'<span class="tm-lead">我</span>':'')+'</span>'+
+        '<span class="fmeta">本周贡献 🪙'+fmt(m.week_contrib!=null?m.week_contrib:m.contrib)+'</span></span>';
+      if(meL&&!m.is_leader){html+='<button class="tm-kick" data-uid="'+m.uid+'">踢出</button>'}
+      html+='</div>';
+    });
+    html+='<button class="go tm-leave" id="tmLeave">退出队伍</button>';
+    html+='<div id="teamRankBox"></div>';
+    $('teamBody').innerHTML=html;
+    bindTeam(d,t);
+  }else{
+    html+='<div class="tm-sec-t">➕ 创建队伍</div>';
+    html+='<div class="tm-create"><input class="uid-in" id="tmName" maxlength="12" placeholder="输入队名（1~12 字）">'+
+      '<button class="go" id="tmCreate">创建</button></div>';
+    html+='<div class="tm-sec-t">🔍 可加入队伍 <button class="tm-refresh" id="tmRefresh">刷新</button></div>';
+    html+='<div id="teamListBox"><div class="tm-msg">载入中…</div></div>';
+    $('teamBody').innerHTML=html;
+    bindTeam(d,null);
+    loadTeamList();
+  }
+}
+function bindTeam(d,t){
+  var rb=$('tmRankBtn');if(rb)rb.onclick=function(){showTeamRank(false)};
+  if(t&&t.id){
+    var lv=$('tmLeave');if(lv)lv.onclick=doTeamLeave;
+    Array.prototype.forEach.call($('teamBody').querySelectorAll('.tm-kick'),function(b){
+      b.onclick=function(){doTeamKick(b.getAttribute('data-uid'))};
+    });
+    showTeamRank(true);
+  }else{
+    var cr=$('tmCreate');if(cr)cr.onclick=doTeamCreate;
+    var rf=$('tmRefresh');if(rf)rf.onclick=loadTeamList;
+    var inp=$('tmName');if(inp)inp.onkeydown=function(e){if(e.keyCode===13)doTeamCreate()};
+  }
+}
+function loadTeamList(){
+  var box=$('teamListBox');if(!box)return;
+  api('/api/game/team/list?limit=20').then(function(d){
+    if(d&&d.ok&&d.rows&&d.rows.length){
+      box.innerHTML=d.rows.map(function(r){
+        return '<div class="fld-row"><span class="fe">🚩</span>'+
+          '<span class="fn"><span class="fname">'+esc(r.name)+'</span>'+
+          '<span class="fmeta">队长 '+esc(r.leader_name||'-')+' · '+r.count+'人 · 第'+esc(r.rank||'-')+'名</span></span>'+
+          '<button data-id="'+r.id+'">加入</button></div>';
+      }).join('');
+      Array.prototype.forEach.call(box.querySelectorAll('.fld-row button'),function(b){
+        b.onclick=function(){doTeamJoin(b.getAttribute('data-id'),b)};
+      });
+    }else{box.innerHTML='<div class="tm-msg">暂无可加入的队伍，先创建一个吧~</div>'}
+  }).catch(function(){box.innerHTML='<div class="tm-msg">队伍列表加载失败</div>'});
+}
+function showTeamRank(auto){
+  var box=$('teamRankBox');if(!box)return;
+  if(!auto)box.innerHTML='<div class="tm-msg">载入周榜…</div>';
+  api('/api/game/team/rank?limit=20').then(function(d){
+    if(d&&d.ok&&d.rows&&d.rows.length){
+      var my=d.my_team_id;
+      box.innerHTML='<div class="tm-sec-t" style="margin-top:14px">🏆 本周队伍榜 · '+esc(d.week_key||'')+'</div>'+
+        d.rows.map(function(r){
+          var meRow=(my!=null&&String(r.id)===String(my));
+          var badge=r.rank<=3?['🥇','🥈','🥉'][r.rank-1]:('#'+r.rank);
+          return '<div class="fld-row'+(meRow?' tm-me':'')+'"><span class="fe">'+badge+'</span>'+
+            '<span class="fn"><span class="fname">'+esc(r.name)+'</span>'+
+            '<span class="fmeta">队长 '+esc(r.leader_name||'-')+' · '+r.count+'人</span></span>'+
+            '<span style="font-size:12.5px;font-weight:800;color:#d4af37">🪙'+fmt(r.score)+'</span></div>';
+        }).join('');
+    }else if(!auto){box.innerHTML='<div class="tm-msg">暂无队伍上榜，先组队吧~</div>'}
+  }).catch(function(){if(!auto)box.innerHTML='<div class="tm-msg">周榜加载失败</div>'});
+}
+function doTeamCreate(){
+  var inp=$('tmName');var name=inp?(inp.value||'').trim():'';
+  if(!name){toast('请输入队伍名称');return}
+  if(name.length>12){toast('队名不能超过 12 字');return}
+  var b=$('tmCreate');if(b)b.disabled=true;
+  api('/api/game/team/create',{method:'POST',body:JSON.stringify({name:name})}).then(function(d){
+    if(d&&d.ok){toast('🎉 队伍创建成功',esc((d.team&&d.team.name)||name));fetchTeam();refreshState()}
+    else{if(b)b.disabled=false;toast('创建失败',(d&&d.msg)||'请确认会员身份或是否已入队')}
+  }).catch(function(){if(b)b.disabled=false;toast('网络异常','请稍后重试')});
+}
+function doTeamJoin(id,btn){
+  if(btn)btn.disabled=true;
+  api('/api/game/team/join',{method:'POST',body:JSON.stringify({team_id:parseInt(id,10)})}).then(function(d){
+    if(d&&d.ok){toast('🎉 加入队伍成功');fetchTeam();refreshState()}
+    else{if(btn)btn.disabled=false;toast('加入失败',(d&&d.msg)||'队伍已满或已解散')}
+  }).catch(function(){if(btn)btn.disabled=false;toast('网络异常','请稍后重试')});
+}
+function doTeamLeave(){
+  if(!window.confirm('确定退出当前队伍？队长退出将自动转移或解散。'))return;
+  api('/api/game/team/leave',{method:'POST',body:'{}'}).then(function(d){
+    if(d&&d.ok){toast('已退出队伍');fetchTeam();refreshState()}
+    else{toast('退出失败',(d&&d.msg)||'')}
+  }).catch(function(){toast('网络异常','请稍后重试')});
+}
+function doTeamKick(uid){
+  if(!window.confirm('确定将该队员移出队伍？'))return;
+  api('/api/game/team/kick',{method:'POST',body:JSON.stringify({uid:parseInt(uid,10)})}).then(function(d){
+    if(d&&d.ok){toast('已移出队员');fetchTeam();refreshState()}
+    else{toast('操作失败',(d&&d.msg)||'仅队长可操作')}
+  }).catch(function(){toast('网络异常','请稍后重试')});
+}
+function refreshState(){
+  api('/api/game/state').then(function(st){if(st&&st.ok)applyState(st)}).catch(function(){});
+}
+function renderTeamErr(d){
+  var needLogin=!!(d&&(d.need_login||d.code==='need_login'));
+  $('teamBody').innerHTML='<div class="tm-msg">'+
+    (needLogin?'请先登录后再访问组队竞赛':((d&&d.msg)?esc(d.msg):'队伍数据暂时无法加载，请稍后重试'))+'</div>';
+}
+var bt=$('btnTeam');if(bt)bt.onclick=openTeamSheet;
+
+/* ================= 抽屉控制 ================= */
+function showSheet(id){$('mask').classList.add('show');$(id).classList.add('show')}
+function hideSheet(){$('mask').classList.remove('show');
+  ['seedSheet','stealSheet','teamSheet','barnSheet','rulesSheet','shopSheet','weatherSheet','posterSheet'].forEach(function(s){var el=$(s);if(el)el.classList.remove('show')});}
+
+/* ================= 本地存档（OFFLINE 模式） ================= */
+function saveLocalState(){
+  if(!OFFLINE)return;
+  try{
+    var snap={
+      me:S.me,gua:S.gua,weather:S.weather,cfg:S.cfg,
+      plots:S.plots,catalog:S.catalog,team:S.team,friends:S.friends,
+      bag:S.bag||{},t:(Date.now()/1000)|0
+    };
+    localStorage.setItem(LT_LOC+'state', JSON.stringify(snap));
+  }catch(e){}
+}
+function loadLocalState(){
+  if(!OFFLINE)return false;
+  try{
+    var s=localStorage.getItem(LT_LOC+'state');
+    if(!s)return false;
+    var snap=JSON.parse(s);
+    S.me=snap.me; S.gua=snap.gua; S.weather=snap.weather; S.cfg=snap.cfg;
+    S.plots=snap.plots; S.catalog=snap.catalog;
+    S.team=snap.team||[]; S.friends=snap.friends||[];
+    S.bag=snap.bag||{};
+    return true;
+  }catch(e){ return false; }
+}
+
+/* ================= OFFLINE 本地操作实现 ================= */
+function doPlantLocal(idx,key){
+  var plot=S.plots[idx];var cat=(S.catalog.plants||[]).find(function(p){return p.key===key;});
+  if(!plot||!cat){toast('數據異常');return}
+  if(plot.state&&plot.state!=='empty'){toast('該田已佔用','請選擇空地');return}
+  if((S.me.lingbi||0)<(cat.seed_cost||0)){toast('靈幣不足','需要 '+(cat.seed_cost||0)+' 靈幣');return}
+  S.me.lingbi=(S.me.lingbi||0)-(cat.seed_cost||0);
+  var now=Date.now()/1000;
+  plot.element=cat.element;plot.plant=cat.key;plot.name=cat.name;plot.emoji=cat.emoji;
+  plot.state='growing';plot.progress=0;plot.ripe=false;
+  plot.remain_sec=cat.mature_sec||120;plot.stolen_pct=0;plot.protect_until=0;
+  plot.yield_preview=cat.yield_base||50;
+  plot.planted_at=now;plot.mature_at=now+(cat.mature_sec||120);
+  S.me.exp=(S.me.exp||0)+5;
+  applyState({});saveLocalState();
+  hideSheet();
+  toast('🌱 播種成功','靈植開始生長',2000);
+}
+function doHarvestLocal(i,r){
+  var p=S.plots[i];
+  if(!p||p.state==='empty'){toast('請選擇已種植的靈田');return}
+  if(!p.ripe){toast('還不能收獲','靈植尚未成熟');return}
+  var base=p.yield_preview||50;
+  var stolen=(p.stolen_pct||0)*base;
+  var gain=Math.max(0,base-stolen);
+  S.me.lingbi=(S.me.lingbi||0)+Math.round(gain);
+  S.me.today_harvest=(S.me.today_harvest||0)+1;
+  S.me.exp=(S.me.exp||0)+Math.round(gain/4);
+  if(typeof r==='undefined')r=cellRect(i);
+  floats.push({x:r.x+r.w/2,y:r.y+r.h/2,text:'🪙 +'+Math.round(gain),life:1,color:'#d4af37'});
+  farmer.pose='harvest';farmer.cell=i;farmer.animUntil=performance.now()+600;
+  // 重置为 empty
+  p.state='empty';delete p.plant;delete p.element;delete p.name;delete p.emoji;
+  delete p.progress;delete p.ripe;delete p.remain_sec;delete p.stolen_pct;
+  delete p.protect_until;delete p.yield_preview;delete p.planted_at;delete p.mature_at;
+  applyState({});saveLocalState();
+  toast('✨ 收獲 +'+Math.round(gain)+' 靈幣',stolen>0?'（含相生加成 · 被偷 '+Math.round(stolen)+'）':'產量已入靈幣',2200);
+}
+function doWaterLocal(idx){
+  var p=S.plots[idx];
+  if(!p||p.state!=='growing')return;
+  if(p.mature_at){p.mature_at=Math.max(Date.now()/1000,p.mature_at-15);}
+  p.remain_sec=Math.max(0,(p.remain_sec||60)-15);
+  p.progress=Math.min(1,(p.progress||0)+0.15);
+  if(p.progress>=1){p.ripe=true;p.state='ripe';}
+  applyState({});saveLocalState();
+  toast('💧 澆水完成','成熟時間已縮短');
+}
+
+/* ================= v5 新面板 ================= */
+function openBarnSheet(){
+  var me=S.me||{};
+  var rows=(S.plots||[]).filter(function(p){return p&&p.state&&p.state!=='empty'});
+  var ripe=(S.plots||[]).filter(function(p){return p&&(p.state==='ripe'||p.ripe===true)}).length;
+  var html='<div class="v5-stat-grid">'+
+    '<div class="v5-stat"><div class="v5-stat-n">'+fmt(me.lingbi)+'</div><div class="v5-stat-l">🪙 灵币</div></div>'+
+    '<div class="v5-stat"><div class="v5-stat-n">'+fmt(me.points)+'</div><div class="v5-stat-l">◆ 积分</div></div>'+
+    '<div class="v5-stat"><div class="v5-stat-n">'+fmt(me.today_harvest)+'</div><div class="v5-stat-l">📦 今日收获</div></div>'+
+    '<div class="v5-stat"><div class="v5-stat-n">'+rows.length+'/'+6+'</div><div class="v5-stat-l">🌱 在种</div></div>'+
+    '</div>';
+  if(rows.length){
+    html+='<div style="margin-top:12px;font-size:12.5px;color:#a99a78;font-weight:800">田里种着：</div>';
+    rows.forEach(function(p){
+      var el=(EL[p.element]||{}).n||'';
+      var st=p.state==='ripe'?'✨ 已成熟':('生长中 '+Math.round((p.progress||0)*100)+'%');
+      html+='<div class="fld-row" style="justify-content:space-between"><span>'+el+' '+esc(p.name||'')+'</span>'+
+        '<span class="fmeta">'+st+'</span></div>';
+    });
+  }else{
+    html+='<div style="margin-top:12px;color:#9a8a6a;font-size:12.5px">田里还空着，点空地去播种吧 🌱</div>';
+  }
+  var left=Math.max(0,(me.redeem_cap||500)-(me.redeemed_today||0));
+  html+='<div style="margin-top:12px;font-size:12px;color:#a99a78">今日还可兑换 <b style="color:#f5d06f">'+left+'</b> 积分（1 灵币=1 积分）</div>';
+  html+='<button class="go" id="barnRedeem" style="margin-top:10px">🏦 兑换积分</button>';
+  /* v5.3：种子背包 */
+  var BAG=S.bag||{};
+  var bagKeys=Object.keys(BAG).filter(function(k){return BAG[k]>0});
+  var PL=[]; try{PL=(S.catalog&&S.catalog.plants)||[]}catch(e){}
+  var pg={};PL.forEach(function(p){pg[p.key||p.plant]=p});
+  html+='<div style="margin-top:16px;font-size:12.5px;color:#d4af37;font-weight:800">🎒 种子背包</div>';
+  if(bagKeys.length){
+    bagKeys.forEach(function(k){
+      var nm=(pg[k]&&pg[k].name)||k;
+      var em=(pg[k]&&pg[k].emoji)||'🌱';
+      html+='<div class="fld-row" style="justify-content:space-between"><span>'+em+' '+esc(nm)+'</span>'+
+        '<span class="fmeta">×'+BAG[k]+'</span></div>';
+    });
+  }else{
+    html+='<div style="margin-top:6px;color:#9a8a6a;font-size:12.5px">背包空空，去 <b style="color:#f5d06f">🏪 商店</b> 买点种子吧</div>';
+  }
+  html+='<button class="go" id="barnShop" style="margin-top:8px;background:linear-gradient(180deg,#f5d06f,#d4af37);color:#3a2808">🏪 去商店买种子</button>';
+  var b=$('barnBody');if(b)b.innerHTML=html;
+  var br=$('barnRedeem');if(br)br.onclick=function(){hideSheet();var el=$('btnRedeem');if(el)el.onclick();else{toast('兑换','请稍后')}};
+  var bs=$('barnShop');if(bs)bs.onclick=openShopSheet;
+  showSheet('barnSheet');
+}
+
+/* ================= v5.6 天气面板 ================= */
+function openWeatherSheet(){
+  var w=S.weather||{};
+  var WX={
+    sunny:{emoji:'☀️',name:'晴天',good:'阳光充足，光合旺盛，作物长势喜人。'},
+    cloudy:{emoji:'⛅',name:'阴天',good:'光照柔和，作物稳步生长，成熟稍缓。'},
+    rainy:{emoji:'🌧️',name:'雨天',good:'雨水滋润，墒情极佳，是大丰收的好日子。'},
+  };
+  var meta=WX[w.key]||WX.sunny;
+  var pct=(w.buff&&w.buff.yield)?Math.round((w.buff.yield-1)*100):0;
+  var mpct=(w.buff&&w.buff.mature)?Math.round((w.buff.mature-1)*100):0;
+  var html='<div class="v5-wx-big"><span class="v5-wx-em">'+meta.emoji+'</span>'+
+    '<div><div class="v5-wx-nm">'+meta.name+'</div><div class="v5-wx-d">'+meta.good+'</div></div></div>';
+  html+='<div class="v5-stat-grid" style="margin-top:12px">'+
+    '<div class="v5-stat"><div class="v5-stat-n">'+(pct>=0?'+':'')+pct+'%</div><div class="v5-stat-l">🌾 产量</div></div>'+
+    '<div class="v5-stat"><div class="v5-stat-n">'+(mpct>0?('+'+mpct+'%'):'—')+'</div><div class="v5-stat-l">⏳ 成熟时长</div></div>'+
+    '</div>';
+  html+='<div class="v5-rules-t" style="margin-top:14px">🌤 天气轮转</div>'+
+    '<div class="v5-rules-b">晴天 ☀️（产量 +8%）→ 阴天 ⛅（产量 +2%、成熟 +5%）→ 雨天 🌧️（产量 +15%），按日轮换（文化参考）。</div>';
+  html+='<div class="v5-rules-t">🎯 与日卦叠加</div>'+
+    '<div class="v5-rules-b">今日卦象「'+(S.gua?S.gua.name:'—')+'」（'+(S.gua?S.gua.desc:'')+'）与天气加成同时生效，收获时一并结算。</div>';
+  var b=$('weatherBody');if(b)b.innerHTML=html;
+  showSheet('weatherSheet');
+}
+$safe('lt5Weather',openWeatherSheet);
+$('weatherX')&&($('weatherX').onclick=hideSheet);
+
+
+var _shopQty={};
+function openShopSheet(){
+  var PL=[]; try{PL=(S.catalog&&S.catalog.plants)||[]}catch(e){}
+  var me=S.me||{};
+  var BAG=S.bag||{};
+  var html='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">'+
+    '<span style="font-size:12.5px;color:#a99a78">我的灵币 <b style="color:#f5d06f">'+fmt(me.lingbi)+'</b></span>'+
+    '<span style="font-size:12px;color:#a99a78">背包种子播种时优先消耗</span></div>';
+  if(!PL.length){html+='<div class="tm-load">灵植目录载入中…</div>'}
+  html+='<div class="shop-grid">';
+  PL.forEach(function(p){
+    var k=p.key||p.plant;
+    var q=_shopQty[k]||1;
+    var qty=BAG[k]||0;
+    html+='<div class="shop-cell">'+
+      '<div class="shop-head"><span class="v5-pl-el el-'+(p.element||'tu')+'">'+((EL[p.element]||{}).n||'')+'</span>'+
+        '<span class="shop-nm">'+esc(p.name||'')+'</span>'+(qty?('<span class="shop-own">×'+qty+'</span>'):'')+'</div>'+
+      '<div class="shop-meta">🪙'+p.seed_cost+' · 产'+p.yield_base+' · '+Math.round((p.mature_sec||0)/60)+'分</div>'+
+      '<div class="shop-buy">'+
+        '<button class="shop-q" data-k="'+k+'" data-d="-1">−</button>'+
+        '<span class="shop-qn" id="sq_'+k+'">'+q+'</span>'+
+        '<button class="shop-q" data-k="'+k+'" data-d="1">＋</button>'+
+        '<button class="shop-go" data-k="'+k+'">买 '+((p.seed_cost||0)*q)+'</button>'+
+      '</div></div>';
+  });
+  html+='</div>';
+  var b=$('shopBody');if(b)b.innerHTML=html;
+  Array.prototype.forEach.call(document.querySelectorAll('#shopBody .shop-q'),function(btn){
+    btn.onclick=function(){
+      var k=btn.getAttribute('data-k');var d=parseInt(btn.getAttribute('data-d'),10);
+      var cur=_shopQty[k]||1;cur=Math.max(1,Math.min(99,cur+d));_shopQty[k]=cur;
+      var n=$('sq_'+k);if(n)n.textContent=cur;
+      // 更新该格买价文案
+      var P=null;PL.forEach(function(p){if((p.key||p.plant)===k)P=p});
+      if(P){var g=btn.parentNode.querySelector('.shop-go');if(g)g.textContent='买 '+((P.seed_cost||0)*cur)}
+    };
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('#shopBody .shop-go'),function(btn){
+    btn.onclick=function(){
+      var k=btn.getAttribute('data-k');var q=_shopQty[k]||1;
+      doBuySeed(k,q);
+    };
+  });
+  showSheet('shopSheet');
+}
+function doBuySeed(k,q){
+  api('/api/game/buy',{method:'POST',body:JSON.stringify({plant:k,qty:q})}).then(function(d){
+    if(d&&d.ok){
+      if(d.plots||d.me)applyState(d);
+      toast('🛒 '+((d.bought)?('购入 '+d.bought.qty+' 份'):'已购买'),(d.msg||''),2200);
+    }else{toast('购买失败',(d&&d.msg)||'灵币不足')}
+  }).catch(function(){toast('网络异常','请稍后重试')});
+}
+
+function openRulesSheet(){
+  var PL=[]; try{PL=(S.catalog&&S.catalog.plants)||[]}catch(e){}
+  var html='<div class="v5-rules-t">🌾 五行相生（相邻增产）</div>'+
+    '<div class="v5-rules-b">木→火→土→金→水→木。邻居「生」你 +20%~+50%，单格封顶 ×2.5。</div>'+
+    '<div class="v5-rules-t">⚔️ 五行相克（相邻拖慢）</div>'+
+    '<div class="v5-rules-b">木克土·土克水·水克火·火克金·金克木。相邻相克 → 成熟时间 +30%。</div>'+
+    '<div class="v5-rules-t">🔮 每日卦象</div>'+
+    '<div class="v5-rules-b">每天一出卦，全田增益：乾+10%产量 / 坤土×2 / 震偷收+10% / 巽成熟-20% / 坎被偷×0.5 / 离+10% / 艮+15% / 兑浇水回体力+50%。</div>'+
+    '<div class="v5-rules-t">🌤 每日天气</div>'+
+    '<div class="v5-rules-b">晴天 ☀️ 产量 +8% / 阴天 ⛅ 产量 +2%、成熟 +5% / 雨天 🌧️ 产量 +15%。天气与日卦叠加计算，按日轮转（文化参考）。</div>'+
+    '<div class="v5-rules-t">🏦 兑换</div>'+
+    '<div class="v5-rules-b">灵币 → 站点积分，1:1，每日上限 '+((S.cfg&&S.cfg.redeem_cap)||500)+'。</div>';
+  if(PL.length){
+    html+='<div class="v5-rules-t">🌱 灵植图鉴（'+PL.length+' 种）</div><div class="v5-pl-grid">';
+    PL.forEach(function(p){
+      html+='<div class="v5-pl-cell"><span class="v5-pl-el el-'+(p.element||'tu')+'">'+((EL[p.element]||{}).n||'')+'</span>'+
+        '<div class="v5-pl-nm">'+esc(p.name||'')+'</div>'+
+        '<div class="v5-pl-pr">🪙'+p.seed_cost+' · 产'+p.yield_base+'</div></div>';
+    });
+    html+='</div>';
+  }
+  var b=$('rulesBody');if(b)b.innerHTML=html;
+  showSheet('rulesSheet');
+}
+
+function openPosterSheet(){
+  var me=S.me||{};
+  var lv=me.level||1;
+  var ripe=(S.plots||[]).filter(function(p){return p&&(p.state==='ripe'||p.ripe===true)}).length;
+  var html='<div class="v5-poster">'+
+    '<div class="v5-poster-t">🔮 昊峯天机 · 灵田天机</div>'+
+    '<div class="v5-poster-big">Lv'+lv+'</div>'+
+    '<div class="v5-poster-sub">小小农夫「'+esc(me.name||'小小农夫')+'」</div>'+
+    '<div class="v5-poster-row"><span>🪙 '+fmt(me.lingbi)+' 灵币</span><span>📦 今日收 '+fmt(me.today_harvest)+'</span><span>✨ 待收 '+ripe+'</span></div>'+
+    '<div class="v5-poster-foot">种下五行，收一季天机 · 传统文化参考</div>'+
+    '</div>';
+  html+='<div style="margin-top:10px;font-size:12px;color:#a99a78">长按截图保存，分享给好友一起种田 →</div>';
+  html+='<button class="go" id="posterShareBtn" style="margin-top:10px">📤 分享给好友</button>';
+  var b=$('posterBody');if(b)b.innerHTML=html;
+  var ps=$('posterShareBtn');
+  if(ps)ps.onclick=function(){var el=$('btnShare');if(el)el.onclick();else{toast('分享','请用系统截图分享')}};
+  showSheet('posterSheet');
+}
+function openStealSheet(){ openFriendsSheet(); }
+function openFriendsSheet(){
+  if(S.cfg&&$('stealPctTxt'))$('stealPctTxt').textContent=Math.round((S.cfg.steal_pct||0.2)*100)+'%';
+  var sl=$('stealList');if(sl)sl.innerHTML='<div class="tm-load">正在读取好友灵田…</div>';
+  showSheet('stealSheet');
+  api('/api/game/friends').then(function(d){
+    var list=$('stealList');if(!list)return;
+    var me=S.me||{};
+    var rows=(d&&d.rows)||[];
+    var html='';
+    if(!rows.length){
+      html+='<div style="color:#9a8a6a;font-size:12.5px;line-height:1.7;text-align:center;padding:6px 0 2px">还没有好友<br>输入对方 UID 关注 TA，或去排行榜找活跃灵农 →</div>';
+    }else{
+      rows.forEach(function(f){
+        html+='<div class="fld-row" style="justify-content:space-between">'+
+          '<span class="fn"><span class="fname">👤 '+esc(f.name)+(f.phone?(' <b style="color:#9a8a6a">…'+f.phone+'</b>'):'')+'</span>'+
+          '<span class="fmeta">UID '+f.uid+(f.mutual?' · 互相关注':' · 单向')+(f.mutual?(' · 可偷 '+f.ripe+' 块'):'')+'</span></span>'+
+          '<button data-uid="'+f.uid+'" '+(f.mutual&&f.ripe>0?'':'disabled')+'>'+(f.mutual?(f.ripe>0?'去偷':'无熟田'):'待互关')+'</button>'+
+          '</div>';
+      });
+    }
+    html+='<div style="margin-top:14px;font-size:12.5px;color:#d4af37;font-weight:800">🔍 看谁的田？</div>'+
+      '<div class="sh-sub" style="margin:4px 0 8px">输入好友 ID 查看其灵田（仅互相关注可偷收）</div>';
+    list.innerHTML=html;
+    Array.prototype.forEach.call(list.querySelectorAll('.fld-row button'),function(b){
+      if(b.disabled)return;
+      b.onclick=function(){stealFromField(b.getAttribute('data-uid'))};
+    });
+  }).catch(function(){var l=$('stealList');if(l)l.innerHTML='<div class="tm-msg">读取失败，请稍后重试</div>'});
+}
+function stealFromField(uid){
+  var me=S.me||{};
+  api('/api/game/field?uid='+uid).then(function(d){
+    if(!(d&&d.ok)){toast('无法查看',(d&&d.msg)||'对方不是你的好友，或不存在');return}
+    var list=$('stealList');if(!list)return;
+    var owner=(d.owner||{});
+    var html='<div style="font-size:12.5px;color:#d4af37;font-weight:800;margin-bottom:8px">👤 '+esc(owner.name||('UID '+uid))+' 的灵田</div>';
+    var rows=(d.plots||[]).filter(function(p){return p.state&&p.state!=='empty'});
+    if(!rows.length){html+='<div style="color:#9a8a6a;font-size:12.5px">对方田里还没有可偷的灵植~</div>'}
+    rows.forEach(function(p){
+      var ripe=(p.state==='ripe'||p.ripe);
+      var stole=Math.round((p.stolen_pct||0)*100);
+      html+='<div class="fld-row"><span class="fe">'+esc(p.emoji||'🌱')+'</span>'+
+        '<span class="fn"><span class="fname">'+esc(p.name||'')+'</span>'+
+        '<span class="fmeta">'+((p.element&&EL[p.element])?EL[p.element].n:'')+' · '+
+          (ripe?('可偷 '+(p.yield_preview?Math.round(p.yield_preview):'?')):('还剩 '+Math.max(0,Math.ceil(p.remain_sec||0))+'s'))+
+          (stole?(' · 已被偷 '+stole+'%'):'')+'</span></span>'+
+        '<button data-u="'+uid+'" data-i="'+p.idx+'" '+(ripe?'':'disabled')+'>'+(ripe?'偷一偷':'未熟')+'</button></div>';
+    });
+    html+='<button class="go" id="stealBack" style="margin-top:10px;background:rgba(212,175,55,.12);color:#d4af37">← 返回好友列表</button>';
+    list.innerHTML=html;
+    Array.prototype.forEach.call(list.querySelectorAll('.fld-row button'),function(b){
+      if(b.disabled)return;
+      b.onclick=function(){doSteal(b.getAttribute('data-u'),parseInt(b.getAttribute('data-i'),10))};
+    });
+    var bk=$('stealBack');if(bk)bk.onclick=openFriendsSheet;
+  }).catch(function(){toast('网络异常','请稍后重试')});
+}
+$('mask').onclick=hideSheet;
+$('seedX').onclick=hideSheet;$('stealX').onclick=hideSheet;
+$('teamX').onclick=hideSheet;
+$('barnX')&&($('barnX').onclick=hideSheet);
+$('rulesX')&&($('rulesX').onclick=hideSheet);
+$('posterX')&&($('posterX').onclick=hideSheet);
+$('shopX')&&($('shopX').onclick=hideSheet);
+
+/* ================= 新手引导 ================= */
+function updateGuide(){
+  Array.prototype.forEach.call(document.querySelectorAll('.guide .st'),function(el){
+    var k=el.getAttribute('data-step');
+    var done=(k==='0'&&guideSteps.plant)||(k==='1'&&guideSteps.harvest)||(k==='2'&&guideSteps.steal);
+    el.className='st'+(done?' done':'');
+  });
+}
+$('guideClose').onclick=function(){
+  $('guideBar').classList.remove('show');
+  try{localStorage.setItem('lt_guide_done','1')}catch(e){}
+};
+function initGuide(){
+  var done=false;try{done=localStorage.getItem('lt_guide_done')==='1'}catch(e){}
+  if(!done){$('guideBar').classList.add('show')}
+  updateGuide();
+}
+
+/* ================= 启动 ================= */
+window.addEventListener('resize',resize,{passive:true});
+window.addEventListener('orientationchange',function(){setTimeout(resize,200)});
+resize();
+initGuide();
+loadAll();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

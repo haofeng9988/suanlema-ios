@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1a1612">
+<title>天機卦卡 · 算了吗·易游</title>
+<script src="tool-intro.js?v=20261005"></script>
+<style>
+:root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a;
+ --jin:#cfd6dd;--mu:#4caf7d;--shui:#4a90d9;--huo:#e0563f;--tu:#c9a34e}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);
+ min-height:100vh;display:flex;justify-content:center;overscroll-behavior:none;
+ padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+#wrap{max-width:480px;width:100%;min-height:100vh;background:radial-gradient(circle at 50% 0%,#2a2218,#12100c 70%);display:flex;flex-direction:column;position:relative}
+button{font-family:inherit;cursor:pointer}
+.screen{display:none;flex-direction:column;flex:1}
+.screen.active{display:flex}
+header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:11px 16px 9px;text-align:center;border-bottom:2px solid var(--gold);position:relative}
+header h1{font-size:17px;color:var(--gold);letter-spacing:2px;margin:0}
+header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
+.topleft{position:absolute;left:10px;top:11px;font-size:19px;color:var(--gold);background:none;border:none;padding:4px 8px}
+
+/* 资源条 */
+.res{display:flex;gap:8px;margin:10px 12px 6px}
+.res .r{flex:1;background:var(--c1);border:1px solid var(--c2);border-radius:11px;padding:7px 9px;text-align:center;font-size:12px;color:var(--sub)}
+.res .r b{color:var(--gold);font-size:15px;display:block}
+
+/* 底部导航 */
+.gnav{display:flex;border-top:1px solid var(--c2);background:#1f1912;position:sticky;bottom:0;z-index:20}
+.gnav .g{flex:1;text-align:center;padding:9px 2px 11px;color:var(--sub);font-size:10.5px;cursor:pointer}
+.gnav .g .ic{font-size:20px;display:block;margin-bottom:1px}
+.gnav .g.on{color:var(--gold)}
+
+/* 卡图鉴 */
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px}
+.card{aspect-ratio:3/4;border-radius:11px;border:1px solid var(--c2);background:linear-gradient(170deg,#2a2218,#221c14);
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative;cursor:pointer;overflow:hidden}
+.card .nm{font-size:14px;font-weight:800;color:var(--text)}
+.card .st{font-size:8px;color:var(--gold);letter-spacing:1px}
+.card .el{font-size:11px}
+.card .lock{font-size:22px;color:#4a4030}
+.card.owned{border-color:var(--gold)}
+.card .own{position:absolute;top:2px;right:2px;font-size:7px;background:var(--gold);color:#1a1612;padding:0 3px;border-radius:4px;font-weight:800}
+.card.s5{background:linear-gradient(170deg,#4a3410,#2a1c08)}
+.card.s4{background:linear-gradient(170deg,#3a2e1e,#241c12)}
+.el-jin{color:var(--jin)}.el-mu{color:var(--mu)}.el-shui{color:var(--shui)}.el-huo{color:var(--huo)}.el-tu{color:var(--tu)}
+
+/* 卡详情弹层 */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:flex-end;justify-content:center;z-index:100}
+.sheet.show{display:flex}
+.sheet .panel{background:linear-gradient(180deg,#2a2218,#1c1610);border:2px solid var(--gold);border-radius:18px 18px 0 0;padding:20px 18px 26px;max-width:480px;width:100%;max-height:88vh;overflow-y:auto}
+.sheet h2{margin:0 0 4px;font-size:20px;color:var(--gold);text-align:center;letter-spacing:2px}
+.cardbig{width:150px;height:200px;margin:8px auto;border-radius:14px;border:2px solid var(--gold);background:linear-gradient(170deg,#3a2e1e,#221c14);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+.cardbig .nm{font-size:30px;font-weight:900;color:var(--gold)}
+.cardbig .st{font-size:12px;color:var(--gold);letter-spacing:2px;margin-top:4px}
+.cardbig .el{font-size:14px;color:var(--text);margin-top:6px}
+.yaorow{display:flex;flex-direction:column;gap:3px;margin:6px 0}
+.yaorow .y{width:70px;height:7px;background:var(--text);border-radius:3px;row-gap:2px}
+.desc{font-size:12px;color:var(--sub);line-height:1.85;text-align:center;margin:8px 0}
+.btnrow{display:flex;gap:8px;margin-top:12px}
+.btnrow button{flex:1;padding:11px;border-radius:11px;border:none;font-size:14px;font-weight:800}
+.b-gold{background:var(--gold);color:#1a1612}
+.b-out{background:transparent;color:var(--gold);border:1px solid var(--gold)!important}
+
+/* 抽卡 */
+.pullArea{padding:14px;text-align:center}
+.pullBox{background:linear-gradient(160deg,#3a2e1e,#241c12);border:1px solid var(--gold);border-radius:16px;padding:22px 16px;margin-bottom:14px}
+.pullBox .em{font-size:58px}
+.pullBox .t{font-size:15px;color:var(--gold);margin:8px 0 4px;letter-spacing:1px}
+.pullBox .s{font-size:11px;color:var(--sub);line-height:1.7}
+.pullBtn{background:var(--gold);color:#1a1612;border:none;border-radius:13px;padding:15px;font-size:16px;font-weight:800;width:100%;margin-bottom:9px}
+.pullBtn.alt{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+.pullBtn:disabled{opacity:.45}
+
+/* 抽卡结果 */
+.pullResult{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;flex-direction:column;z-index:120;padding:20px}
+.pullResult.show{display:flex}
+.prCard{width:170px;height:230px;border-radius:16px;border:3px solid var(--gold);background:linear-gradient(170deg,#3a2e1e,#221c14);display:flex;flex-direction:column;align-items:center;justify-content:center;animation:pop2 .5s;box-shadow:0 0 40px rgba(212,175,55,.5)}
+@keyframes pop2{0%{transform:scale(.3) rotate(-8deg);opacity:0}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.prCard .nm{font-size:38px;font-weight:900;color:var(--gold)}
+.prCard .st{font-size:14px;color:var(--gold);letter-spacing:3px}
+.prCard .el{font-size:15px;margin-top:8px;color:var(--text)}
+.prCard.new::after{content:'NEW';position:absolute;top:8px;right:-2px;background:var(--red);color:#fff;font-size:10px;padding:2px 8px;border-radius:8px;font-weight:800}
+.prTitle{color:var(--gold);font-size:17px;margin-bottom:14px;letter-spacing:2px}
+
+/* 对战 */
+.battle{padding:12px}
+.field{display:flex;justify-content:space-around;margin-bottom:12px}
+.slot{width:88px;height:120px;border:1px dashed var(--c2);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--sub);background:var(--c1);cursor:pointer;position:relative}
+.slot.filled{border-style:solid;border-color:var(--gold);background:linear-gradient(170deg,#3a2e1e,#241c12)}
+.slot .nm{font-size:20px;color:var(--gold);font-weight:800}
+.slot .el{font-size:11px}
+.slot .lv{font-size:9px;color:var(--sub)}
+.oppfield{opacity:.9}
+.log{background:var(--c1);border:1px solid var(--c2);border-radius:12px;padding:12px;font-size:12.5px;line-height:1.9;min-height:70px;color:var(--text);margin-top:10px}
+.log .win{color:var(--gold);font-weight:800}
+.log .lose{color:var(--red);font-weight:800}
+
+/* 通用 */
+.sec{margin:14px 12px}
+.sec h3{font-size:14px;color:var(--gold);margin:0 0 8px;letter-spacing:1px}
+.taskrow{display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--c1);border:1px solid var(--c2);border-radius:11px;margin-bottom:8px;font-size:13px}
+.taskrow .p{color:var(--sub);font-size:11px}
+.taskrow button{background:var(--gold);color:#1a1612;border:none;border-radius:9px;padding:6px 12px;font-size:12px;font-weight:800}
+.taskrow button:disabled{background:var(--c2);color:var(--sub)}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.85);color:var(--gold);border:1px solid var(--gold);border-radius:10px;padding:9px 16px;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.foot{font-size:10px;color:var(--sub);text-align:center;padding:10px 14px 16px;line-height:1.7}
+</style>
+</head>
+<body>
+<div id="wrap">
+
+  <!-- ===== 图鉴 ===== -->
+  <div class="screen active" id="s-dex">
+    <header>
+      <h1>🃏 天機卦卡</h1>
+      <div class="sub" id="dexSub">收集六十四卦 · 五行相剋對戰</div>
+    </header>
+    <div class="res">
+      <div class="r">靈晶<b id="resCrystal">0</b></div>
+      <div class="r">圖鑑<b id="resDex">0/64</b></div>
+      <div class="r">體力<b id="resSta">5/5</b></div>
+    </div>
+    <div class="grid" id="dexGrid"></div>
+    <div class="foot">本遊戲為休閒益智娛樂，所有卦卡與靈晶均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。</div>
+  </div>
+
+  <!-- ===== 抽卡 ===== -->
+  <div class="screen" id="s-pull">
+    <header><h1>🔮 卦象推演</h1><div class="sub">消耗靈晶推演新卦（純虛擬）</div></header>
+    <div class="res">
+      <div class="r">靈晶<b id="resCrystal2">0</b></div>
+      <div class="r">圖鑑<b id="resDex2">0/64</b></div>
+      <div class="r">體力<b id="resSta2">5/5</b></div>
+    </div>
+    <div class="pullArea">
+      <div class="pullBox">
+        <div class="em">☯</div>
+        <div class="t">天機卦象推演</div>
+        <div class="s">每次推演隨機得一卦卡（1-5★）<br>重複卦卡自動轉化為「卦氣」用於升級</div>
+      </div>
+      <button class="pullBtn" id="btnPull1" onclick="doPull(1)">推演一次 · 30 靈晶</button>
+      <button class="pullBtn alt" id="btnPull10" onclick="doPull(10)">推演十次 · 270 靈晶</button>
+      <div style="font-size:11px;color:var(--sub);margin-top:10px;line-height:1.8">
+        靈晶獲取：每日任務 · 過關獎勵 · 連續簽到<br>本遊戲靈晶純虛擬，不可充值、不可兌換現金。
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== 對戰 ===== -->
+  <div class="screen" id="s-battle">
+    <header><h1>⚔️ 五行對決</h1><div class="sub">選 3 張卦卡 · 相剋制勝</div></header>
+    <div class="battle">
+      <div class="sec" style="margin-top:0"><h3>我方出戰（點選替換）</h3>
+        <div class="field" id="myField"></div>
+      </div>
+      <div class="sec"><h3>對手</h3>
+        <div class="field oppfield" id="oppField"></div>
+      </div>
+      <button class="pullBtn" onclick="doBattle()" id="btnBattle">⚔️ 開始對決</button>
+      <div class="log" id="battleLog">選擇 3 張卦卡後開始對決。</div>
+    </div>
+  </div>
+
+  <!-- ===== 任务/商店 ===== -->
+  <div class="screen" id="s-task">
+    <header><h1>📋 每日修行</h1><div class="sub">完成任務 · 領取靈晶</div></header>
+    <div class="res">
+      <div class="r">靈晶<b id="resCrystal3">0</b></div>
+      <div class="r">簽到<b id="resSign">-</b></div>
+      <div class="r">體力<b id="resSta3">5/5</b></div>
+    </div>
+    <div class="sec">
+      <h3>🎁 每日簽到</h3>
+      <div class="taskrow"><span>連續簽到 <b id="signStreak">0</b> 天</span>
+        <button id="btnSign" onclick="doSign()">簽到 +20 靈晶</button></div>
+    </div>
+    <div class="sec">
+      <h3>📋 今日任務</h3>
+      <div id="taskList"></div>
+    </div>
+    <div class="sec">
+      <h3>🛒 卦氣商店（純虛擬）</h3>
+      <div id="shopList"></div>
+    </div>
+    <div class="foot">所有道具以虛擬靈晶獲取，不可充值、不可兌換現金、不涉及賭博。</div>
+  </div>
+
+  <!-- 底部导航 -->
+  <div class="gnav">
+    <div class="g on" id="nav-dex" onclick="nav('dex')"><span class="ic">🃏</span>圖鑑</div>
+    <div class="g" id="nav-pull" onclick="nav('pull')"><span class="ic">🔮</span>推演</div>
+    <div class="g" id="nav-battle" onclick="nav('battle')"><span class="ic">⚔️</span>對決</div>
+    <div class="g" id="nav-task" onclick="nav('task')"><span class="ic">📋</span>修行</div>
+  </div>
+</div>
+
+<!-- 卡详情 -->
+<div class="sheet" id="cardSheet" onclick="if(event.target===this)closeSheet()"><div class="panel">
+  <h2 id="csName">乾</h2>
+  <div class="cardbig" id="csCard"></div>
+  <div class="desc" id="csDesc"></div>
+  <div id="csActions"></div>
+</div></div>
+
+<!-- 抽卡结果 -->
+<div class="pullResult" id="pullResult"><div class="prTitle" id="prTitle">推演結果</div>
+  <div class="prCard" id="prCard"></div>
+  <button class="btnrow b-gold" style="margin-top:22px;padding:12px 30px;border-radius:12px;border:none;font-size:15px;font-weight:800" onclick="closePull()">確 定</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============ 64 卦数据 ============ */
+var RAW=[
+ ['乾','乾','乾'],['坤','坤','坤'],['屯','坎','震'],['蒙','艮','坎'],['需','坎','乾'],['讼','乾','坎'],
+ ['师','坤','坎'],['比','坎','坤'],['小畜','巽','乾'],['履','乾','兑'],['泰','坤','乾'],['否','乾','坤'],
+ ['同人','乾','离'],['大有','离','乾'],['谦','坤','艮'],['豫','震','坤'],['随','兑','震'],['蛊','艮','巽'],
+ ['临','坤','兑'],['观','巽','坤'],['噬嗑','离','震'],['贲','艮','离'],['剥','艮','坤'],['复','坤','震'],
+ ['无妄','乾','震'],['大畜','艮','乾'],['颐','艮','震'],['大过','兑','巽'],['坎','坎','坎'],['离','离','离'],
+ ['咸','兑','艮'],['恒','震','巽'],['遁','乾','艮'],['大壮','震','乾'],['晋','离','坤'],['明夷','坤','离'],
+ ['家人','巽','离'],['睽','离','兑'],['蹇','坎','艮'],['解','震','坎'],['损','艮','兑'],['益','巽','震'],
+ ['夬','兑','乾'],['姤','乾','巽'],['萃','兑','坤'],['升','坤','巽'],['困','兑','坎'],['井','坎','巽'],
+ ['革','兑','离'],['鼎','离','巽'],['震','震','震'],['艮','艮','艮'],['渐','巽','艮'],['归妹','震','兑'],
+ ['丰','震','离'],['旅','离','艮'],['巽','巽','巽'],['兑','兑','兑'],['涣','巽','坎'],['节','坎','兑'],
+ ['中孚','巽','兑'],['小过','震','艮'],['既济','坎','离'],['未济','离','坎']
+];
+var BG_EL={'乾':'金','兑':'金','离':'火','震':'木','巽':'木','坎':'水','艮':'土','坤':'土'};
+var BG_YANG={'乾':[1,1,1],'兑':[1,1,0],'离':[1,0,1],'震':[1,0,0],'巽':[0,1,1],'坎':[0,1,0],'艮':[0,0,1],'坤':[0,0,0]};
+var YANG_STR={'yang':'━━━','yin':'━ ━'};
+// 五行相克：木克土 土克水 水克火 火克金 金克木
+var KE={'木':'土','土':'水','水':'火','火':'金','金':'木'};
+var SHENG={'木':'火','火':'土','土':'金','金':'水','水':'木'};
+var CARDS=[];
+RAW.forEach(function(r,i){
+  var up=r[1], lo=r[2], star = (up===lo)?5 : (up==='乾'||up==='坤'||lo==='乾'||lo==='坤')?4:3;
+  CARDS.push({id:i+1, name:r[0], up:up, lo:lo, el:BG_EL[up], star:star, yang:BG_YANG[up].concat(BG_YANG[lo])});
+});
+
+/* ============ 本地存档 ============ */
+var KEY='wx2_';
+function load(k,d){ try{ var v=localStorage.getItem(KEY+k); return v===null?d:JSON.parse(v); }catch(e){ return d; } }
+function save(k,v){ try{ localStorage.setItem(KEY+k, JSON.stringify(v)); }catch(e){} }
+var ST = {
+  owned: load('owned',{}),      // {cardId: level}
+  crystal: load('crystal',300),  // 灵晶
+  sta: load('sta',5),
+  staTs: load('staTs',Date.now()),
+  sign: load('sign',''),
+  streak: load('streak',0),
+  pullCount: load('pullCount',0),
+  taskDate: load('taskDate',''),
+  taskDone: load('taskDone',{}),
+  gua: load('gua',0),           // 卦气（升级材料）
+};
+function persist(){
+  save('owned',ST.owned); save('crystal',ST.crystal); save('sta',ST.sta); save('staTs',ST.staTs);
+  save('sign',ST.sign); save('streak',ST.streak); save('pullCount',ST.pullCount);
+  save('taskDate',ST.taskDate); save('taskDone',ST.taskDone); save('gua',ST.gua);
+}
+
+/* ============ 体力恢复（每 30 分钟 1 点，上限 5） ============ */
+function refreshSta(){
+  var now=Date.now();
+  if(ST.sta<5){
+    var mins=Math.floor((now-ST.staTs)/1800000);
+    if(mins>0){ ST.sta=Math.min(5, ST.sta+mins); ST.staTs = ST.sta>=5? now : (ST.staTs+mins*1800000); }
+  } else { ST.staTs=now; }
+  persist();
+}
+
+/* ============ 每日任务 ============ */
+var TASK_POOL=[
+  {id:'pull1', txt:'推演卦象 1 次', rew:15},
+  {id:'pull3', txt:'推演卦象 3 次', rew:40},
+  {id:'battle1', txt:'進行 1 次對決', rew:20},
+  {id:'battle3', txt:'進行 3 次對決', rew:50},
+  {id:'up1', txt:'升級 1 張卦卡', rew:25},
+  {id:'dex5', txt:'圖鑑擁有 5 張卦卡', rew:30},
+];
+function today(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+function ensureTasks(){
+  if(ST.taskDate!==today()){ ST.taskDate=today(); ST.taskDone={}; persist(); }
+}
+
+/* ============ 通用 ============ */
+function $(id){return document.getElementById(id);}
+function toastMsg(t){ var el=$('toast'); el.textContent=t; el.classList.add('show'); setTimeout(function(){el.classList.remove('show');},1400); }
+function ownedCount(){ return Object.keys(ST.owned).length; }
+function rndStar(){ var r=Math.random(); return r<0.55?3: r<0.85?4: 5; }
+
+/* ============ 渲染 ============ */
+function renderRes(){
+  refreshSta(); ensureTasks();
+  $('resCrystal').textContent=ST.crystal; $('resCrystal2').textContent=ST.crystal; $('resCrystal3').textContent=ST.crystal;
+  $('resDex').textContent=ownedCount()+'/64'; $('resDex2').textContent=ownedCount()+'/64';
+  var sta=ST.sta+'/5'; $('resSta').textContent=sta; $('resSta2').textContent=sta; $('resSta3').textContent=sta;
+  $('resSign').textContent=ST.streak+'天';
+  $('btnPull1').disabled = ST.crystal<30;
+  $('btnPull10').disabled = ST.crystal<270;
+  $('signStreak').textContent=ST.streak;
+  $('btnSign').disabled = (ST.sign===today());
+  $('dexSub').textContent = '已收集 '+ownedCount()+'/64 卦 · 五行相剋對戰';
+}
+function renderDex(){
+  var g=$('dexGrid'); g.innerHTML='';
+  CARDS.forEach(function(c){
+    var lv=ST.owned[c.id]||0;
+    var d=document.createElement('div');
+    d.className='card s'+c.star+(lv?' owned':'');
+    if(!lv){ d.innerHTML='<div class="lock">🔒</div><div class="nm" style="font-size:11px;color:#6a5a40">???</div>'; }
+    else{
+      d.innerHTML='<div class="nm">'+c.name+'</div><div class="el el-'+c.el+'">'+c.el+'</div>'+
+        '<div class="st">'+'★'.repeat(c.star)+'</div>'+
+        '<div class="own">Lv'+lv+'</div>';
+    }
+    d.addEventListener('click', function(){ openCard(c, lv); });
+    g.appendChild(d);
+  });
+}
+function renderTasks(){
+  ensureTasks();
+  var tl=$('taskList'); tl.innerHTML='';
+  TASK_POOL.forEach(function(t){
+    var prog=taskProgress(t.id);
+    var need=taskNeed(t.id);
+    var done=prog>=need;
+    var claimed=ST.taskDone[t.id];
+    var d=document.createElement('div'); d.className='taskrow';
+    d.innerHTML='<span>'+t.txt+' <span class="p">('+Math.min(prog,need)+'/'+need+')</span></span>';
+    var b=document.createElement('button');
+    b.textContent = claimed?'已領取':(done?('領 +'+t.rew):'未完成');
+    b.disabled = claimed||!done;
+    if(done&&!claimed){ b.addEventListener('click', function(){ ST.crystal+=t.rew; ST.taskDone[t.id]=1; persist(); toastMsg('+'+t.rew+' 靈晶'); renderTasks(); renderRes(); }); }
+    d.appendChild(b);
+    tl.appendChild(d);
+  });
+  // 商店
+  var sl=$('shopList'); sl.innerHTML='';
+  var items=[{n:'小卦氣包 · +50 卦氣',c:60,g:50},{n:'大卦氣包 · +150 卦氣',c:150,g:150}];
+  items.forEach(function(it){
+    var d=document.createElement('div'); d.className='taskrow';
+    d.innerHTML='<span>'+it.n+'</span>';
+    var b=document.createElement('button'); b.textContent=it.c+' 靈晶';
+    b.disabled = ST.crystal<it.c;
+    b.addEventListener('click', function(){ if(ST.crystal<it.c)return; ST.crystal-=it.c; ST.gua+=it.g; persist(); toastMsg('+'+it.g+' 卦氣'); renderTasks(); renderRes(); });
+    d.appendChild(b); sl.appendChild(d);
+  });
+}
+var _tap={pull:0,battle:0};
+function taskProgress(id){
+  if(id==='pull1'||id==='pull3') return _tap.pull;
+  if(id==='battle1'||id==='battle3') return _tap.battle;
+  if(id==='up1') return load('upCnt',0);
+  if(id==='dex5') return ownedCount();
+  return 0;
+}
+function taskNeed(id){ return {'pull1':1,'pull3':3,'battle1':1,'battle3':3,'up1':1,'dex5':5}[id]||1; }
+
+/* ============ 卡详情 ============ */
+function openCard(c, lv){
+  $('csName').textContent = c.name;
+  $('csCard').innerHTML='<div class="nm">'+c.name+'</div><div class="el el-'+c.el+'">'+c.el+'</div><div class="st">'+'★'.repeat(c.star)+'</div>';
+  $('csDesc').innerHTML = '上卦 '+c.up+'（'+c.el+'）· 下卦 '+c.lo+'（'+BG_EL[c.lo]+'）<br>'+
+    '五行：<b class="el-'+c.el+'">'+c.el+'</b> · 稀有度 '+'★'.repeat(c.star)+'<br>'+
+    (lv?('當前等級 Lv'+lv):'尚未擁有');
+  var act=$('csActions'); act.innerHTML='';
+  if(lv){
+    // 升级：消耗卦气 = lv*30
+    var cost = lv*30;
+    var b=document.createElement('button'); b.className='b-gold';
+    b.textContent = '升級 Lv'+(lv+1)+'（'+cost+' 卦氣，現有 '+ST.gua+'）';
+    b.style.cssText='width:100%;padding:11px;border-radius:11px;border:none;font-weight:800;font-size:14px';
+    b.disabled = ST.gua<cost;
+    b.addEventListener('click', function(){
+      if(ST.gua<cost) return;
+      ST.gua-=cost; ST.owned[c.id]=lv+1; save('gua',ST.gua); save('owned',ST.owned);
+      save('upCnt', load('upCnt',0)+1);
+      toastMsg('升級至 Lv'+(lv+1)); openCard(c, lv+1); renderRes(); persist();
+    });
+    act.appendChild(b);
+  }
+  $('cardSheet').classList.add('show');
+}
+function closeSheet(){ $('cardSheet').classList.remove('show'); }
+
+/* ============ 抽卡 ============ */
+var _pullResults=[], _pullIdx=0, _pullMode=0;
+function doPull(n){
+  var cost = n===1?30:270;
+  if(ST.crystal<cost){ toastMsg('靈晶不足'); return; }
+  ST.crystal-=cost; _tap.pull+=n; persist();
+  _pullResults=[]; _pullMode=n;
+  for(var i=0;i<n;i++){ _pullResults.push(pullOne()); }
+  _pullIdx=0; showPullResult();
+  renderRes(); renderTasks();
+}
+function pullOne(){
+  var star = rndStar();
+  var pool = CARDS.filter(function(c){ return c.star===star; });
+  var c = pool[Math.floor(Math.random()*pool.length)];
+  var isNew=false;
+  if(ST.owned[c.id]){ ST.gua += (c.star*5); }  // 重复转卦气
+  else { ST.owned[c.id]=1; isNew=true; ST.gua += c.star*2; }
+  ST.pullCount++; persist();
+  return {c:c, isNew:isNew};
+}
+function showPullResult(){
+  var r=_pullResults[_pullIdx];
+  if(!r) { closePull(); return; }
+  $('prTitle').textContent = _pullMode>1? ('推演結果 '+(  _pullIdx+1)+'/'+_pullMode) : '推演結果';
+  var pc=$('prCard'); pc.className='prCard'+(r.isNew?' new':'');
+  pc.innerHTML='<div class="nm">'+r.c.name+'</div><div class="el el-'+r.c.el+'">'+r.c.el+'</div><div class="st">'+'★'.repeat(r.c.star)+'</div>';
+  $('pullResult').classList.add('show');
+}
+function closePull(){
+  if(_pullMode>1 && _pullIdx < _pullResults.length-1){ _pullIdx++; showPullResult(); renderDex(); renderRes(); return; }
+  $('pullResult').classList.remove('show'); renderDex(); renderRes(); renderTasks();
+}
+
+/* ============ 对战 ============ */
+var myTeam=[null,null,null];
+function myOwned(){ return Object.keys(ST.owned).map(function(id){ return {c:CARDS[+id-1], lv:ST.owned[id]}; }); }
+function renderBattle(){
+  var mf=$('myField'); mf.innerHTML='';
+  for(var i=0;i<3;i++){
+    var d=document.createElement('div'); d.className='slot'+(myTeam[i]?' filled':'');
+    if(myTeam[i]){ d.innerHTML='<div class="nm">'+myTeam[i].c.name+'</div><div class="el el-'+myTeam[i].c.el+'">'+myTeam[i].c.el+'</div><div class="lv">Lv'+myTeam[i].lv+'</div>'; }
+    else{ d.textContent='+ 選擇'; }
+    (function(i){ d.addEventListener('click', function(){ pickForSlot(i); }); })(i);
+    mf.appendChild(d);
+  }
+  $('oppField').innerHTML='';
+}
+function pickForSlot(i){
+  var own=myOwned();
+  if(own.length===0){ toastMsg('先去推演獲得卦卡'); return; }
+  // 简单：从已拥有循环选下一张
+  var cur=myTeam[i];
+  var idx=cur?own.findIndex(function(x){return x.c.id===cur.c.id;}):-1;
+  idx=(idx+1)%own.length;
+  myTeam[i]=own[idx];
+  renderBattle();
+}
+async function doBattle(){
+  if(myTeam.filter(function(x){return x;}).length===0){ toastMsg('至少選 1 張卦卡'); return; }
+  if(ST.sta<1){ toastMsg('體力不足，30 分鐘恢復 1 點'); return; }
+  ST.sta--; ST.staTs=ST.staTs||Date.now(); persist();
+  _tap.battle++;
+  // 对手：随机3张
+  var opp=[]; for(var i=0;i<3;i++){ opp.push({c:CARDS[Math.floor(Math.random()*64)], lv:1+Math.floor(Math.random()*3)}); }
+  var my=myTeam.filter(function(x){return x;});
+  var log=[];
+  // 简化战斗：逐位比较，五行相克加成
+  var myScore=0, oppScore=0;
+  for(var k=0;k<Math.max(my.length,3);k++){
+    var a=my[k]||null, b=opp[k]||null;
+    if(!a||!b) continue;
+    var av=a.c.star*10+a.lv*3, bv=b.c.star*10+b.lv*3;
+    var tag='';
+    if(KE[a.c.el]===b.c.el){ av+=15; tag='（'+a.c.el+'剋'+b.c.el+' 剋制！）'; }
+    else if(KE[b.c.el]===a.c.el){ bv+=15; tag='（'+b.c.el+'剋'+a.c.el+' 被剋）'; }
+    else if(SHENG[a.c.el]===b.c.el){ av+=8; tag='（相生 +8）'; }
+    myScore+=av; oppScore+=bv;
+    log.push('<b>'+a.c.name+'（'+a.c.el+'）</b> vs <b>'+b.c.name+'（'+b.c.el+'）</b> '+tag);
+  }
+  var win = myScore>=oppScore;
+  log.push('<span class="'+(win?'win':'lose')+'">'+(win?'🏆 我方勝出！':'💧 略遜一籌')+'</span> 我方 '+myScore+' : 對手 '+oppScore);
+  if(win){ var rew=20+my.length*5; ST.crystal+=rew; log.push('獎勵 +'+rew+' 靈晶'); }
+  persist();
+  $('battleLog').innerHTML=log.join('<br>');
+  renderRes(); renderTasks();
+}
+
+/* ============ 签到 ============ */
+function doSign(){
+  if(ST.sign===today()){ toastMsg('今日已簽到'); return; }
+  // 判断是否连续
+  var y=new Date(Date.now()-86400000); var ys=y.getFullYear()+'-'+(y.getMonth()+1)+'-'+y.getDate();
+  if(ST.sign===ys) ST.streak++; else ST.streak=1;
+  ST.sign=today();
+  var rew=20+Math.min(ST.streak,7)*5;
+  ST.crystal+=rew; persist();
+  toastMsg('簽到成功 +'+rew+' 靈晶');
+  renderRes(); renderTasks();
+}
+
+/* ============ 导航 ============ */
+function nav(t){
+  ['dex','pull','battle','task'].forEach(function(k){
+    $('s-'+k).classList.toggle('active', k===t);
+    $('nav-'+k).classList.toggle('on', k===t);
+  });
+  if(t==='dex') renderDex();
+  if(t==='battle') renderBattle();
+  if(t==='task') renderTasks();
+  renderRes();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+/* ============ 启动 ============ */
+refreshSta(); ensureTasks(); renderRes(); renderDex(); renderTasks();
+try{
+  if(window.ToolIntro && ToolIntro.mount){
+    ToolIntro.mount({
+      tool:'guacard', icon:'🃏', title:'天機卦卡',
+      slogan:'收集六十四卦卡牌，五行相剋組隊對決，<br>推演、養成、對戰，長期收集樂趣。',
+      steps:[
+        '「🔮 推演」消耗<b>靈晶</b>獲得隨機卦卡（1-5★），重複卡自動轉化為<b>卦氣</b>；',
+        '「🃏 圖鑑」查看 64 卦收集進度，點擊卡片可用卦氣<b>升級</b>；',
+        '「⚔️ 對決」選 3 張卦卡出戰，<b>五行相剋</b>（木剋土、土剋水、水剋火、火剋金、金剋木）大幅加成；',
+        '「📋 修行」完成每日任務、連續簽到獲取靈晶，兌換卦氣；',
+        '所有卦卡、靈晶、卦氣均為<b>虛擬娛樂</b>，不可充值、不可兌換現金。'
+      ],
+      note:'⚠️ 本遊戲為休閒益智娛樂，不涉及任何真實賭博或金錢兌換。',
+      onEnter:function(){ nav('dex'); }
+    });
+  }
+}catch(e){}
+</script>
+</body>
+</html>
