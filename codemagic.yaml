@@ -9,6 +9,7 @@ workflows:
       ios_signing:
         distribution_type: app_store
         bundle_identifier: com.suanleme.yixue.wanleme
+        integration_name: suanleme.yixue
       xcode: latest
       cocoapods: default
     scripts:
