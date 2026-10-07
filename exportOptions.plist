@@ -11,7 +11,7 @@
     <key>provisioningProfiles</key>
     <dict>
         <key>com.suanleme.yixue.wanleme</key>
-        <string>wanleme AppStore Dist</string>
+        <string>wanleme001</string>
     </dict>
     <key>uploadSymbols</key>
     <true/>
