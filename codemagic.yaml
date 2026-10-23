@@ -45,18 +45,6 @@ workflows:
             --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
-    publishing:
-      app_store_connect:
-        api_key: |
-          -----BEGIN PRIVATE KEY-----
-          MIGTAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBHkwdwIBAQQg1vFEWS596SPipHTS
-          757hFY5jGGYxO1Z2hViLSnSH8DKgCgYIKoZIzj0DAQehRANCAARV0MQqhdTnN5Sx
-          iXU7iunicUjUGnhiQkJv5sMfQ9tZDTCqesa6D0bODPzXfuPfFKE/3K7rXtsncmF9
-          zQZlfVfZ
-          -----END PRIVATE KEY-----
-        key_id: 2UJ4MCYPB6
-        issuer_id: ac9ae068-2ef9-4605-af51-ba5a2f63baf1
-        submit_to_testflight: true
-      email:
-        recipients:
-          - 148452410@qq.com
+    # ⚠️ 2026-10-23: 旧 Codemagic 工作流已停用（试用已到期）。
+    # 私钥此前被明文写在 public repo 中（已泄露）→ 必须吊销 key 2UJ4MCYPB6 并换新密钥。
+    # 新的构建方式：GitHub Actions -> .github/workflows/ios-build.yml（macos-latest），密钥走 Repo Secrets。

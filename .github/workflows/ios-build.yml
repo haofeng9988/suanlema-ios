@@ -1,0 +1,170 @@
+name: iOS Build & Upload
+
+on:
+  workflow_dispatch:
+    inputs:
+      marketing_version:
+        description: "MARKETING_VERSION (e.g. 2.1.0). Empty = use project.yml"
+        required: false
+        default: ""
+      build_number:
+        description: "CURRENT_PROJECT_VERSION (must increase). Empty = use project.yml"
+        required: false
+        default: ""
+      upload:
+        description: "Upload IPA to App Store Connect"
+        type: boolean
+        default: true
+  push:
+    branches: [main]
+    paths:
+      - "SuanLeMe/**"
+      - "project.yml"
+      - ".github/workflows/ios-build.yml"
+
+concurrency:
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-latest
+    timeout-minutes: 60
+    env:
+      SCHEME: SuanLeMe
+      PROJECT: SuanLeMe.xcodeproj
+      BUNDLE_ID: com.suanleme.yixue.wanleme
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check required secrets
+        env:
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -euo pipefail
+          miss=0
+          for v in ASC_PRIVATE_KEY ASC_KEY_ID ASC_ISSUER_ID APPLE_TEAM_ID; do
+            if [ -z "${!v:-}" ]; then echo "MISSING secret: $v"; miss=1; else echo "ok: $v"; fi
+          done
+          [ "$miss" -eq 0 ] || { echo "Add the missing repo secrets first."; exit 1; }
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s /Applications/Xcode.app
+          xcodebuild -version
+          xcodebuild -showsdks | grep -i iphoneos || true
+
+      - name: Install XcodeGen
+        run: |
+          if ! command -v xcodegen >/dev/null 2>&1; then brew install xcodegen; fi
+          xcodegen --version
+
+      - name: Write App Store Connect API key
+        env:
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/private_keys"
+          printf '%s\n' "$ASC_PRIVATE_KEY" > "$RUNNER_TEMP/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          chmod 600 "$RUNNER_TEMP/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          echo "ASC_KEY_PATH=$RUNNER_TEMP/private_keys/AuthKey_${ASC_KEY_ID}.p8" >> "$GITHUB_ENV"
+
+      - name: Generate Xcode project
+        run: |
+          set -euo pipefail
+          xcodegen generate --spec project.yml
+          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" \
+            "$PROJECT/../SuanLeMe/Info.plist" 2>/dev/null || true
+          ls -la
+
+      - name: Archive
+        env:
+          MV: ${{ inputs.marketing_version }}
+          BN: ${{ inputs.build_number }}
+        run: |
+          set -euo pipefail
+          ARGS=()
+          if [ -n "${MV:-}" ]; then echo "override MARKETING_VERSION=$MV"; ARGS+=("MARKETING_VERSION=$MV"); fi
+          if [ -n "${BN:-}" ]; then echo "override CURRENT_PROJECT_VERSION=$BN"; ARGS+=("CURRENT_PROJECT_VERSION=$BN"); fi
+          xcodebuild archive \
+            -project "$PROJECT" \
+            -scheme "$SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/SuanLeMe.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "${{ secrets.ASC_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}" \
+            DEVELOPMENT_TEAM="${{ secrets.APPLE_TEAM_ID }}" \
+            CODE_SIGN_STYLE=Automatic \
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
+            "${ARGS[@]}" \
+            2>&1 | tee "$RUNNER_TEMP/archive.log"
+
+      - name: Show archive identity
+        run: |
+          set -euo pipefail
+          APP="$RUNNER_TEMP/SuanLeMe.xcarchive/Products/Applications/SuanLeMe.app"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Info.plist"
+          /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP/Info.plist"
+
+      - name: Export IPA
+        run: |
+          set -euo pipefail
+          printf '%s' 'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHBsaXN0IFBVQkxJQyAiLS8vQXBwbGUvL0RURCBQTElTVCAxLjAvL0VOIiAiaHR0cDovL3d3dy5hcHBsZS5jb20vRFREcy9Qcm9wZXJ0eUxpc3QtMS4wLmR0ZCI+CjxwbGlzdCB2ZXJzaW9uPSIxLjAiPgo8ZGljdD4KICA8a2V5Pm1ldGhvZDwva2V5PjxzdHJpbmc+YXBwLXN0b3JlLWNvbm5lY3Q8L3N0cmluZz4KICA8a2V5PmRlc3RpbmF0aW9uPC9rZXk+PHN0cmluZz5leHBvcnQ8L3N0cmluZz4KICA8a2V5PnNpZ25pbmdTdHlsZTwva2V5PjxzdHJpbmc+YXV0b21hdGljPC9zdHJpbmc+CiAgPGtleT51cGxvYWRTeW1ib2xzPC9rZXk+PHRydWUvPgogIDxrZXk+c3RyaXBTd2lmdFN5bWJvbHM8L2tleT48dHJ1ZS8+CiAgPGtleT5tYW5hZ2VBcHBWZXJzaW9uQW5kQnVpbGROdW1iZXI8L2tleT48ZmFsc2UvPgo8L2RpY3Q+CjwvcGxpc3Q+Cg==' | base64 --decode > "$RUNNER_TEMP/ExportOptions.plist"
+          mkdir -p "$RUNNER_TEMP/export"
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/SuanLeMe.xcarchive" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "${{ secrets.ASC_KEY_ID }}" \
+            -authenticationKeyIssuerID "${{ secrets.ASC_ISSUER_ID }}" \
+            2>&1 | tee "$RUNNER_TEMP/export.log"
+          IPA=$(find "$RUNNER_TEMP/export" -name '*.ipa' | head -1)
+          test -n "$IPA" || { echo "no ipa produced"; exit 1; }
+          echo "IPA_PATH=$IPA" >> "$GITHUB_ENV"
+          ls -la "$RUNNER_TEMP/export"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SuanLeMe-ipa
+          path: ${{ env.IPA_PATH }}
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload to App Store Connect
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.upload }}
+        run: |
+          set -euo pipefail
+          echo "Uploading $IPA_PATH"
+          if xcrun --find altool >/dev/null 2>&1; then
+            xcrun altool --upload-app -f "$IPA_PATH" -t ios \
+              --apiKey "${{ secrets.ASC_KEY_ID }}" --apiIssuer "${{ secrets.ASC_ISSUER_ID }}" \
+              2>&1 | tee "$RUNNER_TEMP/upload.log"
+          else
+            echo "altool not present, falling back to iTMSTransporter"
+            xcrun iTMSTransporter -m upload -f "$IPA_PATH" \
+              -apiKey "${{ secrets.ASC_KEY_ID }}" -apiIssuer "${{ secrets.ASC_ISSUER_ID }}" \
+              -v informational 2>&1 | tee "$RUNNER_TEMP/upload.log"
+          fi
+
+      - name: Collect logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            ${{ runner.temp }}/archive.log
+            ${{ runner.temp }}/export.log
+            ${{ runner.temp }}/upload.log
+          if-no-files-found: ignore
+          retention-days: 7
