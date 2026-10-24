@@ -1,0 +1,15 @@
+# macOS / Xcode
+.DS_Store
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+
+# 构建产物
+*.ipa
+*.dSYM.zip
+*.xcarchive
+
+# 本地临时文件（含 Windows 保留名 NUL，由 ssh UserKnownHostsFile 误建）
+NUL
+*.log
