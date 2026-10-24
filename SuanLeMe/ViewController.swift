@@ -7,7 +7,9 @@ import StoreKit
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
 
     let webView = WKWebView()
-    /// 本地游戏首页（App 内置，离线可玩）——不再加载远程网站
+    /// 远程主站（5 tab：游戏/课程/工具/商城/我的）
+    let remoteHomeURL = "https://tianji.matetechhk.com/xuetang"
+    /// 本地游戏首页（离线兜底，网络失败时使用）
     let homeFileName = "home"
     let gamesSubdir = "Games"
     let loadingView = UIView()
@@ -20,7 +22,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         super.viewDidLoad()
         setupWebView()
         setupLoadingView()
-        loadHome()
+        loadStart()
         if #available(iOS 15.0, *) {
             IAPManager.shared.startObserving()
         }
@@ -43,7 +45,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView.allowsBackForwardNavigationGestures = true
         webView.backgroundColor = UIColor(red: 0.10, green: 0.086, blue: 0.07, alpha: 1.0)
         webView.scrollView.contentInsetAdjustmentBehavior = .never
-        webView.customUserAgent = "SuanLeMeApp/2.0 (iOS) wanleme"
+        webView.customUserAgent = "SuanLeMeApp/2.1 (iOS) wanleme"
         view.addSubview(webView)
     }
 
@@ -74,8 +76,27 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         activityIndicator.startAnimating()
     }
 
+    /// 启动：优先远程 xuetang（含 5 tab 导航），失败自动降级本地 home.html
+    private func loadStart() {
+        if let u = URL(string: remoteHomeURL) {
+            var req = URLRequest(url: u)
+            req.timeoutInterval = 12
+            req.cachePolicy = .reloadRevalidatingCacheData
+            webView.load(req)
+            // 12 秒兜底：若远程仍未起来，切本地游戏
+            DispatchQueue.main.asyncAfter(deadline: .now() + 12) { [weak self] in
+                guard let self = self else { return }
+                if self.webView.isLoading || self.webView.url?.scheme == nil {
+                    self.loadLocalHome()
+                }
+            }
+            return
+        }
+        loadLocalHome()
+    }
+
     /// 加载 App 内置的本地游戏首页（离线可玩）
-    private func loadHome() {
+    private func loadLocalHome() {
         guard let url = Bundle.main.url(forResource: homeFileName, withExtension: "html", subdirectory: gamesSubdir) else {
             // 兜底：直接找 bundle 根
             if let u = Bundle.main.url(forResource: homeFileName, withExtension: "html") {
@@ -91,6 +112,13 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     }
 
     // MARK: - WKNavigationDelegate
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        if webView.url?.scheme == "https" { loadLocalHome() }
+    }
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        loadLocalHome()
+    }
+
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         UIView.animate(withDuration: 0.4) {
             self.loadingView.alpha = 0
