@@ -12,9 +12,11 @@
 (function(global){
   'use strict';
   var _invite = '';
+  // 站内基准地址：App 内以 file:// 加载（location.origin 为 "null"），必须用绝对域名
+  var SITE_BASE = 'https://tianji.matetechhk.com';
   var API = (function(){
-    // 推断 API 前缀（与各页保持一致）；为空则用同源
-    return ((global.API || '') && String(global.API).replace(/\/$/,'')) || location.origin;
+    // 推断 API 前缀（与各页保持一致）；为空则用站内基准
+    return ((global.API || '') && String(global.API).replace(/\/$/,'')) || SITE_BASE;
   })();
 
   function token(){
@@ -35,7 +37,7 @@
     }catch(e){ cb(''); }
   }
   function buildLink(path){
-    var base = location.origin + (path || location.pathname);
+    var base = SITE_BASE + (path || '/');
     var code = _invite || '';
     return base + (base.indexOf('?')>=0 ? '&' : '?') + 'ref=' + encodeURIComponent(code);
   }
@@ -86,7 +88,7 @@
   function share(opts){
     opts = opts || {};
     var text = opts.text || '算了吗';
-    var path = opts.path || location.pathname;
+    var path = opts.path || '/';
     getInvite(function(){
       var link = buildLink(path);
       var fullText = text + '\n\n' + (opts.append || '') + (opts.append?'\n':'') + link;

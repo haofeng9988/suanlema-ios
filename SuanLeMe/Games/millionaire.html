@@ -306,6 +306,8 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
 'use strict';
 /* ============ 基础工具 ============ */
 function $(id){return document.getElementById(id);}
+// App 内以 file:// 加载时 location.origin 为 "null"，分享/房间链接必须用绝对域名
+var SITE_BASE='https://tianji.matetechhk.com';
 var API='';
 try{API=localStorage.getItem('yx_api')||'';}catch(e){}
 // 离线检测：iOS App 内置版从 file:// 加载 → 纯本地游戏模式（不发任何网络请求）
@@ -804,7 +806,7 @@ $('createRoomBtn').addEventListener('click',function(){
       if(!d||!d.ok){toast('房間創建失敗，請稍後再試');return;}
       S.room={id:d.room_id,code:(d.code||'').toUpperCase()};
       $('roomCode').textContent=S.room.code;
-      var link=location.origin+'/millionaire?room='+S.room.code;
+      var link=SITE_BASE+'/millionaire?room='+S.room.code;
       $('roomLink').textContent=link;
       $('roomCodeBox').style.display='block';
       toast('房間已創建，邀請好友加入吧');

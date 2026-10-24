@@ -482,6 +482,8 @@ var needsLogin=false;       // 未登录（401）—— 不再误报「后端未
 // 离线检测：iOS App 内置版从 file:// 加载 → 纯本地游戏模式（不发任何网络请求）
 var OFFLINE=false;
 try{OFFLINE=(location.protocol==='file:')||(location.origin==='null');}catch(e){OFFLINE=false;}
+// App 内 file:// 下 location.origin 为 "null"，分享链接必须用绝对域名
+var SITE_BASE='https://tianji.matetechhk.com';
 var LT_LOC='lt_local_';       // 离线存档键前缀
 var guideSteps={plant:false,harvest:false,steal:false};
 
@@ -1244,8 +1246,8 @@ $('btnShare')&&($('btnShare').onclick=function(){
       UnifiedShare.open({tool:'灵田天机',name:'昊峯天机',score:'',level:'',subtitle:text});return
     }
   }catch(e){}
-  if(navigator.share){navigator.share({title:'昊峯天机 · 灵田天机',text:text,url:location.origin+'/lingtian'}).catch(function(){});}
-  else{alert(text+'\n'+location.origin+'/lingtian')}
+  if(navigator.share){navigator.share({title:'昊峯天机 · 灵田天机',text:text,url:SITE_BASE+'/lingtian'}).catch(function(){});}
+  else{alert(text+'\n'+SITE_BASE+'/lingtian')}
 });
 
 /* ================= v5 HUD 按钮（带空值保护，兼容主身删除的旧 actions 面板） ================= */
