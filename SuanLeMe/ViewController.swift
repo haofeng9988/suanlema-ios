@@ -7,7 +7,8 @@ import StoreKit
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
 
     let webView = WKWebView()
-    /// 远程主站（5 tab：游戏/课程/工具/商城/我的）
+    /// 远程主站（仅用于用户主动点击的联网功能：登录/商城/排行/会员）
+    /// 注意：启动时不加载它。首屏必须是内置本地游戏页，否则会被判 4.2 套壳网站。
     let remoteHomeURL = "https://tianji.matetechhk.com/xuetang"
     /// 本地游戏首页（离线兜底，网络失败时使用）
     let homeFileName = "home"
@@ -76,22 +77,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         activityIndicator.startAnimating()
     }
 
-    /// 启动：优先远程 xuetang（含 5 tab 导航），失败自动降级本地 home.html
+    /// 启动：直接加载 App 内置的本地游戏首页（与已过审的 2.0 一致）
+    /// 4.2 说明：首屏为本地 file:// 内容，六款游戏离线可玩，不依赖任何服务器。
+    /// 远程站点仅在用户主动点击联网功能时打开（见 allowedHosts 白名单）。
     private func loadStart() {
-        if let u = URL(string: remoteHomeURL) {
-            var req = URLRequest(url: u)
-            req.timeoutInterval = 12
-            req.cachePolicy = .reloadRevalidatingCacheData
-            webView.load(req)
-            // 12 秒兜底：若远程仍未起来，切本地游戏
-            DispatchQueue.main.asyncAfter(deadline: .now() + 12) { [weak self] in
-                guard let self = self else { return }
-                if self.webView.isLoading || self.webView.url?.scheme == nil {
-                    self.loadLocalHome()
-                }
-            }
-            return
-        }
         loadLocalHome()
     }
 
