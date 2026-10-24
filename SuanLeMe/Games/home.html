@@ -8,11 +8,11 @@
 <style>
 :root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0}
+html,body{margin:0;padding:0;width:100%;overflow-x:hidden}
 body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);
- min-height:100vh;display:flex;justify-content:center;overscroll-behavior:none;
+ min-height:100vh;overscroll-behavior:none;width:100%;overflow-x:hidden;
  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
-#wrap{max-width:480px;width:100%;min-height:100vh;background:radial-gradient(circle at 50% 0%,#2a2218,#12100c 70%);padding-bottom:30px}
+#wrap{max-width:480px;width:100%;margin:0 auto;min-height:100vh;background:radial-gradient(circle at 50% 0%,#2a2218,#12100c 70%);padding-bottom:86px;overflow-x:hidden}
 .top{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 6px}
 .top .brand{font-size:20px;font-weight:900;color:var(--gold);letter-spacing:1px;text-shadow:0 2px 6px rgba(0,0,0,.45)}
 .top .ver{font-size:10px;color:var(--sub)}
@@ -40,7 +40,7 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
 .card.g-lingtian{background:linear-gradient(135deg,#1e3d24,#2f6b3a 55%,#4a9a52)}
 .card.g-lingtian .c-tag{background:#2e7d32}
 
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:0 16px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:0 16px}
 .mini{border-radius:15px;padding:18px 12px 16px;cursor:pointer;border:1px solid rgba(212,175,55,.32);text-align:center;position:relative;overflow:hidden}
 .mini:active{transform:scale(.96)}
 .mini .m-art{font-size:40px;margin-bottom:8px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4))}
@@ -55,65 +55,203 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
 .mini.m-quiz{background:linear-gradient(150deg,#1e2a16,#2f4520);border-color:rgba(130,200,90,.4)}
 .mini.m-quiz .m-name{color:#a6e07f}
 
+/* ===== 天机工具宫格 ===== */
+.tool-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:0 16px}
+.tool{background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:12px 6px 10px;text-align:center;cursor:pointer;transition:transform .1s}
+.tool:active{transform:scale(.95)}
+.tool .t-art{font-size:30px;line-height:1.3}
+.tool .t-name{font-size:13px;font-weight:700;color:var(--text);margin-top:5px}
+.tool .t-desc{font-size:10px;color:var(--sub);margin-top:3px;line-height:1.35}
+
+.tip{border-radius:14px;padding:14px 16px;margin:14px 16px 0;background:var(--c1);border:1px dashed var(--c2);
+ font-size:12px;color:var(--sub);line-height:1.8}
+.tip b{color:var(--gold);font-weight:700}
+
 .foot{text-align:center;font-size:11px;line-height:1.8;color:var(--sub);padding:26px 24px 8px}
+
+/* ===== 底部五标签 ===== */
+.tabbar{position:fixed;bottom:0;left:0;right:0;margin:0 auto;width:100%;max-width:480px;
+ background:var(--c1);border-top:1px solid var(--c2);display:flex;z-index:90;
+ padding-bottom:env(safe-area-inset-bottom)}
+.tabbar .tab{flex:1;text-align:center;padding:8px 0 6px;color:var(--sub);font-size:11px;cursor:pointer}
+.tabbar .tab .ic{display:block;font-size:22px;line-height:1.2}
+.tabbar .tab.active{color:var(--gold)}
+.panel{display:none}
+.panel.active{display:block}
 </style>
 </head>
 <body>
 <div id="wrap">
   <div class="top">
     <div class="brand">🎮 算了吗·易游</div>
-    <div class="ver">v2.0</div>
+    <div class="ver">v2.1</div>
   </div>
 
-  <div class="hero" onclick="go('millionaire.html')">
-    <span class="h-tag">🔥 本期推薦</span>
-    <div class="h-title">算了吗·易游</div>
-    <div class="h-sub">易學主題益智遊戲合集 · 離線可玩<br>6 款遊戲 · 每日有驚喜</div>
+  <!-- ===== 标签一：游戏 ===== -->
+  <div class="panel active" id="panel-games">
+    <div class="hero" onclick="go('millionaire.html')">
+      <span class="h-tag">🔥 本期推薦</span>
+      <div class="h-title">算了吗·易游</div>
+      <div class="h-sub">易學主題益智遊戲合集 · 離線可玩<br>6 款遊戲 · 每日有驚喜</div>
+    </div>
+
+    <div class="zone-title"><span>🎮 精選玩法</span><span class="more">共 6 款</span></div>
+
+    <div class="card g-millionaire" onclick="go('millionaire.html')">
+      <div class="c-tag">🔥 熱門</div>
+      <div class="c-art">💰</div>
+      <div class="c-body">
+        <div class="c-name">天機百萬富翁</div>
+        <div class="c-desc">15 關闖獎梯 · 5 錦囊 · 益智問答</div>
+        <span class="c-cta">開始挑戰 →</span>
+      </div>
+    </div>
+
+    <div class="card g-lingtian" onclick="go('lingtian.html')">
+      <div class="c-tag">🌱 新</div>
+      <div class="c-art">🌾</div>
+      <div class="c-body">
+        <div class="c-name">靈田天機</div>
+        <div class="c-desc">五行靈植 · 種田偷菜 · 經營養成</div>
+        <span class="c-cta">進入靈田 →</span>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="mini m-guacard" onclick="go('gua-card.html')">
+        <div class="m-art">🃏</div>
+        <div class="m-name">天機卦卡</div>
+        <div class="m-desc">64 卦收集養成</div>
+      </div>
+      <div class="mini m-xiuxing" onclick="go('xiuxing.html')">
+        <div class="m-art">🧘</div>
+        <div class="m-name">天機修行</div>
+        <div class="m-desc">放置渡劫修仙</div>
+      </div>
+      <div class="mini m-wuxing" onclick="go('wuxing-match.html')">
+        <div class="m-art">🔮</div>
+        <div class="m-name">五行消消樂</div>
+        <div class="m-desc">相生相剋消除</div>
+      </div>
+      <div class="mini m-quiz" onclick="go('bagua-puzzle.html')">
+        <div class="m-art">☯</div>
+        <div class="m-name">八卦解謎</div>
+        <div class="m-desc">陰陽爻拼六十四卦</div>
+      </div>
+    </div>
   </div>
 
-  <div class="zone-title"><span>🎮 精選玩法</span><span class="more">共 6 款</span></div>
-
-  <div class="card g-millionaire" onclick="go('millionaire.html')">
-    <div class="c-tag">🔥 熱門</div>
-    <div class="c-art">💰</div>
-    <div class="c-body">
-      <div class="c-name">天機百萬富翁</div>
-      <div class="c-desc">15 關闖獎梯 · 5 錦囊 · 益智問答</div>
-      <span class="c-cta">開始挑戰 →</span>
+  <!-- ===== 标签二：工具 ===== -->
+  <div class="panel" id="panel-tools">
+    <div class="zone-title"><span>☯ 天機工具</span><span class="more">共 14 項</span></div>
+    <div class="tool-grid">
+      <div class="tool" onclick="openRemote('/bazi')"><div class="t-art">🧭</div><div class="t-name">八字命盤</div><div class="t-desc">生辰排盤</div></div>
+      <div class="tool" onclick="openRemote('/bazi-report')"><div class="t-art">📜</div><div class="t-name">八字終身盤</div><div class="t-desc">四柱大運</div></div>
+      <div class="tool" onclick="openRemote('/hehun')"><div class="t-art">💞</div><div class="t-name">算了吗合配</div><div class="t-desc">兩人合婚</div></div>
+      <div class="tool" onclick="openRemote('/gaiming')"><div class="t-art">✍️</div><div class="t-name">名成利就</div><div class="t-desc">喜用神取名</div></div>
+      <div class="tool" onclick="openRemote('/spinner')"><div class="t-art">🎯</div><div class="t-name">奇門卦盤</div><div class="t-desc">轉盤占卜</div></div>
+      <div class="tool" onclick="openRemote('/liuyao')"><div class="t-art">🪙</div><div class="t-name">六爻占卜</div><div class="t-desc">銅錢起卦</div></div>
+      <div class="tool" onclick="openRemote('/qimen')"><div class="t-art">🌀</div><div class="t-name">奇門遁甲</div><div class="t-desc">九宮排盤</div></div>
+      <div class="tool" onclick="openRemote('/luopan')"><div class="t-art">🧲</div><div class="t-name">風水羅盤</div><div class="t-desc">玄空飛星</div></div>
+      <div class="tool" onclick="openRemote('/huangli')"><div class="t-art">📅</div><div class="t-name">擇日通勝</div><div class="t-desc">宜忌擇吉</div></div>
+      <div class="tool" onclick="openRemote('/index.html#ripan')"><div class="t-art">🌞</div><div class="t-name">每日運勢</div><div class="t-desc">日盤生成</div></div>
+      <div class="tool" onclick="openRemote('/xiangshu')"><div class="t-art">👁</div><div class="t-name">相術觀相</div><div class="t-desc">面相手相</div></div>
+      <div class="tool" onclick="openRemote('/ziwei')"><div class="t-art">✨</div><div class="t-name">紫微斗數</div><div class="t-desc">十二宮位</div></div>
+      <div class="tool" onclick="openRemote('/kline')"><div class="t-art">📈</div><div class="t-name">人生K線圖</div><div class="t-desc">百年流年</div></div>
+      <div class="tool" onclick="openRemote('/gongde')"><div class="t-art">🪔</div><div class="t-name">隨喜功德</div><div class="t-desc">點燈祈福</div></div>
     </div>
+    <div class="tip">工具需連網使用，首次開啟請保持網路暢通。若載入失敗，請檢查網路後重試。</div>
   </div>
 
-  <div class="card g-lingtian" onclick="go('lingtian.html')">
-    <div class="c-tag">🌱 新</div>
-    <div class="c-art">🌾</div>
-    <div class="c-body">
-      <div class="c-name">靈田天機</div>
-      <div class="c-desc">五行靈植 · 種田偷菜 · 經營養成</div>
-      <span class="c-cta">進入靈田 →</span>
+  <!-- ===== 标签三：商城 ===== -->
+  <div class="panel" id="panel-mall">
+    <div class="zone-title"><span>🛒 商城</span><span class="more">易幣兌換</span></div>
+    <div class="card g-millionaire" onclick="openRemote('/mall')" style="margin-top:0">
+      <div class="c-tag">🛒 商城</div>
+      <div class="c-art">🛍️</div>
+      <div class="c-body">
+        <div class="c-name">易遊商城</div>
+        <div class="c-desc">文創好物 · 易學周邊 · 易幣支付</div>
+        <span class="c-cta">進入商城 →</span>
+      </div>
     </div>
+    <div class="card g-lingtian" onclick="openRemote('/rewards')">
+      <div class="c-art">🎁</div>
+      <div class="c-body">
+        <div class="c-name">積分兌換</div>
+        <div class="c-desc">每日簽到 · 積分換好禮</div>
+        <span class="c-cta">去兌換 →</span>
+      </div>
+    </div>
+    <div class="tip">商城與兌換需登入帳號，商品以下單頁面顯示為準。</div>
   </div>
 
-  <div class="grid">
-    <div class="mini m-guacard" onclick="go('gua-card.html')">
-      <div class="m-art">🃏</div>
-      <div class="m-name">天機卦卡</div>
-      <div class="m-desc">64 卦收集養成</div>
+  <!-- ===== 标签四：课程 ===== -->
+  <div class="panel" id="panel-course">
+    <div class="zone-title"><span>📚 課程</span><span class="more">天機學堂</span></div>
+    <div class="card g-lingtian" onclick="openRemote('/xuetang')" style="margin-top:0">
+      <div class="c-tag">📚 學堂</div>
+      <div class="c-art">📖</div>
+      <div class="c-body">
+        <div class="c-name">天機學堂</div>
+        <div class="c-desc">易學課程 · 名師講解 · 隨時回看</div>
+        <span class="c-cta">進入學堂 →</span>
+      </div>
     </div>
-    <div class="mini m-xiuxing" onclick="go('xiuxing.html')">
-      <div class="m-art">🧘</div>
-      <div class="m-name">天機修行</div>
-      <div class="m-desc">放置渡劫修仙</div>
+    <div class="card g-millionaire" onclick="openRemote('/xuetang#me')">
+      <div class="c-art">🎬</div>
+      <div class="c-body">
+        <div class="c-name">學習記錄</div>
+        <div class="c-desc">已購課程 · 學習記錄 · 收藏</div>
+        <span class="c-cta">查看學習 →</span>
+      </div>
     </div>
-    <div class="mini m-wuxing" onclick="go('wuxing-match.html')">
-      <div class="m-art">🔮</div>
-      <div class="m-name">五行消消樂</div>
-      <div class="m-desc">相生相剋消除</div>
+    <div class="tip">課程購買與觀看需登入帳號。</div>
+  </div>
+
+  <!-- ===== 标签五：我的 ===== -->
+  <div class="panel" id="panel-me">
+    <div class="zone-title"><span>👤 我的</span><span class="more">帳號中心</span></div>
+    <div class="card g-millionaire" onclick="openRemote('/xuetang#me')" style="margin-top:0">
+      <div class="c-tag">👤 帳號</div>
+      <div class="c-art">🙋</div>
+      <div class="c-body">
+        <div class="c-name">我的帳號</div>
+        <div class="c-desc">登入 · 會員 · 易幣 · 訂單</div>
+        <span class="c-cta">進入帳號 →</span>
+      </div>
     </div>
-    <div class="mini m-quiz" onclick="go('bagua-puzzle.html')">
-      <div class="m-art">☯</div>
-      <div class="m-name">八卦解謎</div>
-      <div class="m-desc">陰陽爻拼六十四卦</div>
+    <div class="card g-lingtian" onclick="openRemote('/xuetang#me')">
+      <div class="c-art">👑</div>
+      <div class="c-body">
+        <div class="c-name">會員中心</div>
+        <div class="c-desc">開通會員 · 解鎖全部工具</div>
+        <span class="c-cta">查看權益 →</span>
+      </div>
     </div>
+    <div class="grid" style="margin-top:12px">
+      <div class="mini m-guacard" onclick="openRemote('/rewards')">
+        <div class="m-art">🎁</div>
+        <div class="m-name">積分兌換</div>
+        <div class="m-desc">簽到領積分</div>
+      </div>
+      <div class="mini m-xiuxing" onclick="openRemote('/rank')">
+        <div class="m-art">🏆</div>
+        <div class="m-name">排行榜</div>
+        <div class="m-desc">高手榜單</div>
+      </div>
+      <div class="mini m-quiz" onclick="openRemote('/support')">
+        <div class="m-art">💬</div>
+        <div class="m-name">幫助中心</div>
+        <div class="m-desc">問題與客服</div>
+      </div>
+      <div class="mini m-wuxing" onclick="openRemote('/privacy')">
+        <div class="m-art">📄</div>
+        <div class="m-name">隱私政策</div>
+        <div class="m-desc">條款說明</div>
+      </div>
+    </div>
+    <div class="tip">登入後可同步課程、訂單與易幣餘額。</div>
   </div>
 
   <div class="foot">
@@ -122,8 +260,37 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
   </div>
 </div>
 
+<div class="tabbar">
+  <div class="tab active" id="tab-games" onclick="switchTab('games')"><span class="ic">🎮</span><span>遊戲</span></div>
+  <div class="tab" id="tab-tools" onclick="switchTab('tools')"><span class="ic">☯️</span><span>工具</span></div>
+  <div class="tab" id="tab-mall" onclick="switchTab('mall')"><span class="ic">🛒</span><span>商城</span></div>
+  <div class="tab" id="tab-course" onclick="switchTab('course')"><span class="ic">📚</span><span>課程</span></div>
+  <div class="tab" id="tab-me" onclick="switchTab('me')"><span class="ic">👤</span><span>我的</span></div>
+</div>
+
 <script>
-function go(f){ location.href = f; }
+var REMOTE_BASE = 'https://tianji.matetechhk.com';
+var TABS = ['games', 'tools', 'mall', 'course', 'me'];
+
+function switchTab(name) {
+  for (var i = 0; i < TABS.length; i++) {
+    var t = TABS[i];
+    var panel = document.getElementById('panel-' + t);
+    var tab = document.getElementById('tab-' + t);
+    var on = (t === name);
+    if (panel) panel.classList.toggle('active', on);
+    if (tab) tab.classList.toggle('active', on);
+  }
+  window.scrollTo(0, 0);
+}
+
+function go(f) { location.href = f; }
+
+function openRemote(path) {
+  if (!path) return;
+  if (path.charAt(0) !== '/') path = '/' + path;
+  location.href = REMOTE_BASE + path;
+}
 </script>
 </body>
 </html>

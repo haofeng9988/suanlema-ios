@@ -134,7 +134,7 @@
     w.addEventListener('click', function (e) { if (e.target === w) close(); });
     document.getElementById('lgRegBtn').onclick = function () {
       try { sessionStorage.setItem('__reg', '1'); } catch (e) {}
-      location.href = '/xuetang#login';
+      location.href = 'https://tianji.matetechhk.com/xuetang#login';
     };
     function doLogin() {
       var acct = (document.getElementById('lgAcct').value || '').trim();
@@ -143,7 +143,7 @@
       if (!acct || !pw) { err.textContent = '请输入账号和密码'; return; }
       var btn = document.getElementById('lgLoginBtn');
       btn.disabled = true; btn.textContent = '登录中…'; err.textContent = '';
-      _fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      _fetch('https://tianji.matetechhk.com/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ account: acct, password: pw }) })
         .then(function (r) { return r.json(); })
         .then(function (d) {
