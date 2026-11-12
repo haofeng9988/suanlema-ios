@@ -169,7 +169,7 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
     <header>
       <h1>💰 天機百萬富翁</h1>
       <div class="sub">15 題衝百萬 · 易學 × 歷史</div>
-      <div class="bal" id="balHome">積分 <b>--</b><br>金幣 --</div>
+      <div class="bal" id="balHome">🪙 易幣 <b>--</b></div>
     </header>
     <div class="hero-mini">
       <div class="big">🏆</div>
@@ -433,7 +433,7 @@ $('enterBtn').addEventListener('click',function(){
 function loadBalance(){
   if(OFFLINE){return;}
   fetch(API+'/api/me',{headers:H()}).then(function(r){return r.json();}).then(function(d){
-    if(d&&d.ok&&d.user){$('balHome').innerHTML='積分 <b>'+esc(d.user.points)+'</b><br>金幣 '+esc(d.user.coins);}
+    if(d&&d.ok&&d.user){$('balHome').innerHTML='🪙 易幣 <b>'+esc((d.user.yibi!=null?d.user.yibi:0))+'</b>';}
   }).catch(function(){});
 }
 

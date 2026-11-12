@@ -18,7 +18,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suanleme.yixue.wanleme
         MARKETING_VERSION: "2.1.0"
-        CURRENT_PROJECT_VERSION: "5"
+        CURRENT_PROJECT_VERSION: "6"
         INFOPLIST_KEY_CFBundleDisplayName: "算了吗·易游"
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES

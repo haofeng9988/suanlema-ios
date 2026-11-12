@@ -109,10 +109,16 @@ jobs:
       - name: Show archive identity
         run: |
           set -euo pipefail
-          APP="$RUNNER_TEMP/SuanLeMe.xcarchive/Products/Applications/SuanLeMe.app"
+          APP=$(find "$RUNNER_TEMP/SuanLeMe.xcarchive/Products/Applications" -maxdepth 1 -name "*.app" | head -1)
+          test -n "$APP" || { echo "no .app found in archive"; ls -R "$RUNNER_TEMP/SuanLeMe.xcarchive/Products" | head -40; exit 1; }
+          echo "APP=$APP"
           /usr/libexec/PlistBuddy -c "Print :CFBundleIdentifier" "$APP/Info.plist"
           /usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Info.plist"
           /usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP/Info.plist"
+          echo "=== PrivacyInfo.xcprivacy ==="
+          ls -la "$APP/PrivacyInfo.xcprivacy" || echo "WARN: PrivacyInfo.xcprivacy 不在包内"
+          echo "=== 内置 Games ==="
+          ls "$APP/Games" | head -20 || echo "WARN: Games 目录缺失"
 
       - name: Export IPA
         run: |
@@ -146,6 +152,9 @@ jobs:
         run: |
           set -euo pipefail
           echo "Uploading $IPA_PATH"
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          cp "$ASC_KEY_PATH" "$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8"
+          chmod 600 "$HOME/.appstoreconnect/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8"
           if xcrun --find altool >/dev/null 2>&1; then
             xcrun altool --upload-app -f "$IPA_PATH" -t ios \
               --apiKey "${{ secrets.ASC_KEY_ID }}" --apiIssuer "${{ secrets.ASC_ISSUER_ID }}" \

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#1a1612">
+<title>會員中心 · 算了吗</title>
+<style>
+:root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a;--ok:#3f9d5a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;width:100%;overflow-x:hidden}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);
+ min-height:100vh;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+#wrap{max-width:480px;margin:0 auto;min-height:100vh;background:radial-gradient(circle at 50% 0%,#2a2218,#12100c 70%);padding:0 0 40px}
+.top{display:flex;align-items:center;gap:10px;padding:16px 16px 8px}
+.top .back{font-size:22px;color:var(--gold);cursor:pointer;line-height:1}
+.top .brand{font-size:18px;font-weight:900;color:var(--gold);letter-spacing:1px}
+h2{font-size:15px;font-weight:800;color:var(--gold);margin:18px 16px 10px;letter-spacing:1px}
+
+.tier{margin:0 16px 12px;border-radius:16px;padding:16px 18px;border:1px solid rgba(212,175,55,.35);
+ background:linear-gradient(135deg,#2a2218,#1d1810);position:relative}
+.tier.hot{border-color:rgba(212,175,55,.85);background:linear-gradient(135deg,#3a2a12,#6a4a18 45%,#a87c2a)}
+.tier .tag{position:absolute;top:0;right:0;font-size:10px;font-weight:700;padding:4px 12px;
+ border-bottom-left-radius:12px;background:var(--red);color:#fff}
+.tier .name{font-size:18px;font-weight:900;color:#fff;margin-bottom:6px}
+.tier .price{font-size:24px;font-weight:900;color:var(--gold);margin-bottom:8px}
+.tier.hot .price{color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.5)}
+.tier .fate{font-size:12.5px;line-height:1.75;color:rgba(255,255,255,.88);margin-bottom:12px}
+.tier .fate b{color:var(--gold)}
+.tier.hot .fate b{color:#ffd766}
+.btn{display:block;width:100%;padding:12px;border-radius:12px;border:0;font-size:15px;font-weight:800;
+ background:rgba(255,255,255,.95);color:#3a2408;cursor:pointer}
+.btn:active{transform:scale(.985)}
+.btn[disabled]{opacity:.55;cursor:default}
+.btn.ghost{background:transparent;border:1px solid rgba(212,175,55,.6);color:var(--gold)}
+
+.note{margin:14px 16px 0;font-size:11.5px;line-height:1.8;color:var(--sub)}
+.note a{color:var(--gold);text-decoration:none}
+.msg{margin:12px 16px;padding:11px 14px;border-radius:10px;font-size:13px;display:none;line-height:1.6}
+.msg.show{display:block}
+.msg.ok{background:rgba(63,157,90,.16);border:1px solid rgba(63,157,90,.5);color:#9fe0b0}
+.msg.err{background:rgba(193,67,47,.16);border:1px solid rgba(193,67,47,.5);color:#f0a99c}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.35);
+ border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-1px;margin-right:6px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div class="top">
+    <span class="back" onclick="backHome()">‹</span>
+    <span class="brand">會員中心</span>
+  </div>
+
+  <div id="msg" class="msg"></div>
+
+  <h2>會員方案</h2>
+
+  <div class="tier" id="tierMonth">
+    <div class="name">會員月卡</div>
+    <div class="price" id="priceMonth">—</div>
+    <div class="fate">
+      · 每月贈 <b>500 易幣</b><br>
+      · 每月贈 <b>5 次</b>工具使用額度（30 天內有效）<br>
+      · 每月自動續期，可隨時取消
+    </div>
+    <button class="btn" id="btnMonth" onclick="buy('month')">訂閱月卡</button>
+  </div>
+
+  <div class="tier hot" id="tierYear">
+    <div class="tag">推薦</div>
+    <div class="name">尊享年卡</div>
+    <div class="price" id="priceYear">—</div>
+    <div class="fate">
+      · 立即贈 <b>10000 易幣</b><br>
+      · 工具 <b>一年內無限次</b>使用<br>
+      · 每年自動續期，可隨時取消
+    </div>
+    <button class="btn" id="btnYear" onclick="buy('year')">訂閱年卡</button>
+  </div>
+
+  <h2>易幣加購</h2>
+  <div id="yibiList"></div>
+
+  <button class="btn ghost" style="margin:16px" onclick="restore()">恢復購買</button>
+
+  <div class="note">
+    訂閱將透過 App Store 自動續期，帳單會在當前訂閱期結束前 24 小時內扣款。<br>
+    可於 iOS「設定 → Apple ID → 訂閱項目」中隨時取消。<br>
+    <a onclick="openRemote('/privacy')">隱私政策</a> · <a onclick="openRemote('/terms')">服務條款</a>
+  </div>
+</div>
+
+<script>
+var API = 'https://tianji.matetechhk.com';
+var REMOTE = 'https://tianji.matetechhk.com';
+var PID = {
+  month: 'com.suanleme.yixue.vip.month',
+  year:  'com.suanleme.yixue.vip.year'
+};
+var YIBI = [
+  {id:'com.suanleme.yixue.yibi.100',  n:100},
+  {id:'com.suanleme.yixue.yibi.500',  n:500},
+  {id:'com.suanleme.yixue.yibi.1000', n:1000},
+  {id:'com.suanleme.yixue.yibi.3000', n:3000}
+];
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function tok(){ try{ return localStorage.getItem('yx_tk')||''; }catch(e){ return ''; } }
+function backHome(){ location.href='home.html'; }
+function openRemote(p){ if(p) location.href = REMOTE + p; }
+
+function showMsg(text, kind){
+  var el = $('msg');
+  el.className = 'msg show ' + (kind||'');
+  el.innerHTML = text;
+}
+function clearMsg(){ $('msg').className = 'msg'; }
+
+/* ---------- 原生内购桥 ---------- */
+var _cbSeq = 0, _cbMap = {};
+window.__iapCallback = function(id, json){
+  var fn = _cbMap[id];
+  if (fn){ delete _cbMap[id]; try{ fn(typeof json === 'string' ? JSON.parse(json) : json); }catch(e){ fn({}); } }
+};
+function iapCall(payload){
+  return new Promise(function(resolve){
+    if (!window.webkit || !window.webkit.messageHandlers || !window.webkit.messageHandlers.iap){
+      resolve({status:'error', error:'NO_IAP_BRIDGE'}); return;
+    }
+    var id = 'cb' + (++_cbSeq);
+    _cbMap[id] = resolve;
+    payload.callbackId = id;
+    window.webkit.messageHandlers.iap.postMessage(payload);
+    setTimeout(function(){ if(_cbMap[id]){ delete _cbMap[id]; resolve({status:'error',error:'TIMEOUT'}); } }, 120000);
+  });
+}
+
+/* ---------- 价格展示（徽章价由 Apple 决定） ---------- */
+function fmtPrice(p){
+  if (!p) return '';
+  if (p.displayPrice) return p.displayPrice;
+  if (p.price != null && p.currencyCode) return p.price + ' ' + p.currencyCode;
+  return '';
+}
+function loadProducts(){
+  var ids = [PID.month, PID.year].concat(YIBI.map(function(x){ return x.id; }));
+  iapCall({action:'products', ids: ids}).then(function(r){
+    if (!r || r.status !== 'success' || !r.products){ return; }
+    var map = {};
+    r.products.forEach(function(p){ map[p.id] = p; });
+
+    if (map[PID.month]){ $('priceMonth').textContent = fmtPrice(map[PID.month]) + ' / 月'; }
+    if (map[PID.year]){ $('priceYear').textContent = fmtPrice(map[PID.year]) + ' / 年'; }
+
+    var box = $('yibiList');
+    box.innerHTML = '';
+    YIBI.forEach(function(item){
+      var p = map[item.id];
+      if (!p) return;
+      var row = document.createElement('div');
+      row.className = 'tier';
+      row.innerHTML = '<div class="name">易幣 ' + item.n + '</div>' +
+        '<div class="price">' + esc(fmtPrice(p)) + '</div>' +
+        '<button class="btn" data-pid="' + item.id + '">購買</button>';
+      row.querySelector('button').onclick = function(){ purchase(item.id, this); };
+      box.appendChild(row);
+    });
+  });
+}
+
+/* ---------- 购买 → 交给服务端验单发货 ---------- */
+function purchase(productId, btn){
+  clearMsg();
+  if (!tok()){
+    showMsg('請先登入帳號再購買。', 'err');
+    setTimeout(function(){ openRemote('/login'); }, 900);
+    return;
+  }
+  var old = btn ? btn.innerHTML : '';
+  if (btn){ btn.disabled = true; btn.innerHTML = '<span class="spin"></span>處理中'; }
+
+  iapCall({action:'purchase', productId: productId}).then(function(r){
+    var st = r && r.status;
+    if (st === 'userCancelled'){
+      if (btn){ btn.disabled = false; btn.innerHTML = old; }
+      return;
+    }
+    if (st === 'pending'){
+      showMsg('訂單待處理，完成後會自動到帳。', 'ok');
+      if (btn){ btn.disabled = false; btn.innerHTML = old; }
+      return;
+    }
+    if (st !== 'success' || !r.jws){
+      showMsg('購買未完成：' + esc((r && (r.error || st)) || '未知錯誤'), 'err');
+      if (btn){ btn.disabled = false; btn.innerHTML = old; }
+      return;
+    }
+    verify(r.jws, productId, btn, old);
+  });
+}
+
+function verify(jws, productId, btn, old){
+  fetch(API + '/api/iap/verify', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json','X-Token': tok()},
+    credentials: 'include',
+    body: JSON.stringify({jws: jws, product_id: productId})
+  }).then(function(r){ return r.json(); }).then(function(d){
+    if (btn){ btn.disabled = false; btn.innerHTML = old; }
+    if (d && d.ok){
+      showMsg('✅ ' + esc(d.msg || '已到帳'), 'ok');
+    } else {
+      showMsg('已付款但發貨失敗，請截圖聯絡客服：' + esc((d && d.msg) || '未知'), 'err');
+    }
+  }).catch(function(e){
+    if (btn){ btn.disabled = false; btn.innerHTML = old; }
+    showMsg('已付款但網路異常，請稍後在「恢復購買」重試。', 'err');
+  });
+}
+
+function buy(which){
+  var pid = PID[which];
+  var btn = which === 'month' ? $('btnMonth') : $('btnYear');
+  purchase(pid, btn);
+}
+
+function restore(){
+  clearMsg();
+  iapCall({action:'restore'}).then(function(r){
+    if (!r || r.status !== 'success' || !r.entitlements || !r.entitlements.length){
+      showMsg('沒有可恢復的購買記錄。', 'err'); return;
+    }
+    showMsg('找到 ' + r.entitlements.length + ' 筆購買記錄，正在同步…', 'ok');
+    var rest = r.entitlements.slice();
+    (function next(){
+      if (!rest.length){ showMsg('✅ 已同步完成', 'ok'); return; }
+      var e = rest.shift();
+      fetch(API + '/api/iap/verify', {
+        method:'POST',
+        headers:{'Content-Type':'application/json','X-Token':tok()},
+        credentials:'include',
+        body: JSON.stringify({jws: e.jws || '', product_id: e.productId})
+      }).then(function(){ next(); }).catch(function(){ next(); });
+    })();
+  });
+}
+
+/* ---------- 启动 ---------- */
+document.addEventListener('DOMContentLoaded', function(){
+  var hasBridge = !!(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.iap);
+  if (!hasBridge){
+    showMsg('此頁面需在 App 內使用。', 'err');
+  } else {
+    loadProducts();
+  }
+});
+</script>
+</body>
+</html>
