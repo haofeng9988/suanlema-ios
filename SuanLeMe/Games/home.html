@@ -79,6 +79,43 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
 .tabbar .tab.active{color:var(--gold)}
 .panel{display:none}
 .panel.active{display:block}
+
+/* ===== 1.92 大厅结构（与线上 /games 对齐）===== */
+.rule{border-radius:12px;padding:10px 13px;margin:12px 16px 4px;background:var(--c1);border:1px dashed var(--c2);font-size:11.5px;color:var(--sub);line-height:1.7}
+.rule b{color:var(--gold)}
+.sec{font-size:13px;font-weight:800;color:var(--gold);letter-spacing:1px;margin:16px 16px 10px;display:flex;align-items:center;gap:6px}
+.ggrid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin:0 16px}
+.gcard{border-radius:15px;padding:15px 14px;cursor:pointer;border:1px solid rgba(212,175,55,.28);position:relative;overflow:hidden;min-height:118px;display:flex;flex-direction:column;justify-content:space-between;transition:transform .12s}
+.gcard:active{transform:scale(.97)}
+.gcard .art{font-size:38px;line-height:1.26em;width:1.26em;height:1.26em;display:flex;align-items:center;justify-content:center}
+.gcard .art img{width:100%;height:100%;border-radius:22%;object-fit:cover;display:block;box-shadow:0 2px 8px rgba(0,0,0,.45)}
+.gcard .nm{font-size:16px;font-weight:900;color:#fff;margin-top:8px;letter-spacing:.3px;text-shadow:0 1px 5px rgba(0,0,0,.5)}
+.gcard .ds{font-size:11px;color:rgba(255,255,255,.94);margin-top:4px;line-height:1.45;text-shadow:0 1px 5px rgba(0,0,0,.85)}
+.gcard .tag{position:absolute;top:0;right:0;font-size:10px;font-weight:800;padding:4px 11px;border-bottom-left-radius:11px;color:#fff}
+.gcard .rar{position:absolute;top:9px;right:11px;font-size:10px;color:rgba(255,255,255,.75);letter-spacing:1px}
+.g-millionaire{background:linear-gradient(135deg,#452a0c,#6b4412 55%,#8a5c17)}
+.g-millionaire .tag{background:#c1432f}
+.g-lingtian{background:linear-gradient(135deg,#1e3d24,#2b6236 55%,#34783c)}
+.g-lingtian .tag{background:#2e7d32}
+.g-guacard{background-image:linear-gradient(180deg,rgba(6,4,10,0) 0%,rgba(5,3,9,.60) 52%,rgba(3,2,6,.985) 100%),url('tool-icons/guacard-bg-400.jpg');background-size:cover;background-position:center top;background-repeat:no-repeat;border-color:rgba(212,175,55,.55);justify-content:flex-end}
+.g-guacard .art,.g-guacard .nm{display:none}
+.g-guacard .ds{font-size:13.5px;line-height:1.3;font-weight:800;background:rgba(0,0,0,.55);border-radius:8px;padding:4px 8px;color:#fff6e2}
+.g-xiuxing{background-image:linear-gradient(180deg,rgba(8,16,20,.04) 0%,rgba(7,14,18,.62) 44%,rgba(4,10,14,.97) 100%),url('tool-icons/xiuxing-face-400.jpg');background-size:cover;background-position:center top;background-repeat:no-repeat;border-color:rgba(212,175,55,.55);justify-content:flex-end}
+.g-xiuxing .art{display:none}
+.g-xiuxing .nm{color:#f0f8ff;text-shadow:0 2px 7px rgba(0,0,0,.85)}
+.g-xiuxing .ds{color:#eaf6ff}
+.g-wuxing{background:linear-gradient(150deg,#231a2e,#3a2350);border-color:rgba(150,110,220,.4)}
+.g-bagua{background:linear-gradient(150deg,#2a2416,#3a3020);border-color:rgba(200,170,90,.4)}
+.g-quiz{background:linear-gradient(150deg,#361f22,#4a2a2e);border-color:rgba(220,120,110,.4)}
+.g-char{background:linear-gradient(150deg,#3a2430,#5a3040 55%,#8a4a58);border-color:rgba(230,150,170,.45)}
+.g-char .tag{background:#b03a5b}
+.cost{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.cost .pill{font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:20px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.22);color:#fff;white-space:nowrap}
+.cost .pill.free{background:rgba(46,125,50,.85);border-color:#7bd88a}
+.cost .pill.pay{background:rgba(180,120,20,.85);border-color:#ffd989}
+.mrow{display:flex;gap:10px;margin:4px 16px 10px}
+.mrow>div{flex:1;min-width:0}
+.tool .t-art img{width:34px;height:34px;border-radius:8px;object-fit:cover;display:block;margin:0 auto}
 </style>
 </head>
 <body>
@@ -89,102 +126,115 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
   </div>
 
   <!-- ===== 标签一：游戏 ===== -->
-  <div class="panel active" id="panel-games">
-    <div class="hero" onclick="openGame('/millionaire','millionaire.html')">
+    <div class="panel active" id="panel-games">
+    <div class="hero" onclick="openRemote('/xuetang')">
       <span class="h-tag">🔥 本期推薦</span>
       <div class="h-title">算了吗·易游</div>
-      <div class="h-sub">易學主題益智遊戲合集 · 離線可玩<br>6 款遊戲 · 每日有驚喜</div>
+      <div class="h-sub">易學主題益智遊戲合集 · 離線可玩<br>边玩边学易理 · 赢好礼</div>
     </div>
 
-    <div class="zone-title"><span>🎮 精選玩法</span><span class="more">共 9 款</span></div>
+    <div class="rule">🎁 <b>普通会员每天每款游戏免费玩 1 次</b>，超出后按<b>易币</b>收费（入场/道具）<br>🪙 全站统一使用<b>易币</b> · 游戏所得<b>一律为易币</b></div>
 
-    <div class="card g-millionaire" onclick="openGame('/millionaire','millionaire.html')">
-      <div class="c-tag">🔥 熱門</div>
-      <div class="c-art">💰</div>
-      <div class="c-body">
-        <div class="c-name">天機百萬富翁</div>
-        <div class="c-desc">15 關闖獎梯 · 5 錦囊 · 益智問答</div>
-        <span class="c-cta">開始挑戰 →</span>
+    <div onclick="openRemote('/rank')" style="cursor:pointer;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#2a1c10,#4a3018 70%,#6b4620);border:1px solid rgba(255,200,110,.45);border-radius:14px;padding:13px;margin:4px 16px 10px">
+      <div style="font-size:26px">🏆</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:900;color:#ffe9a8">赚易币排行榜</div>
+        <div style="font-size:11.5px;color:rgba(255,255,255,.88);margin-top:3px">周冠 / 月冠 / 年冠 · 赢易币 + 好礼</div>
+      </div>
+      <div style="font-size:20px;color:rgba(255,233,168,.85)">›</div>
+    </div>
+
+    <div onclick="openRemote('/mine')" style="cursor:pointer;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#33210c,#5a3a12 70%,#8a5a1e);border:1px solid rgba(255,190,90,.5);border-radius:14px;padding:13px;margin:4px 16px 10px">
+      <div style="width:30px;height:35px;flex:none;display:flex;align-items:center;justify-content:center"><img src="tianji-mine-icon.png" alt="天機礦場" style="width:100%;height:100%;object-fit:contain;border-radius:8px;display:block"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:15px;font-weight:900;color:#ffe0a8;letter-spacing:.5px">天機礦場</div>
+        <div style="font-size:11.5px;color:rgba(255,255,255,.82);margin-top:3px">租地采矿 · 24 小时自动产出 · 炼金合装备</div>
+      </div>
+      <div style="font-size:19px;color:rgba(255,224,168,.85)">›</div>
+    </div>
+
+    <div class="mrow">
+      <div onclick="openRemote('/market')" style="cursor:pointer;display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,#12261c,#1d4a34 70%,#2e7a54);border:1px solid rgba(90,220,150,.45);border-radius:14px;padding:12px 13px">
+        <div style="width:30px;height:35px;flex:none;display:flex;align-items:center;justify-content:center"><img src="market-icon.png" alt="市集" style="width:100%;height:100%;object-fit:contain;display:block"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:900;color:#c8ffe0">矿石市集</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:2px">矿石自由买卖 · 自定价</div>
+        </div>
+      </div>
+      <div onclick="openRemote('/help')" style="cursor:pointer;display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,#2a1c33,#3d2a4d 70%,#5d3f76);border:1px solid rgba(190,150,235,.45);border-radius:14px;padding:12px 13px">
+        <div style="font-size:24px">📖</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:900;color:#efe0ff">游戏说明</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:2px">玩法 / 规则 / 常见问题</div>
+        </div>
       </div>
     </div>
 
-    <div class="card g-lingtian" onclick="openGame('/lingtian','lingtian.html')">
-      <div class="c-tag">🌱 新</div>
-      <div class="c-art">🌾</div>
-      <div class="c-body">
-        <div class="c-name">靈田天機</div>
-        <div class="c-desc">五行靈植 · 種田偷菜 · 經營養成</div>
-        <span class="c-cta">進入靈田 →</span>
+    <div class="sec">🔥 热门主推</div>
+    <div class="ggrid">
+      <div class="gcard g-millionaire" onclick="openGame('/millionaire','millionaire.html')">
+        <div class="tag">🔥 热门</div>
+        <div><div class="art">💰</div><div class="nm">天机百万富翁</div><div class="ds">15 关闯奖梯 · 5 锦囊</div></div>
+        <div class="cost"><span class="pill pay">入場 300 易幣起</span><span class="pill">獎金最高 20 萬易幣</span></div>
+      </div>
+      <div class="gcard g-lingtian" onclick="openGame('/lingtian','lingtian.html')">
+        <div class="tag">🌱 新</div>
+        <div><div class="art">🌾</div><div class="nm">灵田天机</div><div class="ds">五行灵植 · 种田偷菜</div></div>
+        <div class="cost"><span class="pill">道具 20~80 易幣</span><span class="pill">收获兑易幣</span></div>
       </div>
     </div>
 
-    <div class="card" style="background:linear-gradient(135deg,#2b2a3a,#3f3d52 55%,#6b6480)" onclick="openRemote('/mine')">
-      <div class="c-tag" style="background:#7a5cff">🆕 新功能</div>
-      <div class="c-art">⛏️</div>
-      <div class="c-body">
-        <div class="c-name">天機礦場</div>
-        <div class="c-desc">挖礦採集 · 煉金爐 · 礦石市集</div>
-        <span class="c-cta">進入礦場 →</span>
+    <div class="sec">🎲 全部游戏</div>
+    <div class="ggrid">
+      <div class="gcard g-char" onclick="openRemote('/char')">
+        <div class="tag">✨ 新</div>
+        <div><div class="art">🧝</div><div class="nm">角色创造</div><div class="ds">专属角色 · 六维属性养成</div></div>
+        <div class="cost"><span class="pill free">普通会员免费</span><span class="pill">六维养成</span></div>
+      </div>
+      <div class="gcard g-guacard" onclick="openGame('/guacard','gua-card.html')">
+        <div class="rar">★★★★★</div>
+        <div><div class="art"></div><div class="nm">天机卦卡</div><div class="ds">64 卦收集养成</div></div>
+        <div class="cost"><span class="pill">抽卡 40/十連 360</span><span class="pill">對戰贏幣·押注可虧</span></div>
+      </div>
+      <div class="gcard g-xiuxing" onclick="openGame('/xiuxing','xiuxing.html')">
+        <div><div class="art"></div><div class="nm">天机修行</div><div class="ds">放置渡劫修仙</div></div>
+        <div class="cost"><span class="pill">煉丹 10 / 渡劫有風險</span><span class="pill">離線收益兌易幣</span></div>
+      </div>
+      <div class="gcard g-wuxing" onclick="openGame('/wuxing','wuxing-match.html')">
+        <div><div class="art"><img src="tool-icons/wuxing-160.png" alt="五行消消乐"></div><div class="nm">五行消消乐</div><div class="ds">相生相剋消除</div></div>
+        <div class="cost"><span class="pill">道具 10~40 易幣</span><span class="pill">單局最高 ~280 易幣</span></div>
+      </div>
+      <div class="gcard g-quiz" onclick="openRemote('/xuetang')">
+        <div><div class="art">🧩</div><div class="nm">易学闯关</div><div class="ds">每日答题</div></div>
+        <div class="cost"><span class="pill">免費</span><span class="pill">全對得易幣</span></div>
+      </div>
+      <div class="gcard g-bagua" onclick="openGame('/bagua','bagua-puzzle.html')">
+        <div><div class="art"><img src="tool-icons/bagua-160.png" alt="八卦解谜"></div><div class="nm">八卦解谜</div><div class="ds">阴阳爻拼六十四卦</div></div>
+        <div class="cost"><span class="pill">提示 15~30 易幣</span><span class="pill">過關得易幣</span></div>
       </div>
     </div>
 
-    <div class="grid">
-      <div class="mini m-guacard" onclick="go('gua-card.html')">
-        <div class="m-art">🃏</div>
-        <div class="m-name">天機卦卡</div>
-        <div class="m-desc">64 卦收集養成</div>
-      </div>
-      <div class="mini m-xiuxing" onclick="openGame('/xiuxing','xiuxing.html')">
-        <div class="m-art">🧘</div>
-        <div class="m-name">天機修行</div>
-        <div class="m-desc">放置渡劫修仙</div>
-      </div>
-      <div class="mini m-wuxing" onclick="go('wuxing-match.html')">
-        <div class="m-art">🔮</div>
-        <div class="m-name">五行消消樂</div>
-        <div class="m-desc">相生相剋消除</div>
-      </div>
-      <div class="mini m-quiz" onclick="go('bagua-puzzle.html')">
-        <div class="m-art">☯</div>
-        <div class="m-name">八卦解謎</div>
-        <div class="m-desc">陰陽爻拼六十四卦</div>
-      </div>
-      <div class="mini" onclick="openRemote('/char')">
-        <div class="m-art">🎭</div>
-        <div class="m-name">角色創造</div>
-        <div class="m-desc">專屬命格角色</div>
-      </div>
-      <div class="mini" onclick="openRemote('/market')">
-        <div class="m-art">🏪</div>
-        <div class="m-name">礦石市集</div>
-        <div class="m-desc">礦石交易買賣</div>
-      </div>
-      <div class="mini" onclick="openRemote('/help')">
-        <div class="m-art">📖</div>
-        <div class="m-name">遊戲說明</div>
-        <div class="m-desc">玩法規則指引</div>
-      </div>
-    </div>
+    <div class="foot">🔮 <b>算了吗.易游</b> · 游戏大厅<br>游戏内容仅供文化娱乐参考 · 理性玩乐</div>
   </div>
 
   <!-- ===== 标签二：工具 ===== -->
   <div class="panel" id="panel-tools">
     <div class="zone-title"><span>☯ 天機工具</span><span class="more">共 14 項</span></div>
     <div class="tool-grid">
-      <div class="tool" onclick="openRemote('/bazi')"><div class="t-art">🧭</div><div class="t-name">八字命盤</div><div class="t-desc">生辰排盤</div></div>
-      <div class="tool" onclick="openRemote('/bazi-report')"><div class="t-art">📜</div><div class="t-name">八字終身盤</div><div class="t-desc">四柱大運</div></div>
-      <div class="tool" onclick="openRemote('/hehun')"><div class="t-art">💞</div><div class="t-name">算了吗合配</div><div class="t-desc">兩人合婚</div></div>
-      <div class="tool" onclick="openRemote('/gaiming')"><div class="t-art">✍️</div><div class="t-name">名成利就</div><div class="t-desc">喜用神取名</div></div>
-      <div class="tool" onclick="openRemote('/spinner')"><div class="t-art">🎯</div><div class="t-name">奇門卦盤</div><div class="t-desc">轉盤占卜</div></div>
-      <div class="tool" onclick="openRemote('/liuyao')"><div class="t-art">🪙</div><div class="t-name">六爻占卜</div><div class="t-desc">銅錢起卦</div></div>
-      <div class="tool" onclick="openRemote('/qimen')"><div class="t-art">🌀</div><div class="t-name">奇門遁甲</div><div class="t-desc">九宮排盤</div></div>
-      <div class="tool" onclick="openRemote('/luopan')"><div class="t-art">🧲</div><div class="t-name">風水羅盤</div><div class="t-desc">玄空飛星</div></div>
-      <div class="tool" onclick="openRemote('/huangli')"><div class="t-art">📅</div><div class="t-name">擇日通勝</div><div class="t-desc">宜忌擇吉</div></div>
-      <div class="tool" onclick="openRemote('/index.html#ripan')"><div class="t-art">🌞</div><div class="t-name">每日運勢</div><div class="t-desc">日盤生成</div></div>
-      <div class="tool" onclick="openRemote('/xiangshu')"><div class="t-art">👁</div><div class="t-name">相術觀相</div><div class="t-desc">面相手相</div></div>
-      <div class="tool" onclick="openRemote('/ziwei')"><div class="t-art">✨</div><div class="t-name">紫微斗數</div><div class="t-desc">十二宮位</div></div>
-      <div class="tool" onclick="openRemote('/kline')"><div class="t-art">📈</div><div class="t-name">人生K線圖</div><div class="t-desc">百年流年</div></div>
-      <div class="tool" onclick="openRemote('/gongde')"><div class="t-art">🪔</div><div class="t-name">隨喜功德</div><div class="t-desc">點燈祈福</div></div>
+      <div class="tool" onclick="openRemote('/bazi')"><div class="t-art"><img src="tool-icons/bazi-160.png" alt="八字命盤"></div><div class="t-name">八字命盤</div><div class="t-desc">生辰排盤</div></div>
+      <div class="tool" onclick="openRemote('/bazi-report')"><div class="t-art"><img src="tool-icons/bazi_report-160.png" alt="八字終身盤"></div><div class="t-name">八字終身盤</div><div class="t-desc">四柱大運</div></div>
+      <div class="tool" onclick="openRemote('/hehun')"><div class="t-art"><img src="tool-icons/hepei-160.png" alt="算了吗合配"></div><div class="t-name">算了吗合配</div><div class="t-desc">兩人合婚</div></div>
+      <div class="tool" onclick="openRemote('/gaiming')"><div class="t-art"><img src="tool-icons/gaiming-160.png" alt="名成利就"></div><div class="t-name">名成利就</div><div class="t-desc">喜用神取名</div></div>
+      <div class="tool" onclick="openRemote('/spinner')"><div class="t-art"><img src="tool-icons/qimen_spinner-160.png" alt="奇門卦盤"></div><div class="t-name">奇門卦盤</div><div class="t-desc">轉盤占卜</div></div>
+      <div class="tool" onclick="openRemote('/liuyao')"><div class="t-art"><img src="tool-icons/liuyao-160.png" alt="六爻占卜"></div><div class="t-name">六爻占卜</div><div class="t-desc">銅錢起卦</div></div>
+      <div class="tool" onclick="openRemote('/qimen')"><div class="t-art"><img src="tool-icons/qimen-160.png" alt="奇門遁甲"></div><div class="t-name">奇門遁甲</div><div class="t-desc">九宮排盤</div></div>
+      <div class="tool" onclick="openRemote('/luopan')"><div class="t-art"><img src="tool-icons/fengshui-160.png" alt="風水羅盤"></div><div class="t-name">風水羅盤</div><div class="t-desc">玄空飛星</div></div>
+      <div class="tool" onclick="openRemote('/huangli')"><div class="t-art"><img src="tool-icons/huangli-160.png" alt="擇日通勝"></div><div class="t-name">擇日通勝</div><div class="t-desc">宜忌擇吉</div></div>
+      <div class="tool" onclick="openRemote('/index.html#ripan')"><div class="t-art"><img src="tool-icons/ripan-160.png" alt="每日運勢"></div><div class="t-name">每日運勢</div><div class="t-desc">日盤生成</div></div>
+      <div class="tool" onclick="openRemote('/xiangshu')"><div class="t-art"><img src="tool-icons/xiangshu-160.png" alt="相術觀相"></div><div class="t-name">相術觀相</div><div class="t-desc">面相手相</div></div>
+      <div class="tool" onclick="openRemote('/ziwei')"><div class="t-art"><img src="tool-icons/ziwei-160.png" alt="紫微斗數"></div><div class="t-name">紫微斗數</div><div class="t-desc">十二宮位</div></div>
+      <div class="tool" onclick="openRemote('/kline')"><div class="t-art"><img src="tool-icons/kline-160.png" alt="人生K線圖"></div><div class="t-name">人生K線圖</div><div class="t-desc">百年流年</div></div>
+      <div class="tool" onclick="openRemote('/gongde')"><div class="t-art"><img src="tool-icons/gongde-160.png" alt="隨喜功德"></div><div class="t-name">隨喜功德</div><div class="t-desc">點燈祈福</div></div>
     </div>
     <div class="tip">工具需連網使用，首次開啟請保持網路暢通。若載入失敗，請檢查網路後重試。</div>
   </div>
