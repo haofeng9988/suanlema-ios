@@ -1,0 +1,1065 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head><script src="notify.js"></script><script src="share.js"></script>
+<script src="sfx.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#1a1612">
+<script src="theme.js"></script><script src="iap.js"></script>
+<script src="app-update.js"></script>
+<script src="i18n-xuetang.js"></script>
+<script src="yibi.js"></script>
+<title>🎮 算了吗.易游</title>
+<style>
+:root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#a99a7c;--green:#4a8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);padding-bottom:96px}
+header{background:linear-gradient(180deg,var(--c1),var(--bg));padding:14px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:100}
+header h1{font-size:19px;color:var(--gold)}
+header a.back{color:var(--gold);text-decoration:none;font-size:14px}
+.cats{display:flex;gap:8px;overflow-x:auto;padding:12px 16px;background:var(--c1);position:sticky;top:52px;z-index:99}
+.cats button{flex-shrink:0;padding:8px 16px;border:1px solid var(--c2);background:var(--bg);color:var(--sub);border-radius:20px;font-size:14px;cursor:pointer}
+.cats button.active{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:700}
+.list{padding:12px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.course-card{background:var(--c1);border:1px solid var(--c2);border-radius:14px;overflow:hidden;cursor:pointer}
+.course-card .cover{height:110px;background:var(--c2);display:flex;align-items:center;justify-content:center;font-size:40px}
+.course-card .cover img{width:100%;height:100%;object-fit:cover}
+.course-card .info{padding:10px 12px}
+.course-card .title{font-size:15px;font-weight:700;line-height:1.4;margin-bottom:6px;min-height:40px}
+.course-card .meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--sub)}
+.course-card .price{color:var(--gold);font-weight:700}
+.course-card .free-tag{background:var(--green);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px}
+.course-card .owned-tag{background:var(--gold);color:var(--bg);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.detail{display:none;padding:0 0 20px}
+.detail .hero{height:200px;background:var(--c2);display:flex;align-items:center;justify-content:center;font-size:64px}
+.detail .hero img{width:100%;height:100%;object-fit:cover}
+.detail .body{padding:16px}
+.detail h2{font-size:20px;color:var(--gold);margin-bottom:10px}
+.detail .desc{color:var(--text);font-size:14px;line-height:1.8;margin-bottom:16px;white-space:pre-wrap}
+.detail .row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--c2);font-size:14px}
+.detail .row .k{color:var(--sub)}
+.buy-bar{position:fixed;bottom:0;left:0;width:100%;background:var(--c1);border-top:2px solid var(--gold);padding:12px 16px;display:flex;align-items:center;gap:12px;z-index:100}
+.buy-bar .price{flex:1;color:var(--gold);font-size:20px;font-weight:700}
+.buy-bar .btn{background:var(--gold);color:var(--bg);border:none;padding:12px 28px;border-radius:8px;font-size:16px;font-weight:700;cursor:pointer}
+.player{display:none}
+.player .video-box{width:100%;background:#000;aspect-ratio:16/9}
+.player .video-box video{width:100%;height:100%}
+.player .audio-box{padding:24px;text-align:center}
+.player .audio-box audio{width:100%;margin-top:16px}
+.player .article-box{padding:16px;line-height:1.9;font-size:15px}
+.player .article-box img{max-width:100%;border-radius:8px}
+.player .nav{display:flex;justify-content:space-between;padding:12px 16px}
+.player .nav button{background:var(--c1);border:1px solid var(--c2);color:var(--text);padding:10px 18px;border-radius:8px;cursor:pointer}
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:200;justify-content:center;align-items:center}
+.modal.show{display:flex}
+.modal .box{background:var(--c1);border:2px solid var(--gold);border-radius:16px;padding:24px;max-width:90vw;width:360px;max-height:88vh;overflow-y:auto}
+.panel-head{position:sticky;top:-24px;z-index:5;background:var(--c1);display:flex;align-items:center;justify-content:space-between;padding:6px 0 10px;margin:-6px 0 4px;border-bottom:1px solid var(--c2)}
+.panel-close{position:sticky;background:transparent;border:none;color:var(--sub);font-size:22px;cursor:pointer;line-height:1;padding:2px 8px}
+.ex-tabs{display:flex;gap:6px;overflow-x:auto;margin:2px 0 12px;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.ex-tabs .ex-tab{flex:0 0 auto;padding:8px 12px;border-radius:20px;border:1px solid var(--c2);background:var(--bg);color:var(--sub);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap}
+.ex-tabs .ex-tab.active{background:linear-gradient(135deg,#8a6a24,#c9922f);color:#fff;border-color:var(--gold)}
+.ex-pane{display:none}
+.ex-pane.active{display:block;animation:exfade .18s ease}
+@keyframes exfade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.ex-box{background:var(--bg);border:1px dashed var(--c2);border-radius:8px;padding:8px 10px;font-size:12px;color:var(--sub);line-height:1.8;margin-bottom:10px}
+.ex-quick{display:flex;gap:6px}
+.ex-quick button{flex:1;padding:7px 0;border-radius:8px;border:1px solid var(--c2);background:var(--bg);color:var(--gold);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.modal h3{color:var(--gold);margin-bottom:16px}
+.modal input{width:100%;padding:12px;margin:6px 0;background:var(--bg);border:1px solid var(--c2);border-radius:8px;color:var(--text);font-size:16px}
+.modal select{width:100%;padding:12px;margin:6px 0;background:var(--bg);border:1px solid var(--c2);border-radius:8px;color:var(--text);font-size:15px}
+.modal .btn{width:100%;margin-top:10px}
+.modal .panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+.modal .panel-head h3{margin-bottom:0}
+.modal .panel-close{background:transparent;border:1px solid var(--c2);color:var(--sub);width:30px;height:30px;border-radius:50%;font-size:15px;cursor:pointer;line-height:1;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.modal .panel-close:active{background:var(--c2);color:var(--text)}
+.seg{display:flex;background:var(--bg);border:2px solid var(--c2);border-radius:10px;overflow:hidden}
+.seg button{flex:1;padding:9px 4px;background:transparent;border:none;color:var(--sub);font-size:13px;font-weight:700;cursor:pointer}
+.seg button.active{background:var(--gold);color:var(--bg)}
+/* ===== 底部导航 ===== */
+.tabbar{position:fixed;bottom:0;left:0;width:100%;background:var(--c1);border-top:1px solid var(--c2);display:flex;z-index:90;padding-bottom:env(safe-area-inset-bottom)}
+.tabbar .tab{flex:1;text-align:center;padding:8px 0 6px;color:var(--sub);font-size:11px;cursor:pointer}
+.tabbar .tab .ic{display:block;font-size:22px;line-height:1.2}
+.tabbar .tab.active{color:var(--gold)}
+/* ===== 算了吗 ===== */
+.tianji-page{display:none;padding:0 16px 90px}
+.tianji-head{background:linear-gradient(160deg,var(--c2),var(--c1));padding:20px 16px;border-bottom:2px solid var(--gold);margin:0 -16px 14px}
+.tianji-head .t{font-size:20px;font-weight:800;color:var(--gold);margin-bottom:4px}
+.tianji-head .s{font-size:12px;color:var(--sub)}
+.tianji-grid{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;align-items:stretch}
+.tianji-grid .tj{flex:0 0 calc((100% - 18px)/3);width:calc((100% - 18px)/3);box-sizing:border-box;background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:9px 5px;text-align:center;cursor:pointer;transition:transform .1s}
+.tianji-grid .tj:active{transform:scale(.96)}
+.tianji-grid .tj .ic{font-size:38px;line-height:1.2;display:flex;align-items:center;justify-content:center;height:78px}
+.tianji-grid .tj .ic img{width:74px;height:74px;border-radius:16px;object-fit:cover;display:block;
+  box-shadow:0 2px 8px rgba(0,0,0,.5),0 0 0 1px rgba(212,175,55,.22)}
+.tianji-grid .tj .nm{font-size:14px;font-weight:700;color:var(--text);margin-top:6px}
+.tianji-grid .tj .ds{font-size:11px;color:var(--sub);margin-top:4px;line-height:1.4;min-height:31px}
+.tianji-grid .tj.hot{border-color:var(--gold);position:relative;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(212,175,55,.28),0 2px 10px rgba(212,175,55,.13)}
+.tianji-grid .tj.hot::after{content:'热门';position:absolute;top:0;right:0;
+  font-size:9px;font-weight:900;letter-spacing:.5px;line-height:1;
+  padding:4px 6px 4px 8px;border-radius:0 13px 0 10px;
+  background:linear-gradient(135deg,#e8b84b,#b8860b);color:#3a2408;
+  box-shadow:-1px 1px 3px rgba(0,0,0,.25)}
+/* ===== 我的中心 ===== */
+.me-page{display:none;padding:0 0 40px}.me-head{background:linear-gradient(160deg, var(--c2),var(--c1));padding:20px 16px;border-bottom:2px solid var(--gold)}
+.me-head .top{display:flex;align-items:center;gap:14px}
+.me-avatar{width:56px;height:56px;border-radius:50%;background:var(--gold);color:var(--bg);display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;flex-shrink:0}
+.me-info{flex:1}
+.me-info .name{font-size:18px;font-weight:700;color:var(--gold)}
+.me-info .meta{font-size:12px;color:var(--sub);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.me-badge{background:var(--gold);color:var(--bg);padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.me-id{color:var(--sub);font-size:12px}
+.me-checkin{background:var(--c2);border:1px solid var(--gold);color:var(--gold);padding:6px 12px;border-radius:18px;font-size:13px;cursor:pointer}
+.me-checkin.done{opacity:.6}
+.me-stats{display:flex;background:var(--c1);margin:12px 16px;border-radius:14px;border:1px solid var(--c2);overflow:hidden}
+.me-stats .st{flex:1;text-align:center;padding:14px 0}
+.me-stats .st .n{font-size:20px;font-weight:700;color:var(--gold)}
+.me-stats .st .l{font-size:12px;color:var(--sub);margin-top:2px}
+.me-card{background:var(--c1);margin:0 16px 12px;border-radius:14px;border:1px solid var(--c2);overflow:hidden}
+.me-card .ch{font-size:15px;font-weight:700;color:var(--gold);padding:14px 16px;border-bottom:1px solid var(--c2)}
+.me-grid{display:grid;grid-template-columns:repeat(4,1fr);padding:8px 0}
+.me-grid .gi{text-align:center;padding:12px 4px;cursor:pointer}
+.me-grid .gi .ic{font-size:24px}
+.me-grid .gi .lb{font-size:12px;color:var(--sub);margin-top:4px}
+.me-list .li{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--c2);cursor:pointer}
+.me-list .li:last-child{border-bottom:none}
+.me-list .li .ic{font-size:20px}
+.me-list .li .txt{flex:1;font-size:14px}
+.me-list .li .arrow{color:var(--sub)}
+.mycourse-item{display:flex;gap:12px;padding:12px 16px;border-bottom:1px solid var(--c2);cursor:pointer}
+.mycourse-item .cov{width:72px;height:52px;border-radius:8px;background:var(--c2);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;overflow:hidden}
+.mycourse-item .cov img{width:100%;height:100%;object-fit:cover}
+.mycourse-item .in{flex:1}
+.mycourse-item .tt{font-size:14px;font-weight:600;line-height:1.3}
+.mycourse-item .prog{height:4px;background:var(--c2);border-radius:2px;margin-top:8px;overflow:hidden}
+.mycourse-item .prog .bar{height:100%;background:var(--gold)}
+.mycourse-item .pct{font-size:11px;color:var(--sub);margin-top:4px}
+
+/* ===== 学堂首页（仿学习平台布局）===== */
+.home-bar{display:flex;align-items:center;gap:10px;padding:14px 16px;background:var(--c1);position:sticky;top:0;z-index:100}
+.home-bar .search{flex:1;display:flex;align-items:center;gap:8px;background:var(--bg);border:1px solid var(--c2);border-radius:24px;padding:8px 14px;color:var(--sub);font-size:14px;cursor:pointer}
+.home-bar .search .ic{font-size:14px;opacity:.7}
+.home-bar .iconbtn{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:var(--bg);border:1px solid var(--c2);font-size:18px;color:var(--gold);cursor:pointer;flex-shrink:0}
+.lang-sel{background:var(--bg);border:1px solid var(--c2);border-radius:20px;color:var(--gold);font-size:13px;padding:6px 8px;cursor:pointer;max-width:96px;flex-shrink:0}
+.lang-sel:focus{border-color:var(--gold);outline:none}
+.home-entries{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;padding:12px 12px 8px;background:linear-gradient(180deg,var(--c1),var(--bg));border-bottom:1px solid var(--c2);margin-bottom:4px}
+.home-entry{display:flex;flex-direction:column;align-items:center;gap:5px;cursor:pointer}
+.home-entry:active{transform:scale(.94)}
+.home-entry .ring{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;line-height:1;color:#fff;box-shadow:0 3px 8px rgba(0,0,0,.25);overflow:hidden}
+.home-entry .ring.e1{background:linear-gradient(135deg,#4a9ec0,#1f5c80)}
+.home-entry .ring.e2{background:linear-gradient(135deg,#b08040,#7a4f18)}
+.home-entry .ring.e3{background:linear-gradient(135deg,#a878b8,#6f3f8f)}
+.home-entry .ring.e4{background:linear-gradient(135deg,#4f9a78,#256048)}
+.home-entry .ring.e5{background:linear-gradient(135deg,#b07a48,#7c4c20)}
+.home-entry .lb{font-size:10.5px;color:var(--text);white-space:nowrap}
+.home-banner{margin:12px 16px;border-radius:14px;overflow:hidden;position:relative;height:160px;background:linear-gradient(135deg,var(--c1),var(--c2));cursor:pointer;border:1px solid var(--c2)}
+.home-banner .b-content{position:absolute;top:0;left:0;right:0;bottom:0;padding:18px 20px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;z-index:2}
+.home-banner .b-title{font-size:22px;font-weight:800;color:var(--gold);margin-bottom:4px;text-shadow:0 2px 6px rgba(0,0,0,.4)}
+.home-banner .b-sub{font-size:13px;color:var(--text);opacity:.85}
+.home-banner .b-btn{margin-top:12px;background:var(--gold);color:var(--bg);padding:6px 18px;border-radius:18px;font-size:13px;font-weight:700}
+.home-banner .b-art{position:absolute;right:-10px;top:0;bottom:0;width:55%;z-index:1;opacity:.6;font-size:120px;display:flex;align-items:center;justify-content:center}
+.home-banner .b-dots{position:absolute;bottom:8px;left:0;right:0;display:flex;justify-content:center;gap:6px;z-index:3}
+.home-banner .b-dots .d{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4)}
+.home-banner .b-dots .d.on{background:var(--gold);width:18px;border-radius:3px}
+.home-cat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 16px 12px}
+.home-cat-row .ttl{font-size:17px;font-weight:700;color:var(--gold)}
+.home-cat-row .more{font-size:13px;color:var(--sub);cursor:pointer}
+.home-cats-scroll{display:flex;gap:14px;padding:0 16px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.home-cats-scroll::-webkit-scrollbar{display:none}
+.home-cat-item{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;width:64px}
+.home-cat-item .ic{width:54px;height:54px;border-radius:14px;background:var(--c1);border:1px solid var(--c2);display:flex;align-items:center;justify-content:center;font-size:26px}
+.home-cat-item .lb{font-size:12px;color:var(--text)}
+.home-free-title{padding:4px 16px 8px;font-size:17px;font-weight:700;color:var(--gold)}
+.home-free-sub{padding:0 16px 12px;font-size:12px;color:var(--sub)}
+.home-grid{padding:0 16px 16px;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.home-card{background:var(--c1);border:1px solid var(--c2);border-radius:12px;overflow:hidden;cursor:pointer;position:relative}
+.home-card .cover{height:90px;background:linear-gradient(135deg,var(--c2),var(--c1));display:flex;align-items:center;justify-content:center;font-size:40px;position:relative;overflow:hidden}
+.home-card .cover::before{content:'';position:absolute;left:-10px;bottom:-10px;width:40px;height:40px;background:rgba(255,255,255,.04);border-radius:50%}
+.home-card .cover::after{content:'';position:absolute;right:-20px;top:-20px;width:60px;height:60px;background:rgba(255,255,255,.04);border-radius:50%}
+.home-card .title{font-size:14px;font-weight:600;padding:8px 10px 4px;line-height:1.3;min-height:36px}
+.home-card .meta{display:flex;justify-content:space-between;align-items:center;padding:4px 10px 10px;font-size:11px;color:var(--sub)}
+.home-card .price{color:var(--gold);font-weight:700;font-size:13px}
+.home-card .ftag{background:var(--green);color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.home-card .otag{background:var(--gold);color:var(--bg);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.home-free-scroll{display:flex;gap:12px;padding:0 16px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.home-free-scroll::-webkit-scrollbar{display:none}
+.home-free-card{flex-shrink:0;width:180px;background:var(--c1);border:1px solid var(--c2);border-radius:12px;overflow:hidden;cursor:pointer}
+.home-free-card .cov{height:100px;background:linear-gradient(135deg,var(--c2),var(--c1));display:flex;align-items:center;justify-content:center;font-size:36px}
+.home-free-card .t{padding:8px 10px;font-size:13px;font-weight:600;line-height:1.3;height:34px;overflow:hidden}
+.home-fab{position:fixed;right:16px;bottom:90px;width:50px;height:50px;border-radius:50%;background:var(--gold);color:var(--bg);font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.3);cursor:pointer;z-index:80;border:none}
+.home-section{padding:4px 0 12px}
+.home-tabs-strip{padding:8px 16px 12px;display:flex;gap:8px;overflow-x:auto;background:var(--c1);position:sticky;top:62px;z-index:99}
+.home-tabs-strip button{flex-shrink:0;padding:6px 14px;border:1px solid var(--c2);background:var(--bg);color:var(--sub);border-radius:18px;font-size:13px;cursor:pointer}
+.home-tabs-strip button.active{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:700}
+/* ===== 易学闯关 ===== */
+@keyframes spinShare{to{transform:rotate(360deg)}}
+.quiz-banner{margin:12px 16px;border-radius:14px;padding:14px 16px;background:linear-gradient(135deg,var(--c1),var(--c2));border:1px solid var(--gold);display:flex;align-items:center;gap:14px;cursor:pointer}
+.quiz-banner .q-icon{font-size:40px}
+.quiz-banner .q-body{flex:1}
+.quiz-banner .q-title{font-size:17px;font-weight:800;color:var(--gold);margin-bottom:3px}
+.quiz-banner .q-sub{font-size:12px;color:var(--sub)}
+.quiz-banner .q-right{text-align:center;min-width:52px}
+.quiz-banner .q-diff{font-size:22px;color:var(--gold);font-weight:800;line-height:1.2}
+.quiz-banner .q-diff-label{font-size:11px;color:var(--sub)}
+.quiz-opt{display:block;width:100%;text-align:left;padding:13px 14px;margin-bottom:8px;background:var(--c2);border:1px solid var(--c2);border-radius:10px;cursor:pointer;font-size:15px;color:var(--text);transition:all .15s}
+.quiz-opt:active{background:var(--c1);border-color:var(--gold)}
+.quiz-explain-item{padding:8px;margin-bottom:6px;border-radius:8px;font-size:12px;line-height:1.6}
+/* ===== 游戏专区（玩了吗首页置顶） ===== */
+/* ===== 游戏首页 ===== */
+/* 顶部主视觉 */
+.hero{position:relative;margin:10px 16px 4px;border-radius:18px;padding:18px 18px 16px;overflow:hidden;
+ background:linear-gradient(135deg,#2e2110,#53380f 45%,#7a5718);border:1px solid rgba(212,175,55,.55);
+ box-shadow:0 6px 22px rgba(0,0,0,.35)}
+.hero::after{content:'☯';position:absolute;right:-14px;bottom:-22px;font-size:120px;opacity:.12;transform:rotate(-12deg)}
+.hero .h-tag{display:inline-block;font-size:10px;font-weight:800;color:#fff;background:var(--red);border-radius:8px;padding:2px 9px;margin-bottom:8px;letter-spacing:1px}
+.hero .h-title{font-size:23px;font-weight:900;color:#fff;letter-spacing:1px;text-shadow:0 2px 8px rgba(0,0,0,.55);margin-bottom:5px}
+.hero .h-sub{font-size:12.5px;color:rgba(255,255,255,.94);letter-spacing:.3px}
+.hero .h-cta{margin-top:12px;display:inline-block;background:#fff;color:#5a3a10;padding:8px 22px;border-radius:18px;font-size:13px;font-weight:800;box-shadow:0 3px 10px rgba(0,0,0,.3)}
+
+.game-zone{margin:14px 16px 4px}
+.game-zone-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.game-zone-title .t{font-size:17px;font-weight:800;color:var(--gold);letter-spacing:1px;display:flex;align-items:center;gap:6px}
+.game-zone-title .t .badge{font-size:10px;background:var(--red);color:#fff;border-radius:8px;padding:2px 7px;font-weight:700}
+.game-zone-title .more{font-size:12px;color:var(--sub)}
+
+/* 大卡 */
+.game-card{border-radius:16px;padding:16px 18px;position:relative;overflow:hidden;cursor:pointer;border:1px solid rgba(212,175,55,.35);display:flex;align-items:center;gap:14px;min-height:92px}
+.game-card:active{transform:scale(.985)}
+/* 灵田卡片改用图片图标；尺寸与 emoji 视觉高度对齐（emoji 50px 字高≈56px 图） */
+/* 灵田卡片：底色由绿改金褐，与新麦田图标同色系 */
+.game-card.g-lingtian{
+  background-image:linear-gradient(180deg,rgba(20,12,4,.22) 0%,rgba(20,12,4,.34) 40%,rgba(20,12,4,.82) 100%),url('/tool-icons/lingtian-bg-640.jpg?v=20261030p');
+  background-size:cover;background-position:center 18%;background-repeat:no-repeat;
+  border-color:rgba(212,175,55,.6);
+  justify-content:flex-end;
+}
+@media (min-resolution:2dppx){.game-card.g-lingtian{background-image:linear-gradient(180deg,rgba(20,12,4,.22) 0%,rgba(20,12,4,.34) 40%,rgba(20,12,4,.82) 100%),url('/tool-icons/lingtian-bg-960.jpg?v=20261030p')}}
+.game-card .gc-body{flex:1;min-width:0}
+.game-card .gc-name{font-size:19px;font-weight:800;color:#fff;margin-bottom:5px;text-shadow:0 2px 6px rgba(0,0,0,.45);letter-spacing:.5px}
+.game-card .gc-desc{font-size:12.5px;color:rgba(255,255,255,.85);line-height:1.5}
+.game-card .gc-cta{margin-top:9px;display:inline-block;background:rgba(255,255,255,.94);color:#3a2408;padding:5px 16px;border-radius:16px;font-size:12.5px;font-weight:800}
+.game-card .gc-tag{position:absolute;top:0;right:0;font-size:10px;font-weight:700;padding:4px 12px;border-bottom-left-radius:12px;color:#fff}
+.game-card .gc-rarity{position:absolute;top:9px;right:12px;font-size:10px;color:rgba(255,255,255,.7);letter-spacing:1px}
+.game-card.g-millionaire{
+  background-image:linear-gradient(180deg,rgba(20,12,4,.22) 0%,rgba(20,12,4,.34) 40%,rgba(20,12,4,.82) 100%),url('/tool-icons/millionaire-bg-640.jpg?v=20261030p');
+  background-size:cover;background-position:center 18%;background-repeat:no-repeat;
+  border-color:rgba(212,175,55,.6);
+  justify-content:flex-end;
+}
+@media (min-resolution:2dppx){.game-card.g-millionaire{background-image:linear-gradient(180deg,rgba(20,12,4,.22) 0%,rgba(20,12,4,.34) 40%,rgba(20,12,4,.82) 100%),url('/tool-icons/millionaire-bg-960.jpg?v=20261030p')}}
+.game-card.g-millionaire .gc-name{font-size:18px;text-shadow:0 2px 8px rgba(0,0,0,.85),0 0 2px rgba(0,0,0,.9)}
+.game-card.g-millionaire .gc-desc{color:#f3e6c8;text-shadow:0 1px 5px rgba(0,0,0,.9)}
+.game-card.g-millionaire .gc-cta{box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.game-card.g-millionaire .gc-tag{background:rgba(193,67,47,.94);backdrop-filter:blur(4px)}
+.game-card.g-lingtian .gc-tag{background:#8a6a1e}
+.game-card.g-lingtian .gc-name{font-size:18px;text-shadow:0 2px 8px rgba(0,0,0,.85),0 0 2px rgba(0,0,0,.9)}
+.game-card.g-lingtian .gc-desc{color:#f3e6c8;text-shadow:0 1px 5px rgba(0,0,0,.9)}
+.game-card.g-lingtian .gc-cta{box-shadow:0 3px 10px rgba(0,0,0,.45)}
+.game-card.g-lingtian .gc-tag{background:rgba(138,106,30,.92);backdrop-filter:blur(4px)}
+
+/* 双大卡并排 */
+.hero-row{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:12px}
+.hero-row .game-card{flex-direction:column;text-align:center;align-items:center;gap:6px;min-height:150px;padding:16px 10px;margin-bottom:0}
+.hero-row .gc-name{font-size:16px;margin-bottom:3px}
+.hero-row .gc-desc{font-size:10.5px;line-height:1.45}
+.hero-row .gc-cta{padding:4px 14px;font-size:11.5px}
+
+/* 三宫格小卡（每款独立配色） */
+.game-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:10px;grid-auto-rows:1fr}
+.game-mini{border-radius:14px;padding:14px 6px 12px;cursor:pointer;border:1px solid rgba(212,175,55,.32);text-align:center;position:relative;overflow:hidden;background:linear-gradient(150deg,var(--c1),var(--c2))}
+.game-mini:active{transform:scale(.96)}
+.game-mini .gm-art{font-size:32px;margin-bottom:6px;filter:drop-shadow(0 2px 5px rgba(0,0,0,.4));line-height:1.26em;width:1.26em;height:1.26em;display:flex;align-items:center;justify-content:center}
+/* 图片图标填满与 emoji 相同的图标框（1.26em 对齐 emoji 实际着墨宽） */
+.game-mini .gm-art img{width:100%;height:100%;border-radius:22%;object-fit:cover;display:block;box-shadow:0 2px 7px rgba(0,0,0,.5)}
+.game-mini .gm-name{font-size:12.5px;font-weight:800;color:var(--gold);margin-bottom:3px;letter-spacing:.3px}
+.game-mini .gm-desc{font-size:9.5px;color:var(--sub);line-height:1.32;min-height:24px}
+/* 铺图小卡（quiz/xiuxing 等）底图固定深色 → 文字固定浅色，避免浅色主题下发黑看不清 */
+.game-mini.m-quiz .gm-desc,.game-mini.m-xiuxing .gm-desc{color:#e6e0d0;text-shadow:0 1px 5px rgba(0,0,0,.95)}
+.game-mini.m-quiz .gm-diff{color:#f0d9a0}
+.game-mini .gm-rarity{position:absolute;top:5px;right:7px;font-size:9px;opacity:.85;color:#e8dcc8;text-shadow:0 1px 4px rgba(0,0,0,.9)}
+/* 五行消消乐：整卡铺图（与天机卦卡同法）。底图自带「五行消消乐」金牌标题 */
+.game-mini.m-wuxing{
+  background-image:linear-gradient(180deg,rgba(10,5,18,0) 0%,rgba(10,5,18,.08) 40%,rgba(8,4,14,.50) 66%,rgba(6,3,12,.90) 82%,rgba(5,2,10,.97) 100%),
+                   var(--img-wuxing-gems-320, none);
+  background-size:cover;background-position:center top;background-repeat:no-repeat;
+  border-color:rgba(212,175,55,.55);
+}
+@media (min-resolution:2dppx){
+  .game-mini.m-wuxing{
+    background-image:linear-gradient(180deg,rgba(10,5,18,0) 0%,rgba(10,5,18,.08) 40%,rgba(8,4,14,.50) 66%,rgba(6,3,12,.90) 82%,rgba(5,2,10,.97) 100%),
+                     var(--img-wuxing-gems-640, none);
+  }
+}
+.game-mini.m-wuxing{justify-content:flex-end;display:flex;flex-direction:column}
+/* 底图在横卡里只露出宝石区，标题会跟随文字显示 */
+.game-mini.m-wuxing .gm-art{display:none}
+.game-mini.m-wuxing .gm-name{color:#f3e6ff;text-shadow:0 2px 7px rgba(0,0,0,.9),0 0 12px rgba(120,60,200,.55)}
+.game-mini.m-wuxing .gm-desc{color:rgba(255,255,255,.95);text-shadow:0 1px 5px rgba(0,0,0,.95)}
+/* 易学闯关：整卡铺图（同消消乐 / 灵田大卡） */
+.game-mini.m-quiz{
+  background-image:linear-gradient(180deg,rgba(6,14,10,.05) 0%,rgba(6,14,10,.16) 30%,rgba(5,12,8,.76) 62%,rgba(4,10,7,.95) 100%),
+                   var(--img-quiz-bg-320, none);
+  background-size:cover;background-position:center 26%;background-repeat:no-repeat;
+  border-color:rgba(212,175,55,.55);
+}
+@media (min-resolution:2dppx){
+  .game-mini.m-quiz{
+    background-image:linear-gradient(180deg,rgba(6,14,10,.05) 0%,rgba(6,14,10,.16) 30%,rgba(5,12,8,.76) 62%,rgba(4,10,7,.95) 100%),
+                     var(--img-quiz-bg-640, none);
+  }
+}
+.game-mini.m-quiz .gm-art{min-height:38px}
+.game-mini.m-quiz .gm-name{color:#f2ffe6;text-shadow:0 2px 7px rgba(0,0,0,.85),0 0 14px rgba(90,180,80,.45)}
+/* 配色 */
+/* m-wuxing 的背景与名称色已在上方定义（铺图），此处不再覆盖 */
+/* 天机卦卡：与天机修行同法，整卡铺满底图，与卡片边框对齐 */
+.game-mini.m-market{
+  background-image:linear-gradient(180deg,rgba(6,20,14,0) 0%,rgba(6,20,14,.06) 34%,rgba(5,16,11,.55) 52%,rgba(4,12,8,.90) 70%,rgba(3,9,6,.98) 100%),
+                   var(--img-market-bg-320, none);
+  background-size:cover;background-position:center top;background-repeat:no-repeat;
+  border-color:rgba(212,175,55,.55)}
+@media (min-resolution:2dppx){
+  .game-mini.m-market{
+    background-image:linear-gradient(180deg,rgba(6,20,14,0) 0%,rgba(6,20,14,.06) 34%,rgba(5,16,11,.55) 52%,rgba(4,12,8,.90) 70%,rgba(3,9,6,.98) 100%),
+                     var(--img-market-bg-640, none)}
+}
+/* 铺图后文字压底，与卦卡/闯关卡一致 */
+.game-mini.m-market{justify-content:flex-end;display:flex;flex-direction:column}
+.game-mini.m-market .gm-art{display:none}
+.game-mini.m-market .gm-name{color:#fff6e2;text-shadow:0 1px 6px rgba(0,0,0,.98),0 0 10px rgba(0,0,0,.8)}
+.game-mini.m-market .gm-desc{color:rgba(255,246,226,.95);text-shadow:0 1px 5px rgba(0,0,0,.95)}
+.game-mini.m-market .gm-tag{position:absolute;top:6px;right:6px;font-size:9px;padding:1px 5px;border-radius:5px;background:rgba(0,0,0,.72);color:#ffe9a8;font-weight:700}
+.game-mini.m-guacard{
+  background-image:linear-gradient(180deg,rgba(6,4,10,0) 0%,rgba(6,4,10,.05) 36%,rgba(5,3,9,.55) 52%,rgba(4,3,8,.90) 70%,rgba(3,2,6,.98) 100%),
+                   var(--img-guacard-bg-400, none);
+  background-size:cover;background-position:center top;background-repeat:no-repeat;
+  border-color:rgba(212,175,55,.55)}
+@media (min-resolution:2dppx){
+  .game-mini.m-guacard{
+    background-image:linear-gradient(180deg,rgba(6,4,10,0) 0%,rgba(6,4,10,.05) 36%,rgba(5,3,9,.55) 52%,rgba(4,3,8,.90) 70%,rgba(3,2,6,.98) 100%),
+                     var(--img-guacard-bg-400, none)}
+}
+.game-mini.m-guacard{justify-content:flex-end;display:flex;flex-direction:column}
+/* 底图已有「天机卦卡」金牌标题，隐藏重复文字但保留占位，高度与天机修行一致 */
+.game-mini.m-guacard .gm-art{display:none}
+.game-mini.m-guacard .gm-name{display:none}
+.game-mini.m-guacard .gm-desc{font-size:11.5px;line-height:1.28;font-weight:800;letter-spacing:.2px;
+  color:#fff6e2;text-shadow:0 1px 6px rgba(0,0,0,.98),0 0 10px rgba(0,0,0,.8)}
+/* 天机修行：整卡铺图（与易学闯关 / 消消乐 / 灵田大卡同法） */
+.game-mini.m-xiuxing{
+  background-image:linear-gradient(180deg,rgba(8,16,20,.04) 0%,rgba(8,16,20,.12) 28%,rgba(6,13,17,.72) 60%,rgba(4,10,14,.95) 100%),
+                   var(--img-xiuxing-face-400, none);
+  background-size:cover;background-position:center top;background-repeat:no-repeat;
+  border-color:rgba(212,175,55,.55);
+}
+@media (min-resolution:2dppx){
+  .game-mini.m-xiuxing{
+    background-image:linear-gradient(180deg,rgba(8,16,20,.04) 0%,rgba(8,16,20,.12) 28%,rgba(6,13,17,.72) 60%,rgba(4,10,14,.95) 100%),
+                     var(--img-xiuxing-face-400, none);
+  }
+}
+.game-mini.m-xiuxing .gm-art{min-height:38px}
+.game-mini.m-xiuxing .gm-name{color:#f0f8ff;text-shadow:0 2px 7px rgba(0,0,0,.85),0 0 14px rgba(90,190,200,.45)}
+/* m-quiz 的背景与名称色已在上方定义（铺图），此处不再覆盖 */
+/* 八卦解谜：整卡铺图（底图自带「八卦解谜」金字牌匾，与「更多工具」同法） */
+.game-mini.m-bagua{
+  background-image:linear-gradient(180deg,rgba(8,10,20,0) 0%,rgba(8,10,20,0) 62%,rgba(7,9,18,.16) 84%,rgba(6,8,16,.32) 100%),
+                   var(--img-bagua-card-400, none);
+  background-size:cover;background-position:center bottom;background-repeat:no-repeat;
+  border-color:rgba(212,175,55,.55);
+  overflow:hidden;
+  justify-content:flex-end;display:flex;flex-direction:column;
+}
+@media (min-resolution:2dppx){
+  .game-mini.m-bagua{
+    background-image:linear-gradient(180deg,rgba(8,10,20,0) 0%,rgba(8,10,20,0) 62%,rgba(7,9,18,.16) 84%,rgba(6,8,16,.32) 100%),
+                     var(--img-bagua-card-400, none);
+    background-position:center bottom}
+}
+/* 底图已自带标题，隐藏文字元素（不占位） */
+/* 文字隐藏但保留占位，卡片高度与同排一致 */
+.game-mini.m-bagua .gm-art,
+.game-mini.m-bagua .gm-name,
+.game-mini.m-bagua .gm-desc{visibility:hidden}
+/* 更多工具：整卡铺图（底图自带「更多工具」金字牌匾） */
+.game-mini.m-more{
+  background-image:linear-gradient(180deg,rgba(10,8,3,0) 0%,rgba(10,8,3,0) 64%,rgba(9,7,3,.14) 84%,rgba(8,6,3,.30) 100%),
+                   var(--img-more-card-400, none);
+  background-size:cover;background-position:center center;background-repeat:no-repeat;
+  border-color:rgba(212,175,55,.55);
+  overflow:hidden;
+  justify-content:flex-end;display:flex;flex-direction:column;
+}
+@media (min-resolution:2dppx){
+  .game-mini.m-more{
+    background-image:linear-gradient(180deg,rgba(10,8,3,0) 0%,rgba(10,8,3,0) 64%,rgba(9,7,3,.14) 84%,rgba(8,6,3,.30) 100%),
+                     var(--img-more-card-400, none)}
+}
+/* 底图已自带标题，隐藏文字元素（不占位） */
+.game-mini.m-more .gm-art,
+.game-mini.m-more .gm-name,
+.game-mini.m-more .gm-desc{visibility:hidden}
+
+/* 工具入口条 */
+.tool-more-btn{display:flex;align-items:center;gap:12px;margin:4px 0 0;padding:13px 16px;border-radius:14px;cursor:pointer;
+ background:linear-gradient(135deg,var(--c1),var(--c2));border:1px dashed rgba(212,175,55,.4)}
+.tool-more-btn .tm-ic{font-size:56px;width:56px;height:56px;flex:0 0 56px}
+.tool-more-btn .tm-ic img{width:100%;height:100%;border-radius:16%;object-fit:cover;display:block}
+.tool-more-btn .tm-t{flex:1;min-width:0}
+.tool-more-btn .tm-t b{font-size:15px;color:var(--gold-text,var(--gold));display:block;margin-bottom:3px}
+.tool-more-btn .tm-t span{font-size:11.5px;color:var(--sub);display:block;line-height:1.35;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tool-more-btn .tm-arrow{color:var(--gold-text);font-size:18px}
+
+/* 天機礦場卡（2026-10-30 算了吗：加入精選玩法）
+   无底图素材，用纯 CSS 画矿洞：纵深渐变 + 油灯光晕 + 矿脉金点 */
+/* 天機礦場卡（2026-11-10 修正）
+   原做法：卡中间塞 40px 小图 → 与同排「矿石市集 / 天机卦卡 / 五行消消乐」
+   （整卡铺满底图）视觉大小不一致。现改为同样的整卡铺底图。 */
+.game-mini.m-minecard{
+  background-image:linear-gradient(180deg,rgba(26,11,2,.02) 0%,rgba(26,11,2,.10) 28%,rgba(22,10,2,.60) 56%,rgba(18,8,1,.92) 78%,rgba(12,5,1,.98) 100%),
+                   var(--img-mine-bg-320, none);
+  background-size:cover;background-position:center 34%;background-repeat:no-repeat;
+  border-color:rgba(212,175,55,.55);
+  justify-content:flex-end;display:flex;flex-direction:column;
+}
+@media (min-resolution:2dppx){
+  .game-mini.m-minecard{
+    background-image:linear-gradient(180deg,rgba(26,11,2,.02) 0%,rgba(26,11,2,.10) 28%,rgba(22,10,2,.60) 56%,rgba(18,8,1,.92) 78%,rgba(12,5,1,.98) 100%),
+                     var(--img-mine-bg-640, none);
+    background-position:center 34%;
+  }
+}
+/* 2026-10-30 算了吗第6项：本卡用 emoji（无图），容器随 font-size 只有 35x35，
+   与其它卡片的 40x40 不一致。锁定容器尺寸，图标一律 40x40 居中等比例。 */
+/* 2026-11-10：整卡铺底图后隐藏浮动小图标（保留占位，卡片高度与同排一致） */
+.game-mini.m-minecard .gm-art{display:none}
+.game-mini.m-minecard .gm-name{color:#fff8e6;text-shadow:0 1px 6px rgba(0,0,0,.98),0 0 12px rgba(255,170,60,.55)}
+.game-mini.m-minecard .gm-desc{color:rgba(255,238,206,.96);text-shadow:0 1px 5px rgba(0,0,0,.98)}
+.game-mini.m-minecard .gm-tag{position:absolute;top:6px;right:6px;font-size:9px;padding:1px 5px;
+  border-radius:5px;background:rgba(0,0,0,.62);color:#ffe9a8;font-weight:700}
+
+/* 闯关卡（保留 quizSub/quizDiffTag 依赖） */
+.game-mini .gm-diff{font-size:9px;color:var(--gold);margin-top:3px;font-weight:700}
+
+/* 工具区折叠标题 */
+.tool-zone-head{display:flex;align-items:center;justify-content:space-between;margin:18px 16px 4px;padding-top:14px;border-top:1px dashed var(--c2)}
+.tool-zone-head .t{font-size:15px;font-weight:700;color:var(--sub);display:flex;align-items:center;gap:6px}
+.tool-zone-head .more{font-size:12px;color:var(--gold);cursor:pointer}
+/* 游戏首页顶栏 */
+.game-top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 4px}
+.game-top-bar .gt-brand{font-size:19px;font-weight:800;color:var(--gold);letter-spacing:1px;text-shadow:0 2px 6px rgba(0,0,0,.4)}
+.game-top-bar .gt-right{display:flex;align-items:center;gap:8px}
+/* 课程页顶栏 */
+.course-top-bar{display:flex;align-items:center;gap:10px;padding:14px 16px 6px}
+.course-top-bar .search{flex:1;display:flex;align-items:center;gap:8px;background:var(--c2);border-radius:10px;padding:10px 14px;color:var(--sub);font-size:14px;cursor:pointer}
+.course-top-bar .iconbtn{font-size:22px;cursor:pointer}
+/* v6.x：响应式（手机/平板/电脑自适应） */
+@media (min-width:768px){
+  .tianji-page{padding:18px 32px 100px;max-width:1400px;margin:0 auto}
+  .tianji-grid{display:flex;flex-wrap:wrap;gap:18px;max-width:1200px;margin:0 auto}
+  .tianji-grid .tj{flex:0 0 calc((100% - 54px)/4);width:calc((100% - 54px)/4);padding:22px 14px}
+  .tianji-grid .tj .ic{font-size:48px;height:96px}
+  .tianji-grid .tj .ic img{width:92px;height:92px;border-radius:20px}
+  .tianji-grid .tj .nm{font-size:15px}
+  .tianji-grid .tj .ds{font-size:12px}
+  .tianji-head{padding:28px 32px 22px;margin:0 0 18px;border-radius:16px;max-width:1200px;margin-left:auto;margin-right:auto}
+  .tianji-head .t{font-size:24px}
+  .home-grid{grid-template-columns:repeat(3,1fr);gap:18px;max-width:1200px;margin:0 auto;padding:0 32px 18px}
+  .home-entries{padding:18px 32px 12px;max-width:1200px;margin:0 auto;gap:10px}
+  .hero-row{grid-template-columns:repeat(2,1fr);gap:18px;max-width:1200px;margin:0 auto 16px}
+  .game-grid{grid-template-columns:repeat(4,1fr);gap:14px;max-width:1200px;margin:0 auto 12px}
+  header{padding:18px 32px}
+  .home-cat-item{width:80px}
+  .home-cat-item .ic{width:64px;height:64px;font-size:30px}
+  .home-cat-item .lb{font-size:13px}
+}
+@media (min-width:1200px){
+  .tianji-grid .tj{flex:0 0 calc((100% - 90px)/6);width:calc((100% - 90px)/6)}
+  .home-grid{grid-template-columns:repeat(4,1fr)}
+  .game-grid{grid-template-columns:repeat(5,1fr)}
+}
+
+/* ===== 2026-10-30 性能：卡片背景图改为进入视口才加载 ===== */
+
+@media (min-resolution:2dppx){
+
+}
+
+/* ===== 2026-10-30 性能：卡片背景图改为「进视口才加载」 ===== */
+html.imgs-ready{
+  --img-bagua-card-400:url('/tool-icons/bagua-card-400.jpg?v=20261030p');
+  --img-guacard-bg-400:url('/tool-icons/guacard-bg-400.jpg?v=20261030p');
+  --img-lingtian-bg-640:url('/tool-icons/lingtian-bg-640.jpg?v=20261030p');
+  --img-millionaire-bg-640:url('/tool-icons/millionaire-bg-640.jpg?v=20261030p');
+  --img-more-card-400:url('/tool-icons/more-card-400.jpg?v=20261030p');
+  --img-market-bg-320:url('/tool-icons/market-bg-320.jpg?v=20261030p');
+  --img-quiz-bg-320:url('/tool-icons/quiz-bg-320.jpg?v=20261030p');
+  --img-quiz-bg-640:url('/tool-icons/quiz-bg-640.jpg?v=20261030p');
+  --img-wuxing-gems-320:url('/tool-icons/wuxing-gems-320.jpg?v=20261030p');
+  --img-wuxing-gems-640:url('/tool-icons/wuxing-gems-640.jpg?v=20261030p');
+  --img-xiuxing-face-400:url('/tool-icons/xiuxing-face-400.jpg?v=20261030p');
+  --img-mine-bg-320:url('/tool-icons/mine-bg-320.jpg?v=20261110b');
+}
+/* 2026-10-30 性能：实测卡片物理尺寸仅 522x450 / 339x408，
+   原 2dppx 规则却加载 800/960 大图（首屏因此多吃 180KB）。
+   改为按物理需求选档：大卡 640、小卡 400/320，像素密度已足够。 */
+@media (min-resolution:2dppx){
+  html.imgs-ready{
+    --img-market-bg-640:url('/tool-icons/market-bg-640.jpg?v=20261030p');
+    --img-mine-bg-640:url('/tool-icons/mine-bg-640.jpg?v=20261110b');
+  }
+}
+
+/* ===== 可读性统一 2026-11-11：语义色 + 浅色兜底（theme.js 优先） ===== */
+body{--gold-text:var(--gold);--gold2-text:var(--gold2,#f5d06f);--ok-text:#7cc77c;--bad-text:#e8a093}
+body[data-theme="default"],body[data-theme=""]{--sub:#a99a7c}
+body[data-theme="jade"]{--sub:#8fbfa8}
+body[data-theme="purple"]{--sub:#b09ccc}
+body[data-theme="ocean"]{--sub:#93b2cd}
+body[data-theme="rose"]{--sub:#cc9cac}
+body[data-theme="black"]{--sub:#9e9e9e}
+body[data-theme="white"]{--bg:#f7f5f0;--c1:#ffffff;--c2:#e5e0d5;--text:#2a2218;--sub:#5f5136;
+  --gold:#8a6410;--gold-text:#7a590a;--gold2:#6f5310;--gold2-text:#6f5310;
+  --red:#a8331f;--green:#2f6b35;--ok-text:#2f6b35;--bad-text:#a8331f}
+@media (prefers-color-scheme: light){
+  body:not([data-theme]),body[data-theme=""]{--bg:#f7f5f0;--c1:#ffffff;--c2:#e5e0d5;--text:#2a2218;--sub:#5f5136;
+    --gold:#8a6410;--gold-text:#7a590a;--gold2:#6f5310;--gold2-text:#6f5310;
+    --red:#a8331f;--green:#2f6b35;--ok-text:#2f6b35;--bad-text:#a8331f;
+    color-scheme:light}
+}
+/* 表单：占位符跟随语义色，深/浅主题都保持可辨；color-scheme 让原生控件跟随主题 */
+body{color-scheme:dark}
+body[data-theme="white"]{color-scheme:light}
+::placeholder{color:var(--sub);opacity:.9}
+</style>
+<script src="i18n-toolintro.js"></script>
+<script src="dialog.js"></script>
+</head>
+<body>
+
+<!-- 维护公告横幅 -->
+<div id="mtBanner" style="display:none;background:linear-gradient(135deg,var(--c2),var(--c1));border-bottom:1px solid var(--gold);padding:10px 16px;cursor:pointer;position:relative;z-index:101" onclick="toggleMtDetail()">
+  <div style="display:flex;align-items:center;gap:10px">
+    <span style="font-size:20px">🔧</span>
+    <div style="flex:1;min-width:0">
+      <div id="mtBannerTitle" style="color:var(--gold);font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" data-i18n="系统维护公告">系统维护公告</div>
+      <div id="mtBannerTime" style="color:var(--sub);font-size:12px;margin-top:2px"></div>
+    </div>
+    <span id="mtBannerArrow" style="color:var(--sub);font-size:14px">▾</span>
+  </div>
+  <div id="mtBannerDetail" style="display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--c2)">
+    <div id="mtBannerContent" style="color:var(--text);font-size:13px;line-height:1.8;white-space:pre-wrap"></div>
+  </div>
+</div>
+
+<!-- ===== 第1层：游戏首页 ===== -->
+<div id="homePanel">
+  <div class="game-top-bar">
+    <div class="gt-brand" data-i18n="🎮 算了吗.易游">🎮 算了吗.易游</div>
+    <div class="gt-right">
+      <select class="lang-sel" id="xtLangSel" onchange="xtSetLang(this.value)" aria-label="Language"></select>
+    </div>
+  </div>
+
+  <!-- 快捷导航（顶部） -->
+  <div id="homeEntries" class="home-entries">
+    <div class="home-entry" onclick="openQuiz()"><div class="ring e1">🎯</div><div class="lb" data-i18n="每日挑战">每日挑战</div></div>
+    <div class="home-entry" onclick="openEntry('checkin')"><div class="ring e2">🎁</div><div class="lb" data-i18n="entry_checkin">签到福利</div></div>
+    <div class="home-entry" onclick="location.href='https://tianji.matetechhk.com/rank'"><div class="ring e3">🏆</div><div class="lb" data-i18n="排行榜">排行榜</div></div>
+    <div class="home-entry" onclick="openEntry('invite')"><div class="ring e4">💰</div><div class="lb" data-i18n="entry_invite">推广赚钱</div></div>
+    <div class="home-entry" onclick="goChar()"><div class="ring e5">🧑‍🎨</div><div class="lb" data-i18n="角色创造">角色创造</div></div>
+  </div>
+
+  <!-- 主视觉 Hero -->
+  <div class="hero" onclick="location.href='https://tianji.matetechhk.com/games'">
+    <span class="h-tag" data-i18n="🔥 本期推荐">🔥 本期推荐</span>
+    <div class="h-title" data-i18n="算了吗.易游">算了吗.易游</div>
+    <div class="h-sub" data-i18n="易学主题益智游戏合集 · 每日有惊喜">易学主题益智游戏合集 · 每日有惊喜</div>
+    <span class="h-cta" data-i18n="进入游戏大厅 →">进入游戏大厅 →</span>
+  </div>
+
+  <!-- 游戏专区（玩了吗 · 全部游戏） -->
+  <div class="game-zone" id="gameZone">
+    <div class="game-zone-title"><div class="t" data-i18n="🎮 精选玩法">🎮 精选玩法</div><div class="more" data-i18n="共 7 款">共 7 款</div></div>
+
+    <!-- 双主推大卡 -->
+    <div class="hero-row">
+      <div class="game-card g-millionaire" onclick="Yibi.gotoGame('millionaire','/millionaire','挑战 15 关赢易币，最高 20 万')">
+        <div class="gc-tag" data-i18n="🔥 热门">🔥 热门</div>
+        <div class="gc-body">
+          <div class="gc-name" data-i18n="天机百万富翁">天机百万富翁</div>
+          <div class="gc-desc" data-i18n="15 关闯奖梯 · 5 锦囊 · 1v1">15 关闯奖梯 · 5 锦囊 · 1v1</div>
+          <span class="gc-cta" data-i18n="挑战 →">挑战 →</span>
+        </div>
+      </div>
+      <div class="game-card g-lingtian" onclick="Yibi.gotoGame('lingtian','/lingtian','种稀有灵植、收获得易币')">
+        <div class="gc-tag" data-i18n="🌱 新">🌱 新</div>
+        <div class="gc-body">
+          <div class="gc-name" data-i18n="灵田天机">灵田天机</div>
+          <div class="gc-desc" data-i18n="五行灵植 · 种田偷菜">五行灵植 · 种田偷菜</div>
+          <span class="gc-cta" data-i18n="进入 →">进入 →</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 游戏矩阵（每款独立配色） -->
+    <div class="game-grid">
+      <div class="game-mini m-guacard" onclick="Yibi.gotoGame('guacard','/guacard','收集 64 卦、对战赢易币')">
+        <div class="gm-rarity">★★★★★</div>
+        <div class="gm-art"><img src="tool-icons/guacard-160.png" alt="天机卦卡"></div>
+        <div class="gm-name" data-i18n="天机卦卡">天机卦卡</div>
+        <div class="gm-desc" data-i18n="64 卦收集养成">64 卦收集养成</div>
+      </div>
+      <div class="game-mini m-xiuxing" onclick="Yibi.gotoGame('xiuxing','/xiuxing','挂机/离线也得易币')">
+        <div class="gm-art"></div>
+        <div class="gm-name" data-i18n="天机修行">天机修行</div>
+        <div class="gm-desc" data-i18n="放置渡劫修仙">放置渡劫修仙</div>
+      </div>
+      <div class="game-mini m-wuxing" onclick="Yibi.gotoGame('wuxing','/wuxing','消除得分换易币，单局最高 ~280')">
+        <div class="gm-art"></div>
+        <div class="gm-name" data-i18n="五行消消乐">五行消消乐</div>
+        <div class="gm-desc" data-i18n="相生相剋消除">相生相剋消除</div>
+      </div>
+      <div class="game-mini m-quiz" onclick="openQuiz()">
+        <div class="gm-art"></div>
+        <div class="gm-name" data-i18n="易学闯关">易学闯关</div>
+        <div class="gm-desc" id="quizSub" data-i18n="每日答题赢易币">每日答题赢易币</div>
+        <div class="gm-diff" id="quizDiffTag">--</div>
+      </div>
+      <div class="game-mini m-bagua" onclick="Yibi.gotoGame('bagua','/bagua','过关得易币，三星有奖')">
+        <div class="gm-art"></div>
+        <div class="gm-name" data-i18n="八卦解谜">八卦解谜</div>
+        <div class="gm-desc" data-i18n="阴阳爻拼六十四卦">阴阳爻拼六十四卦</div>
+      </div>
+      <div class="game-mini m-market" onclick="location.href='https://tianji.matetechhk.com/market'">
+        <div class="gm-tag" data-i18n="新">新</div>
+        <div class="gm-art"></div>
+        <div class="gm-name" data-i18n="矿石市集">矿石市集</div>
+        <div class="gm-desc" data-i18n="矿石自由买卖">矿石自由买卖</div>
+      </div>
+      <div class="game-mini m-minecard" onclick="location.href='https://tianji.matetechhk.com/mine'">
+        <div class="gm-tag" data-i18n="新">新</div>
+        <div class="gm-art"></div>
+        <div class="gm-name" data-i18n="天機礦場">天機礦場</div>
+        <div class="gm-desc" data-i18n="租地挖礦 · 煉金裝備">租地挖礦 · 煉金裝備</div>
+      </div>
+    </div>
+
+    <!-- 工具入口 -->
+    <div class="tool-more-btn" onclick="switchMainTab('tianji')">
+      <div class="tm-ic"><img src="tool-icons/more-96.png" alt="更多工具" style="width:100%;height:100%;border-radius:22%;object-fit:cover;display:block"></div>
+      <div class="tm-t"><b data-i18n="天机工具">天机工具</b><span data-i18n="八字 · 紫微 · 合配 · 起名 · 奇门 · 风水…">八字 · 紫微 · 合配 · 起名 · 奇门 · 风水…</span></div>
+      <div class="tm-arrow">›</div>
+    </div>
+  </div>
+
+  <div id="homeDisclaimer" style="padding:24px 20px 96px;text-align:center;font-size:11px;line-height:1.8;color:var(--sub)" data-i18n="本应用为休闲益智游戏合集，内容基于中国传统文化题材，仅供娱乐参考。所有游戏结果与易币均为虚拟娱乐，不涉及任何真实赌博或金钱兑换。">
+    本应用为休闲益智游戏合集，内容基于中国传统文化题材，仅供娱乐参考。所有游戏结果与易币均为虚拟娱乐，不涉及任何真实赌博或金钱兑换。
+  </div>
+</div>
+
+<!-- ===== 第2层：课程学习 ===== -->
+<div id="coursePanel" style="display:none">
+  <div class="course-top-bar">
+    <div class="search" onclick="showHomeSearch()"><span class="ic">🔍</span><span data-i18n="search">搜索课程 / 关键词</span></div>
+    <div class="iconbtn" onclick="showMyPanel('orders')" title="我的订单">🛒</div>
+  </div>
+
+  <!-- 大 Banner 轮播 -->
+  <div id="homeBanner" class="home-banner" onclick="bannerClick()">
+    <div class="b-art" id="bArt">☯</div>
+    <div class="b-content">
+      <div class="b-title" id="bTitle" data-i18n="banner_title">天机学堂</div>
+      <div class="b-sub" id="bSub" data-i18n="banner_sub">从入门到精通 · 视频音频图文全类型</div>
+      <div class="b-btn" data-i18n="banner_btn">立即学习 →</div>
+    </div>
+    <div class="b-dots" id="bDots"></div>
+  </div>
+
+  <!-- 课程分类快捷入口 -->
+  <div class="home-section" id="homeCatsSection">
+    <div class="home-cat-row"><div class="ttl">📂 <span data-i18n="sec_cats">课程分类</span></div><div class="more" onclick="setCat('')" data-i18n="sec_all">全部 ›</div></div>
+    <div class="home-cats-scroll" id="homeCats"></div>
+  </div>
+
+  <!-- 分类 Tab + 课程网格 -->
+  <div class="home-tabs-strip" id="cats"></div>
+
+  <!-- 首期预告占位（COURSE_ONLINE=false 时显示，不展示任何课程卡片/价格） -->
+  <div id="courseSoonPlaceholder" style="display:none;padding:34px 20px;text-align:center">
+    <div style="font-size:46px;line-height:1.2;margin-bottom:12px">🎓</div>
+    <div id="courseSoonCat" style="color:var(--gold);font-size:14px;font-weight:700;margin-bottom:8px"></div>
+    <div id="courseSoonText" style="color:var(--sub);font-size:14px;line-height:1.8">课程即将上线，敬请期待</div>
+  </div>
+
+  <div class="list" id="courseList"></div>
+
+  <!-- 免费课堂专区 -->
+  <div class="home-section" id="homeFreeSection">
+    <div class="home-cat-row"><div class="ttl">🔥 <span data-i18n="sec_free">免费课堂</span></div><div class="more" onclick="setCat('免费')" data-i18n="sec_all">全部 ›</div></div>
+    <div class="home-free-sub" data-i18n="sec_free_sub">轻松掌握基础入门知识</div>
+    <div class="home-free-scroll" id="homeFreeList"></div>
+  </div>
+
+  <div style="padding:24px 20px 96px;text-align:center;font-size:11px;line-height:1.8;color:var(--sub)" data-i18n="本应用内容基于中国传统易学文化，仅供文化研究与娱乐参考，不构成任何人生决策、投资、医疗、法律建议。">
+    本应用内容基于中国传统易学文化，仅供文化研究与娱乐参考，不构成任何人生决策、投资、医疗、法律建议。
+  </div>
+</div>
+
+<!-- 右下角浮动按钮（已移除，保留函数兼容） -->
+
+<div class="detail" id="detailPage">
+  <div class="hero" id="dCover">🎓</div>
+  <div class="body">
+    <h2 id="dTitle"></h2>
+    <div class="row"><span class="k" data-i18n="分类">分类</span><span id="dCat"></span></div>
+    <div class="row"><span class="k" data-i18n="类型">类型</span><span id="dType"></span></div>
+    <div class="desc" id="dDesc"></div>
+  </div>
+</div>
+
+<div class="player" id="playerPage">
+  <div class="video-box" id="pVideoBox" style="display:none"><video id="pVideo" controls playsinline></video></div>
+  <div class="audio-box" id="pAudioBox" style="display:none"><div style="font-size:48px">🎧</div><audio id="pAudio" controls></audio></div>
+  <div class="article-box" id="pArticle" style="display:none"></div>
+  <div class="nav">
+    <button onclick="backToDetail()" data-i18n="← 返回详情">← 返回详情</button>
+    <button onclick="markDone()" data-i18n="✅ 标记完成">✅ 标记完成</button>
+  </div>
+</div>
+
+<div class="buy-bar" id="buyBar" style="display:none">
+  <button class="btn" id="favBtn" style="background:var(--c2);border:none;padding:12px 14px;border-radius:8px;font-size:18px;cursor:pointer" onclick="toggleFav()">☆</button>
+  <div class="price" id="buyPrice" data-i18n="免费">免费</div>
+  <button class="btn" id="buyBtn" onclick="buyCourse()" data-i18n="立即学习">立即学习</button>
+</div>
+
+<!-- ===== 我的中心 ===== -->
+<div class="me-page" id="mePage">
+  <div class="me-head">
+    <div class="top">
+      <div class="me-avatar" id="meAvatar">🏯</div>
+      <div class="me-info">
+        <div class="name" id="meName" data-i18n="me_login">未登录</div>
+        <div class="meta">
+          <span class="me-badge" id="meVip" style="display:none"></span>
+          <span class="me-id" id="meId"></span>
+        </div>
+        <div class="meta" style="margin-top:6px">
+          <span id="meExpire" style="font-size:12px"></span>
+        </div>
+      </div>
+      <button class="me-checkin" id="meCheckinBtn" onclick="doMyCheckin()" data-i18n="🎁 签到">🎁 签到</button>
+    </div>
+  </div>
+
+  <div class="me-stats">
+    <!-- 2026-10-29 算了吗：单一货币（易币），易币入口隐藏 -->
+    <div class="st" onclick="showMyPanel('wallet')"><div class="n" id="meWallet">0</div><div class="l" data-i18n="me_wallet">💰 易币</div></div>
+    <div class="st" onclick="showMyPanel('coupons')"><div class="n" id="meCoupons">0</div><div class="l" data-i18n="me_coupons">优惠券</div></div>
+    <div class="st" onclick="showMyPanel('courses')"><div class="n" id="meCourseCount">0</div><div class="l" data-i18n="me_courses">已购课程</div></div>
+  </div>
+
+  <!-- 第7项：会员等级条 LV（每天玩会涨，玩得越久涨越多）-->
+  <div class="me-card" id="lvCard" style="display:none">
+    <div class="ch">📊 <span data-i18n="会员等级">会员等级</span><span id="lvNum" style="margin-left:auto;color:var(--gold2-text)">Lv.1</span></div>
+    <div style="padding:4px 14px 14px">
+      <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--sub)">
+        <span id="lvExpTxt">0 / 200</span>
+        <span style="margin-left:auto" id="lvRankTxt"></span>
+      </div>
+      <div style="height:10px;border-radius:6px;background:rgba(0,0,0,.5);overflow:hidden;
+        margin-top:7px;border:1px solid rgba(212,175,55,.28)">
+        <i id="lvBar" style="display:block;height:100%;width:0;border-radius:6px;
+          background:linear-gradient(90deg,#f5d06f,#ffb03a);transition:width .4s"></i>
+      </div>
+      <div style="font-size:11.5px;color:var(--sub);margin-top:8px;line-height:1.7">
+        今日经验 <b id="lvToday" style="color:var(--text)">0</b>
+        · 每分钟游玩 +<span id="lvPerMin">10</span> 经验，每次操作 +<span id="lvPerAct">2</span>
+        <br>等级只能靠玩出来，充值买不到。
+      </div>
+    </div>
+  </div>
+
+  <div class="me-card" id="meInviteCard" style="display:none">
+    <div class="ch">🎁 <span data-i18n="me_promote">我的推广</span></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:4px 0 2px">
+      <div style="flex:1">
+        <div style="font-size:12px;color:var(--sub)" data-i18n="invite_code">邀请码</div>
+        <div style="font-size:20px;color:var(--gold);font-weight:700;letter-spacing:2px" id="meInviteCode">-</div>
+      </div>
+      <button class="btn sm outline" onclick="showMyPanel('invite')" data-i18n="view_detail">查看详情</button>
+    </div>
+    <div id="meInviteStats" style="font-size:12px;color:var(--sub);margin-top:8px;line-height:1.8"></div>
+  </div>
+
+  <!-- 2026-10-29 按算了吗要求：设置里只留「主题模板 / 检查更新 / 版本日志」，
+       其余功能全部放回「我的」页，直接可见。 -->
+  <div class="me-card">
+    <div class="ch">📚 <span data-i18n="me_learning">我的学习</span></div>
+    <div class="me-grid">
+      <div class="gi" onclick="showMyPanel('courses')"><span class="ic">📖</span><div class="lb" data-i18n="mi_courses">我的课程</div></div>
+      <div class="gi" onclick="showMyPanel('favorites')"><span class="ic">⭐</span><div class="lb" data-i18n="mi_fav">我的收藏</div></div>
+      <div class="gi" onclick="showMyPanel('study')"><span class="ic">⏱️</span><div class="lb" data-i18n="mi_study">学习记录</div></div>
+      <div class="gi" onclick="showMyPanel('orders')"><span class="ic">📦</span><div class="lb" data-i18n="mi_orders">购课订单</div></div>
+    </div>
+  </div>
+
+  <div class="me-card">
+    <div class="ch">🛠️ <span data-i18n="me_more">更多功能</span></div>
+    <div class="me-grid">
+      <div class="gi" onclick="location.href='https://tianji.matetechhk.com/circle'"><span class="ic"><img src="tool-icons/chuanyin-icon.png" width="26" height="26" style="border-radius:22%;display:inline-block;vertical-align:-4px" loading="lazy" decoding="async"></span><div class="lb" data-i18n="mi_circle">传信</div></div>
+      <div class="gi" onclick="showMyPanel('checkin')"><span class="ic">🎁</span><div class="lb" data-i18n="mi_checkin">每日签到</div></div>
+      <div class="gi" onclick="location.href='https://tianji.matetechhk.com/rank'"><span class="ic">🏆</span><div class="lb" data-i18n="mi_rank">排行榜</div></div>
+      <div class="gi" onclick="location.href='https://tianji.matetechhk.com/rewards'"><span class="ic">🎁</span><div class="lb" data-i18n="奖励中心">奖励中心</div></div>
+      <div class="gi" onclick="showMyPanel('address')"><span class="ic">📍</span><div class="lb" data-i18n="mi_address">收货地址</div></div>
+      <div class="gi" onclick="showMyPanel('invite')"><span class="ic">🎫</span><div class="lb" data-i18n="mi_invite">邀请好友</div></div>
+    </div>
+  </div>
+
+  <div class="me-card">
+    <div class="ch">👤 <span data-i18n="账号">账号</span></div>
+    <div class="me-list">
+      <div class="li" onclick="showMyPanel('settings')"><span class="ic">👤</span><span class="txt" data-i18n="mi_profile">个人资料</span><span class="arrow">›</span></div>
+      <div class="li" onclick="showMyPanel('kefu')"><span class="ic">💬</span><span class="txt" data-i18n="在线客服">在线客服</span><span class="arrow">›</span></div>
+      <div class="li" onclick="location.href='https://tianji.matetechhk.com/contact'"><span class="ic">📞</span><span class="txt" data-i18n="contact_us">联系我们</span><span class="arrow">›</span></div>
+      <div class="li" onclick="location.href='https://tianji.matetechhk.com/pay/coins?goods_type=yibi'"><span class="ic">💰</span><span class="txt" data-i18n="充值易币">充值易币</span><span class="arrow">›</span></div>
+      <div class="li" onclick="logoutMe()"><span class="ic">🚪</span><span class="txt" data-i18n="mi_logout">退出登录</span><span class="arrow">›</span></div>
+    </div>
+  </div>
+
+  <div class="me-card" style="margin-top:12px">
+    <div class="ch" style="color:var(--red)">⚠️ <span data-i18n="危险操作">危险操作</span></div>
+    <div class="me-list">
+      <div class="li" onclick="showMyPanel('deleteAccount')"><span class="ic">⚠️</span><span class="txt" style="color:var(--red)" data-i18n="注销账号">注销账号</span><span class="arrow">›</span></div>
+    </div>
+  </div>
+
+  <div class="me-card">
+    <div class="ch">⚙️ <span data-i18n="me_settings">设置</span></div>
+    <div class="me-list">
+      <div class="li" onclick="showMyPanel('theme')"><span class="ic">🎨</span><span class="txt" data-i18n="mi_theme">主题模板（会员专属）</span><span class="arrow">›</span></div>
+      <div class="li" onclick="showMyPanel('checkUpdate')"><span class="ic">🆕</span><span class="txt" data-i18n="检查更新">检查更新</span><span class="arrow">›</span></div>
+      <div class="li" onclick="showMyPanel('changelog')"><span class="ic">📋</span><span class="txt" data-i18n="mi_changelog">版本日志</span><span class="arrow">›</span></div>
+    </div>
+  </div>
+
+  <div style="padding:18px 16px 90px;text-align:center;font-size:11px;line-height:1.9;color:var(--sub)">
+    本应用内容基于中国传统易学文化，仅供文化研究与娱乐参考，不构成任何人生决策、投资、医疗、法律建议。<br>
+    命运掌握在自己手中，请理性看待。<br>
+    <span style="color:var(--gold)" data-i18n="算了吗.易游 · YIYOU">算了吗.易游 · YIYOU</span>
+  </div>
+</div>
+
+<div class="tabbar">
+  <div class="tab active" id="tabHome" onclick="switchMainTab('home')"><span class="ic">🎮</span><span data-i18n="游戏">游戏</span></div>
+  <div class="tab" id="tabCourse" onclick="switchMainTab('course')"><span class="ic">📚</span><span data-i18n="课程">课程</span></div>
+  <div class="tab" id="tabTianji" onclick="switchMainTab('tianji')"><span class="ic">☯️</span><span data-i18n="工具">工具</span></div>
+  <div class="tab" onclick="location.href='https://tianji.matetechhk.com/mall'"><span class="ic">🛒</span><span data-i18n="商城">商城</span></div>
+  <div class="tab" id="tabMe" onclick="switchMainTab('me')"><span class="ic">👤</span><span data-i18n="tab_me">我的</span></div>
+</div>
+
+<!-- ===== 算了吗（工具宫格） ===== -->
+<div class="tianji-page" id="tianjiPage">
+  <div class="tianji-head">
+    <div class="t">☯️ <span data-i18n="tianji_title">天机工具</span></div>
+    <div class="s" data-i18n="tianji_sub">天机工具 · 一页直达 · 方便使用</div>
+  </div>
+  <div class="tianji-grid" id="tianjiGrid">
+    <div class="tj hot" data-tool="bazi" onclick="location.href='https://tianji.matetechhk.com/bazi'"><div class="ic"><img src="tool-icons/bazi-160.png" alt="bazi" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_bazi">八字命盘</div><div class="ds" data-i18n="t_bazi_d">生辰八字 · 精准排盘</div></div>
+    <div class="tj hot" data-tool="bazi_report" onclick="location.href='https://tianji.matetechhk.com/bazi-report'"><div class="ic"><img src="tool-icons/bazi_report-160.png" alt="bazi_report" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_bazi_report">八字终身盘</div><div class="ds" data-i18n="t_bazi_report_d">四柱大运 · 紫微星座奇门</div></div>
+    <div class="tj hot" data-tool="hepei" onclick="location.href='https://tianji.matetechhk.com/hehun'"><div class="ic"><img src="tool-icons/hepei-160.png" alt="hepei" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_hehun">算了吗合配</div><div class="ds" data-i18n="t_hehun_d">两人八字 · 婚姻合配</div></div>
+    <div class="tj" data-tool="gaiming" onclick="location.href='https://tianji.matetechhk.com/gaiming'"><div class="ic"><img src="tool-icons/gaiming-160.png" alt="gaiming" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_gaiming">名成利就</div><div class="ds" data-i18n="t_gaiming_d">喜用神 · 取十个好名</div></div>
+    <div class="tj" data-tool="qimen_spinner" onclick="location.href='https://tianji.matetechhk.com/spinner'"><div class="ic"><img src="tool-icons/qimen_spinner-160.png" alt="qimen_spinner" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_spinner">奇门卦盘</div><div class="ds" data-i18n="t_spinner_d">转盘占卜 · 天机自现</div></div>
+    <div class="tj" data-tool="liuyao" onclick="location.href='https://tianji.matetechhk.com/liuyao'"><div class="ic"><img src="tool-icons/liuyao-160.png" alt="liuyao" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_liuyao">六爻占卜</div><div class="ds" data-i18n="t_liuyao_d">抛铜钱起卦 · 量化评分</div></div>
+    <div class="tj hot" data-tool="qimen" onclick="location.href='https://tianji.matetechhk.com/qimen'"><div class="ic"><img src="tool-icons/qimen-160.png" alt="qimen" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_qimen">奇门遁甲</div><div class="ds" data-i18n="t_qimen_d">九宫排盘 · 量化吉凶</div></div>
+    <div class="tj" data-tool="fengshui" onclick="location.href='https://tianji.matetechhk.com/luopan'"><div class="ic"><img src="tool-icons/fengshui-160.png" alt="fengshui" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_luopan">风水罗盘</div><div class="ds" data-i18n="t_luopan_d">玄空飞星 · 户型布局</div></div>
+    <div class="tj" data-tool="huangli" onclick="location.href='https://tianji.matetechhk.com/huangli'"><div class="ic"><img src="tool-icons/huangli-160.png" alt="huangli" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_huangli">择日通胜</div><div class="ds" data-i18n="t_huangli_d">万年历 · 宜忌择吉</div></div>
+    <div class="tj" data-tool="ripan" onclick="location.href='https://tianji.matetechhk.com/index.html#ripan'"><div class="ic"><img src="tool-icons/ripan-160.png" alt="ripan" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_ripan">今日能量值</div><div class="ds" data-i18n="t_ripan_d">日盘生成 · 运势早知道</div></div>
+    <div class="tj" data-tool="xiangshu" onclick="location.href='https://tianji.matetechhk.com/xiangshu'"><div class="ic"><img src="tool-icons/xiangshu-160.png" alt="xiangshu" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_xiangshu">相术观相</div><div class="ds" data-i18n="t_xiangshu_d">面相手相 · 算了吗大师分析</div></div>
+    <div class="tj" data-tool="ziwei" onclick="location.href='https://tianji.matetechhk.com/ziwei'"><div class="ic"><img src="tool-icons/ziwei-160.png" alt="ziwei" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_ziwei">紫微斗数</div><div class="ds" data-i18n="t_ziwei_d">十二宫 · 流年大限 · 量化评分</div></div>
+    <div class="tj hot" data-tool="kline" onclick="location.href='https://tianji.matetechhk.com/kline'"><div class="ic"><img src="tool-icons/kline-160.png" alt="kline" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="t_kline">人生K线图</div><div class="ds" data-i18n="t_kline_d">百年流年 · 运势走势K线</div></div>
+    <div class="tj" data-tool="gongde" onclick="location.href='https://tianji.matetechhk.com/gongde?v=20261111nav'"><div class="ic"><img src="tool-icons/gongde-160.png" alt="gongde" width="74" height="74" loading="lazy" fetchpriority="low" decoding="async"></div><div class="nm" data-i18n="随喜功德">随喜功德</div><div class="ds" data-i18n="点灯供神 · 功德榜祈福">点灯供神 · 功德榜祈福</div></div>
+  </div>
+</div>
+
+<!-- 我的子页面容器 -->
+<div class="modal" id="panelModal" onclick="if(event.target===this)closePanel()"><div class="box" style="max-width:92vw;width:400px;max-height:80vh;overflow-y:auto">
+  <div class="panel-head"><h3 id="panelTitle" data-i18n="面板">面板</h3><button class="panel-close" onclick="closePanel()" aria-label="关闭">✕</button></div>
+  <div id="panelBody"></div>
+</div></div>
+
+<div class="modal" id="authModal" onclick="if(event.target===this)closeAuth()"><div class="box">
+  <div class="panel-head"><h3 data-i18n="🔮 请先登录">🔮 请先登录</h3><button class="panel-close" onclick="closeAuth()" aria-label="关闭">✕</button></div>
+  <div id="authTip" style="display:none;background:rgba(212,175,55,.12);border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:8px 10px;font-size:12px;margin-bottom:10px"></div>
+  <div style="font-size:12px;color:var(--sub);margin-bottom:4px" data-i18n="支持手机号或邮箱登录">支持手机号或邮箱登录</div>
+  <input type="text" id="loginAccount" placeholder="手机号 / 邮箱" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="username">
+  <input type="password" id="loginPw" placeholder="密码" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="current-password">
+  <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);margin:2px 0 4px;cursor:pointer"><input type="checkbox" id="loginRemember" style="width:auto;margin:0 2px 0 0;flex:0 0 auto"> 记住密码</label>
+  <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);margin:0 0 8px;cursor:pointer"><input type="checkbox" id="loginKeep" style="width:auto;margin:0 2px 0 0;flex:0 0 auto"> 保持登录（下次自动登录）</label>
+  <button class="btn" style="background:var(--gold);color:var(--bg)" onclick="doLogin()" data-i18n="登录">登录</button>
+  <button class="btn" style="background:transparent;border:1px solid var(--gold);color:var(--gold);margin-top:8px" onclick="switchAuth('reg')" data-i18n="没有账号？注册">没有账号？注册</button>
+  <button class="btn" style="background:var(--c2);color:var(--sub);margin-top:8px" onclick="closeAuth()" data-i18n="取消">取消</button>
+
+</div></div>
+
+<div class="modal" id="regModal"><div class="box" style="max-height:88vh;overflow-y:auto">
+  <h3 data-i18n="注册算了吗（送100易币）">注册算了吗（送100易币）</h3>
+  <!-- 注册方式切换 -->
+  <div class="seg" style="margin-bottom:12px">
+    <button id="regTabEmail" class="active" onclick="switchRegTab('email')" data-i18n="✉️ 邮箱注册">✉️ 邮箱注册</button>
+    <button id="regTabPhone" onclick="switchRegTab('phone')" data-i18n="📱 手机注册">📱 手机注册</button>
+  </div>
+  <div style="font-size:11px;color:var(--gold);margin:-6px 0 10px" data-i18n="💡 推荐用邮箱注册（更快收到验证码；手机短信通道升级中）">💡 推荐用邮箱注册（更快收到验证码；手机短信通道升级中）</div>
+  <!-- 手机注册 -->
+  <div id="regPhonePane" style="display:none">
+    <div style="display:flex;gap:8px">
+      <select id="regCountry" style="width:96px;flex-shrink:0" onchange="regCountryChange()">
+        <option value="+86">🇨🇳 +86</option>
+        <option value="+852">🇭🇰 +852</option>
+        <option value="+853">🇲🇴 +853</option>
+        <option value="+886">🇹🇼 +886</option>
+        <option value="+1">🇺🇸 +1</option>
+        <option value="+44">🇬🇧 +44</option>
+        <option value="+81">🇯🇵 +81</option>
+        <option value="+82">🇰🇷 +82</option>
+        <option value="+65">🇸🇬 +65</option>
+        <option value="+60">🇲🇾 +60</option>
+      </select>
+      <input type="tel" id="regPhone" placeholder="手机号" style="flex:1" inputmode="numeric">
+    </div>
+    <div style="display:flex;gap:8px">
+      <input type="text" id="regPhoneCode" placeholder="验证码" inputmode="numeric" style="flex:1">
+      <button class="btn" id="phoneCodeBtn" style="width:120px;flex-shrink:0;background:var(--c2);color:var(--gold)" onclick="sendCode('phone')" data-i18n="获取验证码">获取验证码</button>
+    </div>
+    <input type="email" id="regBackupEmail" placeholder="备用邮箱（短信收不到时，验证码改发此邮箱）">
+    <div style="font-size:11px;color:var(--sub);margin:-2px 0 2px" data-i18n="⚠️ 短信通道升级中：若收不到验证码，请填备用邮箱，或改用「邮箱注册」。">⚠️ 短信通道升级中：若收不到验证码，请填备用邮箱，或改用「邮箱注册」。</div>
+    <input type="password" id="regPw" placeholder="设置密码（6-8位）">
+    <input type="password" id="regPw2" placeholder="确认密码">
+  </div>
+  <!-- 邮箱注册 -->
+  <div id="regEmailPane">
+    <input type="email" id="regEmail" placeholder="邮箱地址">
+    <div style="display:flex;gap:8px">
+      <input type="text" id="regEmailCode" placeholder="验证码" inputmode="numeric" style="flex:1">
+      <button class="btn" id="emailCodeBtn" style="width:120px;flex-shrink:0;background:var(--c2);color:var(--gold)" onclick="sendCode('email')" data-i18n="获取验证码">获取验证码</button>
+    </div>
+    <input type="password" id="regPwE" placeholder="设置密码（6-8位）">
+    <input type="password" id="regPwE2" placeholder="确认密码">
+  </div>
+  <!-- 邀请码（可留空） -->
+  <input type="text" id="regRef" placeholder="邀请码（可留空）">
+  <!-- 会员资料（选填） -->
+  <div style="font-size:12px;color:var(--sub);margin:6px 0 4px" data-i18n="会员资料（选填）">会员资料（选填）</div>
+  <div style="display:flex;gap:8px">
+    <select id="regGender" style="flex:1">
+      <option value="" data-i18n="性别">性别</option>
+      <option value="男" data-i18n="男">男</option>
+      <option value="女" data-i18n="女">女</option>
+    </select>
+    <input type="text" id="regName" placeholder="姓名" style="flex:1">
+  </div>
+  <input type="text" id="regAddr" placeholder="地址（城市即可）">
+  <!-- 2026-10-27 第6条：隐私条款确认（合规要求，未勾选不可提交） -->
+  <label style="display:flex;gap:8px;align-items:flex-start;margin:10px 0 2px;font-size:12px;color:var(--sub);line-height:1.55;cursor:pointer">
+    <input type="checkbox" id="regPrivacyChk" style="margin-top:2px;flex-shrink:0;width:15px;height:15px;cursor:pointer">
+    <span>我已阅读并同意 <a href="javascript:void(0)" onclick="openPrivacy()" style="color:var(--gold);text-decoration:underline" data-i18n="《隐私保护说明》">《隐私保护说明》</a>，同意收集必要信息用于专业分析。</span>
+  </label>
+  <div id="regPrivacyTip" style="display:none;font-size:12px;color:#e06a6a;margin:0 0 4px" data-i18n="请先勾选同意《隐私保护说明》后再注册">请先勾选同意《隐私保护说明》后再注册</div>
+  <button class="btn" style="background:var(--gold);color:var(--bg)" onclick="doRegister()" data-i18n="注册">注册</button>
+  <button class="btn" style="background:var(--c2);color:var(--sub);margin-top:8px" onclick="closeReg()" data-i18n="取消">取消</button>
+</div></div>
+
+<!-- 2026-10-27 第6条：隐私保护说明弹窗（注册/改资料前必读并确认） -->
+<div class="modal" id="privacyModal" onclick="if(event.target===this)closePrivacy()"><div class="box" style="max-height:84vh;overflow-y:auto;max-width:520px">
+  <h3 style="color:var(--gold);margin-bottom:10px" data-i18n="🔒 隐私保护说明">🔒 隐私保护说明</h3>
+  <div style="font-size:12.5px;color:var(--sub);line-height:1.7">
+    <p style="margin:0 0 8px" data-i18n="尊敬的用户，欢迎您注册成为我们的会员。在您填写个人资料前，请务必仔细阅读并确认以下内容：">尊敬的用户，欢迎您注册成为我们的会员。在您填写个人资料前，请务必仔细阅读并确认以下内容：</p>
+    <p style="margin:0 0 8px"><b style="color:var(--gold)" data-i18n="一、信息收集范围">一、信息收集范围</b><br>我们仅收集与您所需专业服务直接相关的必要信息（如姓名、出生年月日、地址等），不会过度索取与服务无关的个人信息。</p>
+    <p style="margin:0 0 8px"><b style="color:var(--gold)" data-i18n="二、信息使用目的">二、信息使用目的</b><br>您提供的所有资料仅用于内部专业分析与服务优化，帮助我们为您提供更精准、更个性化的专业建议。我们不会将您的个人信息用于任何其他商业用途。</p>
+    <p style="margin:0 0 8px"><b style="color:var(--gold)" data-i18n="三、信息保护措施">三、信息保护措施</b><br>我们承诺采取行业领先的技术和管理措施保护您的数据安全。您的信息不会以任何形式出售、出租或泄露给任何第三方机构或个人（法律法规另有强制规定的除外）。</p>
+    <p style="margin:0 0 10px"><b style="color:var(--gold)" data-i18n="四、您的权利">四、您的权利</b><br>您有权随时查询、更正或删除您的个人信息。如需行使上述权利，可通过 App 内联系客服处理。</p>
+    <p style="margin:0 0 4px;padding:8px 10px;background:var(--bg);border:1px solid var(--c2);border-radius:8px;color:var(--text)">
+      ✓ 仅用于专业分析 — 您填写的资料仅作为内部分析依据<br>
+      ✓ 绝不外泄 — 不会向任何第三方出售或泄露<br>
+      ✓ 安全存储 — 采用加密技术保护，可随时查询或删除
+    </p>
+  </div>
+  <button class="btn" style="background:var(--gold);color:var(--bg);margin-top:8px" onclick="agreePrivacy()" data-i18n="同意并继续">同意并继续</button>
+  <button class="btn" style="background:var(--c2);color:var(--sub);margin-top:8px" onclick="closePrivacy()" data-i18n="暂不同意">暂不同意</button>
+</div></div>
+
+<!-- 易学闯关弹层 -->
+<div class="modal" id="quizModal"><div class="box" style="max-width:560px">
+  <div id="quizStart" style="text-align:center">
+    <div style="font-size:52px;margin:10px">🎮</div>
+    <h3 style="color:var(--gold);margin-bottom:6px" data-i18n="🧩 易学闯关">🧩 易学闯关</h3>
+    <p id="quizStartInfo" style="color:var(--sub);font-size:13px;margin-bottom:16px" data-i18n="加载中...">加载中...</p>
+    <button class="btn" style="background:var(--gold);color:var(--bg)" onclick="startQuiz()" data-i18n="🎯 开始挑战">🎯 开始挑战</button>
+    <button class="btn" style="background:var(--c2);color:var(--sub);margin-top:8px" onclick="closeQuiz()" data-i18n="取消">取消</button>
+  </div>
+  <div id="quizPlay" style="display:none">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <span id="quizProgress" style="color:var(--gold);font-weight:700;font-size:13px" data-i18n="第 1 / 5 题">第 1 / 5 题</span>
+      <span id="quizTimer" style="color:var(--gold);font-weight:800;font-size:15px;background:var(--c2);padding:3px 10px;border-radius:14px">⏱ 30s</span>
+      <span id="quizDiffBadge" style="color:var(--sub);font-size:12px"></span>
+    </div>
+    <h3 id="quizQuestion" style="font-size:17px;margin-bottom:14px;line-height:1.5"></h3>
+    <div id="quizOptions"></div>
+  </div>
+  <div id="quizResult" style="display:none;text-align:center">
+    <div id="quizResultEmoji" style="font-size:52px;margin:10px">🎉</div>
+    <h3 id="quizResultTitle" style="color:var(--gold);margin-bottom:8px"></h3>
+    <p id="quizResultDetail" style="color:var(--sub);font-size:13px;margin-bottom:6px"></p>
+    <p id="quizResultReward" style="color:var(--gold);font-size:18px;font-weight:800;margin-bottom:14px"></p>
+    <div id="quizResultExplain" style="text-align:left;max-height:200px;overflow-y:auto;margin-bottom:14px"></div>
+    <div id="quizShareBox" style="display:none;margin-bottom:12px">
+      <div style="font-size:12px;color:var(--sub);margin-bottom:6px" data-i18n="邀请好友一起来挑战易学闯关，好友通过你的邀请码注册，你将获得易币奖励 🎁">邀请好友一起来挑战易学闯关，好友通过你的邀请码注册，你将获得易币奖励 🎁</div>
+      <div id="usActionMount" style="display:flex;gap:10px"></div>
+      <button class="btn" style="width:100%;background:var(--c2);color:var(--gold);margin-top:8px" onclick="copyQuizLink()" data-i18n="🔗 复制邀请链接">🔗 复制邀请链接</button>
+    </div>
+    <button class="btn" style="background:transparent;border:1px solid var(--gold);color:var(--gold)" onclick="closeQuiz();refreshMe()" data-i18n="完成">完成</button>
+  </div>
+</div></div>
+
+<div class="modal" id="sharePosterModal"><div class="box" style="max-width:92vw;width:420px;max-height:88vh;overflow-y:auto">
+  <h3 data-i18n="📲 分享海报">📲 分享海报</h3>
+  <div id="sharePosterBody" style="text-align:center;min-height:80px;display:flex;align-items:center;justify-content:center"><div style="color:var(--sub)" data-i18n="生成中…">生成中…</div></div>
+  <div style="color:var(--sub);font-size:12px;margin:10px 0;line-height:1.6">长按图片保存 → 分享到微信朋友圈<br>海报底部带你的邀请码，好友注册你赚易币</div>
+  <button class="btn" style="background:transparent;border:1px solid var(--gold);color:var(--gold)" onclick="closeSharePoster()" data-i18n="關閉">關閉</button>
+  <button class="btn" style="background:transparent;border:1px solid var(--gold);color:var(--gold);margin-top:6px" onclick="closeSharePoster();if(history.length data-i18n="1)history.back();">← 返回上一頁">1)history.back();">← 返回上一頁</button>
+</div></div>
+
+<div class="modal" id="payModal"><div class="box">
+  <h3 data-i18n="💳 选择支付方式">💳 选择支付方式</h3>
+  <div style="color:var(--gold);font-weight:700;margin-bottom:4px" id="payTitle"></div>
+  <div style="color:var(--sub);font-size:12px;margin-bottom:10px" id="payDesc"></div>
+  <div id="payOptions" style="display:flex;flex-direction:column;gap:8px"></div>
+  
+  <button class="btn" style="background:var(--gold);color:var(--bg);margin-top:12px" onclick="confirmPay()" data-i18n="确认支付">确认支付</button>
+  <button class="btn" style="background:transparent;border:1px solid var(--gold);color:var(--gold);margin-top:8px" onclick="closePay()" data-i18n="取消">取消</button>
+</div></div>
+
+<script src="xuetang-main.js"></script>
+<script src="poster_bridge.js" defer></script>
+<script src="xuetang-i18n.js" defer></script>
+
+<script>
+/* 2026-10-30 性能：首屏不含卡片背景图，load 之后再加载，避免抢带宽 */
+(function(){
+  function go(){
+    try{document.documentElement.classList.add('imgs-ready');}catch(e){}
+  }
+  if(document.readyState==='complete'){ setTimeout(go,60); return; }
+  window.addEventListener('load', function(){
+    if(window.requestIdleCallback){ requestIdleCallback(go,{timeout:1200}); }
+    else { setTimeout(go,60); }
+  });
+  /* 兜底：若 load 迟迟不来（长视频/慢资源），3.5 秒后强制补图 */
+  setTimeout(go, 3500);
+})();
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"3acf279b45654da98b4c954385f9dcf1","r":1,"spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>

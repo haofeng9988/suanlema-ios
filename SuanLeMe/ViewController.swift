@@ -10,9 +10,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     /// 远程主站（仅用于用户主动点击的联网功能：登录/商城/排行/会员）
     /// 注意：启动时不加载它。首屏必须是内置本地游戏页，否则会被判 4.2 套壳网站。
     let remoteHomeURL = "https://tianji.matetechhk.com/xuetang"
-    /// 本地游戏首页（离线兜底，网络失败时使用）
-    let homeFileName = "home"
-    let gamesSubdir = "Games"
+    /// 首屏：App 内置的 1.9.2 原稿页面（与线上 /xuetang 逐字节一致）
+    /// 不再使用手写仿制页；图标/布局/文案全部来自生产模板本身。
+    let homeFileName = "index"
+    let gamesSubdir = "Games/xt192"
+    /// 原生接口转发目标（页面 file:// 下 Origin=null 会被生产 CORS 拒绝，故由原生代发）
+    let apiBase = "https://tianji.matetechhk.com"
     let loadingView = UIView()
     let activityIndicator = UIActivityIndicatorView(style: .large)
 
@@ -38,6 +41,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         config.defaultWebpagePreferences = prefs
         // IAP 桥：网页通过 window.webkit.messageHandlers.iap.postMessage(...) 调用原生内购
         config.userContentController.add(self, name: "iap")
+        // 接口桥：把页面里 fetch('/api/...') 转发给原生 URLSession，绕开 file:// 的 CORS 403
+        config.userContentController.add(self, name: "api")
+        config.userContentController.addUserScript(WKUserScript(source: Self.apiShimJS,
+                                                               injectionTime: .atDocumentStart,
+                                                               forMainFrameOnly: false))
 
         // 安全区：webView 顶部锚定 safeAreaLayoutGuide，全站统一让出刘海/动态岛/状态栏高度。
         // 原先 frame = view.bounds 让网页铺满全屏，是否被遮挡取决于各页 CSS 有没有写
@@ -106,12 +114,17 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     /// 加载 App 内置的本地游戏首页（离线可玩）
     private func loadLocalHome() {
         guard let url = Bundle.main.url(forResource: homeFileName, withExtension: "html", subdirectory: gamesSubdir) else {
-            // 兜底：直接找 bundle 根
+            // 兜底 1：旧的仿制首页（仅在 xt192 丢失时使用，避免白屏）
+            if let u = Bundle.main.url(forResource: "home", withExtension: "html", subdirectory: "Games") {
+                webView.loadFileURL(u, allowingReadAccessTo: u.deletingLastPathComponent())
+                return
+            }
+            // 兜底 2：bundle 根
             if let u = Bundle.main.url(forResource: homeFileName, withExtension: "html") {
                 webView.loadFileURL(u, allowingReadAccessTo: u.deletingLastPathComponent())
                 return
             }
-            NSLog("[wanleme] 找不到内置 home.html")
+            NSLog("[wanleme] 找不到内置首页 index.html")
             return
         }
         // 允许读取整个 Games 目录，保证本地相对跳转/资源可加载
@@ -214,9 +227,122 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         top.present(vc, animated: true, completion: nil)
     }
 
+    // MARK: - 接口桥：window.fetch('/api/...') -> 原生 URLSession -> 回填 Response
+    private static let apiShimJS = """
+    (function(){
+      if (window.__apiBridgeInstalled) return;
+      window.__apiBridgeInstalled = true;
+      var pending = {}, seq = 0;
+      window.__apiCallback = function(id, status, body){
+        var cb = pending[id]; if(!cb) return; delete pending[id];
+        var st = status || 200;
+        try { cb(new Response(body, {status: st, headers: {'Content-Type':'application/json; charset=utf-8'}})); }
+        catch(e){ try{ cb(new Response(body, {status: 200})); }catch(e2){} }
+      };
+      function originPrefix(u){
+        try { if (location.origin && u.indexOf(location.origin) === 0) return location.origin; } catch(e){}
+        return '';
+      }
+      function toApiPath(u){
+        try {
+          var p = originPrefix(u);
+          if (p && u.indexOf(p) === 0) u = u.slice(p.length);
+          if (location.protocol === 'file:') {
+            var abs = 'https://tianji.matetechhk.com';
+            if (u.indexOf(abs) === 0) u = u.slice(abs.length);
+          }
+        } catch(e){}
+        return u;
+      }
+      function shouldBridge(u){
+        try {
+          if (typeof u !== 'string') return false;
+          var q = toApiPath(u);
+          return q.indexOf('/api/') === 0;
+        } catch(e){ return false; }
+      }
+      var origFetch = window.fetch ? window.fetch.bind(window) : null;
+      window.fetch = function(input, init){
+        init = init || {};
+        var url = (typeof input === 'string') ? input : ((input && input.url) || '');
+        if (!shouldBridge(url)) {
+          if (origFetch) return origFetch(input, init);
+          return Promise.reject(new Error('fetch unavailable'));
+        }
+        var path = toApiPath(url);
+        var headers = {};
+        try {
+          if (init.headers) {
+            if (typeof init.headers.forEach === 'function' && !Array.isArray(init.headers)) {
+              init.headers.forEach(function(v,k){ headers[k] = v; });
+            } else { for (var k in init.headers) headers[k] = init.headers[k]; }
+          }
+        } catch(e){}
+        var bodyStr = null;
+        if (init.body !== null && init.body !== undefined && typeof init.body === 'string') bodyStr = init.body;
+        var id = 'r' + (++seq);
+        return new Promise(function(resolve, reject){
+          pending[id] = resolve;
+          try {
+            window.webkit.messageHandlers.api.postMessage({
+              id: id, path: path, method: (init.method || 'GET'), headers: headers, body: bodyStr
+            });
+          } catch(e){ delete pending[id]; reject(e); return; }
+          setTimeout(function(){ if (pending[id]) { delete pending[id]; reject(new Error('API_TIMEOUT')); } }, 30000);
+        });
+      };
+    })();
+    """
+
+    private func handleAPIRequest(_ dict: [String: Any]) {
+        let id = (dict["id"] as? String) ?? ""
+        let path = (dict["path"] as? String) ?? ""
+        let method = ((dict["method"] as? String) ?? "GET").uppercased()
+        let headers = (dict["headers"] as? [String: String]) ?? [:]
+        let body = dict["body"] as? String
+        guard !path.isEmpty, let url = URL(string: apiBase + path) else { return }
+
+        var req = URLRequest(url: url)
+        req.httpMethod = method
+        req.timeoutInterval = 25
+        for (k, v) in headers { req.setValue(v, forHTTPHeaderField: k) }
+        // 以站内来源发送，保证生产端 CORS/鉴权判断与浏览器一致
+        req.setValue(apiBase, forHTTPHeaderField: "Origin")
+        req.setValue(apiBase + "/", forHTTPHeaderField: "Referer")
+        if let body = body, !body.isEmpty {
+            req.httpBody = body.data(using: .utf8)
+            if req.value(forHTTPHeaderField: "Content-Type") == nil {
+                req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            }
+        }
+
+        URLSession.shared.dataTask(with: req) { [weak self] data, resp, err in
+            guard let self = self else { return }
+            let status = (resp as? HTTPURLResponse)?.statusCode ?? 0
+            if let err = err {
+                self.replyAPI(id, status: 0, body: "{\"ok\":false,\"error\":\"\(err.localizedDescription)\"}")
+                return
+            }
+            let text = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+            self.replyAPI(id, status: status, body: text)
+        }.resume()
+    }
+
+    private func replyAPI(_ id: String, status: Int, body: String) {
+        guard !id.isEmpty else { return }
+        DispatchQueue.main.async {
+            let js = "window.__apiCallback && window.__apiCallback(\(self.jsString(id)), \(status), \(self.jsString(body)))"
+            self.webView.evaluateJavaScript(js, completionHandler: nil)
+        }
+    }
+
     // MARK: - IAP 桥（window.webkit.messageHandlers.iap）
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
         guard let dict = message.body as? [String: Any] else { return }
+        if message.name == "api" {
+            handleAPIRequest(dict)
+            return
+        }
         let action = (dict["action"] as? String) ?? ""
         let callbackId = (dict["callbackId"] as? String) ?? ""
 
