@@ -10,10 +10,10 @@
   var GAMES = {
     millionaire: { name: '天机百万富翁', art: '💰', url: '/millionaire', cls: 'g-millionaire' },
     lingtian:    { name: '灵田天机',     art: '🌾', url: '/lingtian',    cls: 'g-lingtian' },
-    guacard:     { name: '天机卦卡',     art: '🃏', img: '/tool-icons/guacard-160.png?v=20261030p', url: '/guacard',     cls: 'g-guacard' },
-    xiuxing:     { name: '天机修行',     art: '🧘', img: '/tool-icons/xiuxing-160.png?v=20261030p', url: '/xiuxing',     cls: 'g-xiuxing' },
-    wuxing:      { name: '五行消消乐',   art: '🔮', img: '/tool-icons/wuxing-160.png?v=20261030p', url: '/wuxing',      cls: 'g-wuxing' },
-    bagua:       { name: '八卦解谜',     art: '☯',  img: '/tool-icons/bagua-160.png?v=20261030p', url: '/bagua',       cls: 'g-bagua' }
+    guacard:     { name: '天机卦卡',     art: '🃏', img: 'tool-icons/guacard-160.png?v=20261030p', url: '/guacard',     cls: 'g-guacard' },
+    xiuxing:     { name: '天机修行',     art: '🧘', img: 'tool-icons/xiuxing-160.png?v=20261030p', url: '/xiuxing',     cls: 'g-xiuxing' },
+    wuxing:      { name: '五行消消乐',   art: '🔮', img: 'tool-icons/wuxing-160.png?v=20261030p', url: '/wuxing',      cls: 'g-wuxing' },
+    bagua:       { name: '八卦解谜',     art: '☯',  img: 'tool-icons/bagua-160.png?v=20261030p', url: '/bagua',       cls: 'g-bagua' }
   };
   function pathToSlug(p) {
     p = (p || '').replace(/\/+$/, '');

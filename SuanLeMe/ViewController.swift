@@ -6,7 +6,10 @@ import StoreKit
 
 class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
 
-    let webView = WKWebView()
+    /// 必须在 setupWebView() 中用带 config 的方式创建：
+    /// 原先写成 `WKWebView()`，导致 userContentController / 注入脚本全部未生效，
+    /// 表现为登录接口 404/403、内购桥失效。
+    var webView: WKWebView!
     /// 远程主站（仅用于用户主动点击的联网功能：登录/商城/排行/会员）
     /// 注意：启动时不加载它。首屏必须是内置本地游戏页，否则会被判 4.2 套壳网站。
     let remoteHomeURL = "https://tianji.matetechhk.com/xuetang"
@@ -52,6 +55,7 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         // env(safe-area-inset-top)；实测 millionaire.html 顶部只有 padding-top:10px，
         // 标题和返回按钮直接顶进前置镜头区域。改由客户端统一处理，避免逐页修改。
         view.backgroundColor = UIColor(red: 0.10, green: 0.086, blue: 0.07, alpha: 1.0)
+        webView = WKWebView(frame: .zero, configuration: config)
         webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self
         webView.uiDelegate = self
