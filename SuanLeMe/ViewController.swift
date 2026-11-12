@@ -39,8 +39,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         // IAP 桥：网页通过 window.webkit.messageHandlers.iap.postMessage(...) 调用原生内购
         config.userContentController.add(self, name: "iap")
 
-        webView.frame = view.bounds
-        webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        // 安全区：webView 顶部锚定 safeAreaLayoutGuide，全站统一让出刘海/动态岛/状态栏高度。
+        // 原先 frame = view.bounds 让网页铺满全屏，是否被遮挡取决于各页 CSS 有没有写
+        // env(safe-area-inset-top)；实测 millionaire.html 顶部只有 padding-top:10px，
+        // 标题和返回按钮直接顶进前置镜头区域。改由客户端统一处理，避免逐页修改。
+        view.backgroundColor = UIColor(red: 0.10, green: 0.086, blue: 0.07, alpha: 1.0)
+        webView.translatesAutoresizingMaskIntoConstraints = false
         webView.navigationDelegate = self
         webView.uiDelegate = self
         webView.allowsBackForwardNavigationGestures = true
@@ -48,6 +52,21 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         webView.customUserAgent = "SuanLeMeApp/2.1 (iOS) wanleme"
         view.addSubview(webView)
+
+        // 顶部让出安全区；底部仍铺到屏幕底，保留各页 env(safe-area-inset-bottom) 的原有行为。
+        let constraints: [NSLayoutConstraint] = [
+            webView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            webView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            webView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            webView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ]
+        NSLayoutConstraint.activate(constraints)
+    }
+
+    /// 安全区发生变化（旋转、来电、动态岛状态切换）时重新布局，避免顶部间距失效。
+    override func viewSafeAreaInsetsDidChange() {
+        super.viewSafeAreaInsetsDidChange()
+        view.setNeedsLayout()
     }
 
     private func setupLoadingView() {
