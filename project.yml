@@ -18,7 +18,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suanleme.yixue.wanleme
         MARKETING_VERSION: "2.1.0"
-        CURRENT_PROJECT_VERSION: "6"
+        CURRENT_PROJECT_VERSION: "7"
         INFOPLIST_KEY_CFBundleDisplayName: "算了吗·易游"
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -30,6 +30,9 @@ targets:
     info:
       path: SuanLeMe/Info.plist
       properties:
+        # 只使用系统 HTTPS / WKWebView，属豁免范围；声明 false 避免每次构建
+        # 都停在 MISSING_EXPORT_COMPLIANCE（build 6 实测踩过）。
+        ITSAppUsesNonExemptEncryption: false
         UILaunchStoryboardName: ""
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
