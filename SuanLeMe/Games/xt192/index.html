@@ -567,7 +567,7 @@ body[data-theme="white"]{color-scheme:light}
     <div class="home-entry" onclick="openQuiz()"><div class="ring e1">🎯</div><div class="lb" data-i18n="每日挑战">每日挑战</div></div>
     <div class="home-entry" onclick="openEntry('checkin')"><div class="ring e2">🎁</div><div class="lb" data-i18n="entry_checkin">签到福利</div></div>
     <div class="home-entry" onclick="location.href='https://tianji.matetechhk.com/rank'"><div class="ring e3">🏆</div><div class="lb" data-i18n="排行榜">排行榜</div></div>
-    <div class="home-entry" onclick="openEntry('invite')"><div class="ring e4">💰</div><div class="lb" data-i18n="entry_invite">推广赚钱</div></div>
+    <div class="home-entry" onclick="openEntry('invite')"><div class="ring e4">💰</div><div class="lb" data-i18n="entry_invite">邀请福利</div></div>
     <div class="home-entry" onclick="goChar()"><div class="ring e5">🧑‍🎨</div><div class="lb" data-i18n="角色创造">角色创造</div></div>
   </div>
 
@@ -783,7 +783,7 @@ body[data-theme="white"]{color-scheme:light}
   </div>
 
   <div class="me-card" id="meInviteCard" style="display:none">
-    <div class="ch">🎁 <span data-i18n="me_promote">我的推广</span></div>
+    <div class="ch">🎁 <span data-i18n="me_promote">我的邀请</span></div>
     <div style="display:flex;align-items:center;gap:10px;padding:4px 0 2px">
       <div style="flex:1">
         <div style="font-size:12px;color:var(--sub)" data-i18n="invite_code">邀请码</div>
@@ -824,7 +824,8 @@ body[data-theme="white"]{color-scheme:light}
       <div class="li" onclick="showMyPanel('settings')"><span class="ic">👤</span><span class="txt" data-i18n="mi_profile">个人资料</span><span class="arrow">›</span></div>
       <div class="li" onclick="showMyPanel('kefu')"><span class="ic">💬</span><span class="txt" data-i18n="在线客服">在线客服</span><span class="arrow">›</span></div>
       <div class="li" onclick="location.href='https://tianji.matetechhk.com/contact'"><span class="ic">📞</span><span class="txt" data-i18n="contact_us">联系我们</span><span class="arrow">›</span></div>
-      <div class="li" onclick="location.href='../vip.html'"><span class="ic">💰</span><span class="txt" data-i18n="充值易币">充值易币</span><span class="arrow">›</span></div>
+      <div class="li" onclick="goVipCenter()"><span class="ic">👑</span><span class="txt" data-i18n="会员中心">会员中心</span><span class="arrow">›</span></div>
+      <div class="li" onclick="goRecharge()"><span class="ic">💰</span><span class="txt" data-i18n="充值">充值</span><span class="arrow">›</span></div>
       <div class="li" onclick="logoutMe()"><span class="ic">🚪</span><span class="txt" data-i18n="mi_logout">退出登录</span><span class="arrow">›</span></div>
     </div>
   </div>
@@ -1061,5 +1062,22 @@ body[data-theme="white"]{color-scheme:light}
 })();
 </script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/vce701823e78c4301a35b7e07294d87301792088814092" integrity="sha512-UKNk8GbxkABxKcXYuLkO16EleLGUkcvJWtpSNmExE0Too3ZaFAxTscNWEc1OdAv5/BikHawapSCaiD2XCmp+Bw==" data-cf-beacon='{"version":"2024.11.0","token":"3acf279b45654da98b4c954385f9dcf1","r":1,"spa":2}' crossorigin="anonymous"></script>
+<script>
+/* 充值入口：直达充值页（易币/工具能量包 双入口），失败兜底回充值页而非首页 */
+function goVipCenter(){
+  try { location.href = new URL('../vip.html#vip', location.href).href; }
+  catch(e){ location.href = '../vip.html'; }
+}
+function goRecharge(){
+  var target = '../vip.html';
+  try {
+    // 相对当前文档解析，兼容 file:// 与 http(s)://
+    var u = new URL(target, location.href).href;
+    location.href = u;
+  } catch(e){
+    location.href = target;
+  }
+}
+</script>
 </body>
 </html>

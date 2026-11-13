@@ -43,6 +43,23 @@ h2{font-size:15px;font-weight:800;color:var(--gold);margin:18px 16px 10px;letter
 .spin{display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.35);
  border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;vertical-align:-1px;margin-right:6px}
 @keyframes sp{to{transform:rotate(360deg)}}
+.entries{display:flex;gap:10px;margin:0 16px 6px}
+.ecard{flex:1;background:linear-gradient(160deg,rgba(212,175,55,.14),rgba(212,175,55,.04));
+ border:1px solid rgba(212,175,55,.45);border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer}
+.ecard:active{transform:scale(.98)}
+.ecard .eic{font-size:24px;line-height:1.2}
+.ecard .et{font-size:14px;font-weight:700;color:#f5d06f;margin-top:6px}
+.ecard .ed{font-size:11px;color:#9a8a6a;margin-top:5px;line-height:1.5}
+.daily{font-size:12px;color:#9a8a6a;margin-top:2px}
+.expire{margin:0 16px 10px;padding:10px 12px;border-radius:10px;font-size:13px;
+ background:rgba(63,157,90,.14);border:1px solid rgba(63,157,90,.45);color:#9fe0b0}
+.expire.warn{background:rgba(193,67,47,.14);border-color:rgba(193,67,47,.5);color:#f0a99c}
+.rmask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:999;
+ align-items:center;justify-content:center;padding:24px}
+.rbox{background:#1b1710;border:1px solid rgba(212,175,55,.5);border-radius:14px;
+ padding:20px 18px;width:100%;max-width:320px;text-align:center}
+.rtitle{font-size:16px;font-weight:700;color:#f5d06f;margin-bottom:10px}
+.rtext{font-size:13px;color:#cfc3a6;line-height:1.6;margin-bottom:16px}
 </style>
 </head>
 <body>
@@ -54,11 +71,27 @@ h2{font-size:15px;font-weight:800;color:var(--gold);margin:18px 16px 10px;letter
 
   <div id="msg" class="msg"></div>
 
-  <h2>會員方案</h2>
+  <h2>充值</h2>
+  <div class="entries">
+    <div class="ecard" onclick="jumpTo('secYibi')">
+      <div class="eic">💰</div>
+      <div class="et">易幣充值</div>
+      <div class="ed">遊戲通用貨幣<br>可用於多種玩法</div>
+    </div>
+    <div class="ecard" onclick="jumpTo('secTool')">
+      <div class="eic">⚡</div>
+      <div class="et">工具能量包</div>
+      <div class="ed">天機工具使用<br>按次或包年</div>
+    </div>
+  </div>
+
+  <h2 id="vip">會員方案</h2>
+  <div class="expire" id="vipExpire" style="display:none"></div>
 
   <div class="tier" id="tierMonth">
     <div class="name">會員月卡</div>
     <div class="price" id="priceMonth">—</div>
+    <div class="daily" id="dailyMonth"></div>
     <div class="fate">
       · 每月贈 <b>500 易幣</b><br>
       · 每月贈 <b>5 次</b>工具使用額度（30 天內有效）<br>
@@ -71,6 +104,7 @@ h2{font-size:15px;font-weight:800;color:var(--gold);margin:18px 16px 10px;letter
     <div class="tag">推薦</div>
     <div class="name">尊享年卡</div>
     <div class="price" id="priceYear">—</div>
+    <div class="daily" id="dailyYear"></div>
     <div class="fate">
       · 立即贈 <b>3000 易幣</b><br>
       · 贈 <b>60 次</b>工具使用額度（一年內有效）<br>
@@ -79,10 +113,10 @@ h2{font-size:15px;font-weight:800;color:var(--gold);margin:18px 16px 10px;letter
     <button class="btn" id="btnYear" onclick="buy('year')">訂閱年卡</button>
   </div>
 
-  <h2>工具能量包</h2>
+  <h2 id="secTool">工具能量包</h2>
   <div id="toolList"></div>
 
-  <h2>易幣加購</h2>
+  <h2 id="secYibi">易幣加購</h2>
   <div id="yibiList"></div>
 
   <button class="btn ghost" style="margin:16px" onclick="restore()">恢復購買</button>
@@ -91,6 +125,15 @@ h2{font-size:15px;font-weight:800;color:var(--gold);margin:18px 16px 10px;letter
     訂閱將透過 App Store 自動續期，帳單會在當前訂閱期結束前 24 小時內扣款。<br>
     可於 iOS「設定 → Apple ID → 訂閱項目」中隨時取消。<br>
     <a onclick="openRemote('/privacy')">隱私政策</a> · <a onclick="openRemote('/terms')">服務條款</a>
+  </div>
+</div>
+
+<div id="renewMask" class="rmask">
+  <div class="rbox">
+    <div class="rtitle">会员即将到期</div>
+    <div class="rtext" id="renewTxt"></div>
+    <button class="btn" onclick="goRenew()">立即续订</button>
+    <button class="btn ghost" onclick="closeRenew()">稍后再说</button>
   </div>
 </div>
 
@@ -117,6 +160,10 @@ function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function tok(){ try{ return localStorage.getItem('yx_tk')||''; }catch(e){ return ''; } }
 function backHome(){ location.href='home.html'; }
+function jumpTo(id){
+  var el = document.getElementById(id);
+  if (el){ el.scrollIntoView({behavior:'smooth', block:'start'}); }
+}
 function openRemote(p){ if(p) location.href = REMOTE + p; }
 
 function showMsg(text, kind){
@@ -161,8 +208,14 @@ function loadProducts(){
     var map = {};
     r.products.forEach(function(p){ map[p.id] = p; });
 
-    if (map[PID.month]){ $('priceMonth').textContent = fmtPrice(map[PID.month]) + ' / 月'; }
-    if (map[PID.year]){ $('priceYear').textContent = fmtPrice(map[PID.year]) + ' / 年'; }
+    if (map[PID.month]){
+      $('priceMonth').textContent = fmtPrice(map[PID.month]) + ' / 月';
+      showDaily('dailyMonth', map[PID.month], 30);
+    }
+    if (map[PID.year]){
+      $('priceYear').textContent = fmtPrice(map[PID.year]) + ' / 年';
+      showDaily('dailyYear', map[PID.year], 365);
+    }
 
     var tbox = $('toolList');
     tbox.innerHTML = '';
@@ -193,6 +246,75 @@ function loadProducts(){
       box.appendChild(row);
     });
   });
+}
+
+/* ---------- 日均价 ---------- */
+function numPrice(p){
+  if (!p) return NaN;
+  if (typeof p.price === 'number') return p.price;
+  var m = String(p.displayPrice || '').replace(/[^0-9.,]/g,'').replace(/,/g,'');
+  return parseFloat(m);
+}
+function showDaily(elId, p, days){
+  var el = $(elId); if (!el) return;
+  var v = numPrice(p);
+  if (!isFinite(v) || v <= 0){ el.textContent = ''; return; }
+  var per = v / days;
+  var sym = String(p.displayPrice || '').replace(/[0-9.,\s]/g,'') || '';
+  var txt = '每天僅需 ' + sym + per.toFixed(3);
+  if (days > 31){ txt += '（約 ' + sym + (per*30).toFixed(2) + '/月）'; }
+  el.textContent = txt;
+  el.style.display = 'block';
+}
+
+/* ---------- 会员到期提醒 ---------- */
+var _vipExpire = '';
+var _remindShown = false;
+function loadVipExpire(){
+  if (!tok()) return;
+  fetch(API + '/api/me', {headers:{'X-Token': tok()}, credentials:'include'})
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      var u = d && d.user;
+      if (!u) return;
+      _vipExpire = u.vip_expire || '';
+      var lv = u.vip || 0;
+      if (!_vipExpire || lv <= 0) return;
+      var end = new Date(String(_vipExpire).replace(/-/g,'/'));
+      if (isNaN(end.getTime())) return;
+      var msLeft = end.getTime() - Date.now();
+      var left = Math.floor(msLeft / 86400000);
+      var box = $('vipExpire');
+      if (!box) return;
+      box.style.display = 'block';
+      if (msLeft <= 0){
+        box.className = 'expire warn';
+        box.textContent = '会员已到期（' + String(_vipExpire).slice(0,10) + '），续订后继续享用权益';
+      } else {
+        var soon = msLeft <= 3 * 86400000;   // 到期前 3 天内
+        box.className = soon ? 'expire warn' : 'expire';
+        box.textContent = (lv >= 2 ? '年卡会员' : '月卡会员') + '有效期至 ' + String(_vipExpire).slice(0,10) +
+                          '（剩 ' + (left > 0 ? left + ' 天' : '不到 1 天') + '）';
+        if (soon && !_remindShown){
+          _remindShown = true;
+          setTimeout(function(){ showRenewDialog(left); }, 600);
+        }
+      }
+    }).catch(function(){});
+}
+function showRenewDialog(left){
+  var box = $('renewMask');
+  if (!box) return;
+  box.style.display = 'flex';
+  var t = (left > 0) ? ('您的会员将在 ' + left + ' 天后到期，是否续订？')
+                     : '您的会员将于今天到期，是否续订？';
+  $('renewTxt').textContent = t;
+}
+function closeRenew(){ var b=$('renewMask'); if(b) b.style.display='none'; }
+function goRenew(){
+  closeRenew();
+  var box = $('tierMonth');
+  if (box) box.scrollIntoView({behavior:'smooth', block:'center'});
 }
 
 /* ---------- 购买 → 交给服务端验单发货 ---------- */
@@ -279,6 +401,7 @@ document.addEventListener('DOMContentLoaded', function(){
     showMsg('此頁面需在 App 內使用。', 'err');
   } else {
     loadProducts();
+    loadVipExpire();
   }
 });
 </script>

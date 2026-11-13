@@ -1013,7 +1013,7 @@ function panelSettingsHub(){
     li('📋','版本日志',"closePanel();showMyPanel('changelog')"),
     li('💬','在线客服',"closePanel();showMyPanel('kefu')"),
     li('📞','联系我们',"location.href='https://tianji.matetechhk.com/contact'"),
-    li('💰','充值易币',"location.href='../vip.html'"),
+    li('💰','充值',"location.href='../vip.html'"),
     li('🚪','退出登录','logoutMe()'),
     li('⚠️','<span style="color:var(--red)">注销账号</span>',"closePanel();showMyPanel('deleteAccount')")
   ];
