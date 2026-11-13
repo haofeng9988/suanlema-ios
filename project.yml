@@ -18,7 +18,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suanleme.yixue.wanleme
         MARKETING_VERSION: "2.1.0"
-        CURRENT_PROJECT_VERSION: "13"
+        CURRENT_PROJECT_VERSION: "14"
         INFOPLIST_KEY_CFBundleDisplayName: "算了吗·易游"
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -33,6 +33,9 @@ targets:
         # 只使用系统 HTTPS / WKWebView，属豁免范围；声明 false 避免每次构建
         # 都停在 MISSING_EXPORT_COMPLIANCE（build 6 实测踩过）。
         ITSAppUsesNonExemptEncryption: false
+        # 保存分享海报到相册（原生写入，避免 WebView 处理 data: 大图闪退）
+        NSPhotoLibraryAddUsageDescription: "保存游戏分享海报到相册"
+        NSPhotoLibraryUsageDescription: "保存游戏分享海报到相册"
         UILaunchStoryboardName: ""
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait

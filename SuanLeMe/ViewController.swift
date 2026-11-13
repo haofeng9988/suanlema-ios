@@ -1,5 +1,6 @@
 import UIKit
 import WebKit
+import Photos
 #if canImport(StoreKit)
 import StoreKit
 #endif
@@ -46,6 +47,12 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         config.userContentController.add(self, name: "iap")
         // 接口桥：把页面里 fetch('/api/...') 转发给原生 URLSession，绕开 file:// 的 CORS 403
         config.userContentController.add(self, name: "api")
+        // 媒体桥：为 iOS 补上 AndroidApp.saveImage / shareImage 同签名接口，
+        // 保存海报交给原生相册写入，避免 WebView 处理 data: 大图导致闪退
+        config.userContentController.add(self, name: "media")
+        config.userContentController.addUserScript(WKUserScript(source: Self.mediaShimJS,
+                                                               injectionTime: .atDocumentStart,
+                                                               forMainFrameOnly: false))
         config.userContentController.addUserScript(WKUserScript(source: Self.apiShimJS,
                                                                injectionTime: .atDocumentStart,
                                                                forMainFrameOnly: false))
@@ -231,6 +238,73 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         top.present(vc, animated: true, completion: nil)
     }
 
+    // MARK: - 媒体桥：iOS 实现 AndroidApp 同签名（saveImage / shareImage / getBridgeVersion）
+    private static let mediaShimJS = """
+    (function(){
+      if (window.AndroidApp) return;
+      function post(p){ try { window.webkit.messageHandlers.media.postMessage(p); } catch(e){} }
+      window.AndroidApp = {
+        getBridgeVersion: function(){ return 3; },
+        saveImage: function(dataUri, name){ post({action:'saveImage', dataUri:String(dataUri||''), name:String(name||'')}); },
+        shareImage: function(dataUri, name){ post({action:'shareImage', dataUri:String(dataUri||''), name:String(name||'')}); }
+      };
+    })();
+    """
+
+    private func imageFromDataUri(_ uri: String) -> UIImage? {
+        guard let comma = uri.firstIndex(of: ",") else { return nil }
+        let b64 = String(uri[uri.index(after: comma)...])
+        guard let data = Data(base64Encoded: b64, options: .ignoreUnknownCharacters) else { return nil }
+        return UIImage(data: data)
+    }
+
+    private func handleMedia(_ dict: [String: Any]) {
+        let action = (dict["action"] as? String) ?? ""
+        let dataUri = (dict["dataUri"] as? String) ?? ""
+        let name = (dict["name"] as? String) ?? ""
+        switch action {
+        case "saveImage": saveImageToAlbum(dataUri, name: name)
+        case "shareImage": shareImageNative(dataUri, name: name)
+        default: break
+        }
+    }
+
+    private func saveImageToAlbum(_ dataUri: String, name: String) {
+        guard let img = imageFromDataUri(dataUri) else {
+            showToast("海报保存失败：图片解析异常")
+            return
+        }
+        PHPhotoLibrary.requestAuthorization(for: .addOnly) { [weak self] status in
+            guard let self = self else { return }
+            guard status == .authorized || status == .limited else {
+                DispatchQueue.main.async { self.showToast("请在系统设置中允许「算了吗·易游」保存图片") }
+                return
+            }
+            PHPhotoLibrary.shared().performChanges({
+                PHAssetChangeRequest.creationRequestForAsset(from: img)
+            }) { ok, err in
+                DispatchQueue.main.async {
+                    self.showToast(ok ? "已保存到相册" : "保存失败：\(err?.localizedDescription ?? "未知错误")")
+                }
+            }
+        }
+    }
+
+    private func shareImageNative(_ dataUri: String, name: String) {
+        guard let img = imageFromDataUri(dataUri) else {
+            showToast("海报分享失败：图片解析异常")
+            return
+        }
+        let vc = UIActivityViewController(activityItems: [img], applicationActivities: nil)
+        presentOnTop(vc)
+    }
+
+    private func showToast(_ text: String) {
+        let alert = UIAlertController(title: nil, message: text, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "好", style: .default))
+        presentOnTop(alert)
+    }
+
     // MARK: - 接口桥：window.fetch('/api/...') -> 原生 URLSession -> 回填 Response
     private static let apiShimJS = """
     (function(){
@@ -345,6 +419,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         guard let dict = message.body as? [String: Any] else { return }
         if message.name == "api" {
             handleAPIRequest(dict)
+            return
+        }
+        if message.name == "media" {
+            handleMedia(dict)
             return
         }
         let action = (dict["action"] as? String) ?? ""

@@ -164,7 +164,7 @@
   }
   function loginGate(msg) {
     if (_gateActive && document.getElementById('lgGate')) return;
-    _gateActive = true;    try { sessionStorage.setItem('__login_back', location.pathname + location.search + location.hash); } catch (e) {}
+    _gateActive = true;    try { if (/^https?:/.test(location.protocol)) sessionStorage.setItem('__login_back', location.href); } catch (e) {}
     try { global.alert = _realAlert; } catch (e) {}
     try { clearTimeout(_alertTimer); } catch (e) {}
     // 学堂页：直接弹其自带登录框

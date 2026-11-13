@@ -294,7 +294,7 @@ function startBannerTimer(){
 function bannerClick(){
   if(!COURSE_ONLINE){currentCat='';renderCats();showCourseSoon('course_soon','');try{window.scrollTo({top:0,behavior:'smooth'});}catch(e){}return;}
   let b=_banners[_bIdx];
-  if(b.url){location.href=b.url;return;}
+  if(b.url){var _u=b.url;if(_u.charAt(0)==='/')_u='https://tianji.matetechhk.com'+_u;location.href=_u;return;}
   if(b.cat){setCat(b.cat);}
 }
 
@@ -674,6 +674,7 @@ function afterLoginBack(){
   let back=(()=>{try{return sessionStorage.getItem('__login_back')||'';}catch(e){return '';}})();
   if(!back)return;
   try{sessionStorage.removeItem('__login_back');}catch(e){}
+  if(!/^https?:/i.test(back))return; // file:// 内置页无有效来源，避免跳到无效地址
   if(back.indexOf('/xuetang')===0)return; // 本页即学堂，无需跳转
   location.href=back;
 }

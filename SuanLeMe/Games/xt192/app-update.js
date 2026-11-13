@@ -10,6 +10,7 @@
   window.__appUpdateLoaded = true;
 
   var ua = navigator.userAgent || '';
+  if (/\(iOS\)|iPhone|iPad/.test(ua)) return;  // iOS 走 App Store 更新，不弹网页更新引导
   if (ua.indexOf('SuanLeMeApp/') < 0) return;   // 非 App 内，忽略
 
   // 从 UA 解析当前壳版本与 versionCode
