@@ -809,7 +809,8 @@ async function refreshMe(){
   USER=r.user;
   document.getElementById('meName').textContent=USER.name||USER.phone||'会员';
   document.getElementById('meAvatar').textContent=(USER.name||'算').charAt(0);
-  let vipMap={0:['普通会员','#9a8a6a'],1:['VIP','#d4af37'],2:['SVIP','#c9a94e'],3:['黑卡','#5a4a2a']};
+  /* 2026-11-13 老板三层体系：0=游客 / 1=VIP(月卡年卡) / 3=黑卡($99.99工具包) */
+  let vipMap={0:['游客','#9a8a6a'],1:['VIP会员','#d4af37'],2:['VIP会员','#d4af37'],3:['黑卡会员','#5a4a2a']};
   let [vn,vc]=vipMap[USER.vip]||vipMap[0];
   let vb=document.getElementById('meVip');
   vb.textContent=vn;vb.style.display='inline-block';vb.style.background=vc;

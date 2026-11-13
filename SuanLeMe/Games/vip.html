@@ -152,7 +152,7 @@ var YIBI = [
 /* 工具能量包（2026-11-13 老板定价方案） */
 var TOOLPACK = [
   {id:'com.suanleme.yixue.tool.60', n:'60 次', d:'不限時，用完為止'},
-  {id:'com.suanleme.yixue.tool.unlimited.year', n:'一年無限次', d:'有效期 365 天'}
+  {id:'com.suanleme.yixue.tool.unlimited.year', n:'一年無限次', d:'有效期 365 天 · 購買即升黑卡會員', black:true}
 ];
 
 function $(id){ return document.getElementById(id); }
@@ -293,7 +293,7 @@ function loadVipExpire(){
       } else {
         var soon = msLeft <= 3 * 86400000;   // 到期前 3 天内
         box.className = soon ? 'expire warn' : 'expire';
-        box.textContent = (lv >= 2 ? '年卡会员' : '月卡会员') + '有效期至 ' + String(_vipExpire).slice(0,10) +
+        box.textContent = (lv >= 3 ? '黑卡会员' : 'VIP会员') + '有效期至 ' + String(_vipExpire).slice(0,10) +
                           '（剩 ' + (left > 0 ? left + ' 天' : '不到 1 天') + '）';
         if (soon && !_remindShown){
           _remindShown = true;
