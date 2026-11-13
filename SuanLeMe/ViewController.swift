@@ -175,12 +175,30 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
         // 站内远程域名（联网功能：排行榜/账号等）在 WebView 打开
         if let host = url.host, allowedHosts.contains(host) {
+            // Apple 3.1.1：App 内不得出现网页现金/充值入口。
+            // 线上页面（如内置页链接、用户从其它页面点进来）的 /pay/* 统一拦下，
+            // 改写为加载 App 内置内购页 vip.html，确保数字商品只走 StoreKit。
+            let path = url.path
+            if path.hasPrefix("/pay/") {
+                decisionHandler(.cancel)
+                loadBundledIAPPage()
+                return
+            }
             decisionHandler(.allow)
             return
         }
         // 站外（支付/电话/邮件/外部网页）唤起系统
         UIApplication.shared.open(url, options: [:], completionHandler: nil)
         decisionHandler(.cancel)
+    }
+
+    /// 加载 App 内置内购页（3.1.1：替代网页充值入口）
+    private func loadBundledIAPPage() {
+        guard let u = Bundle.main.url(forResource: "vip", withExtension: "html", subdirectory: "Games") else {
+            NSLog("[wanleme] 找不到内置 vip.html")
+            return
+        }
+        webView.loadFileURL(u, allowingReadAccessTo: u.deletingLastPathComponent())
     }
 
     // MARK: - 支持 window.open（新窗口打开则当前页加载）

@@ -72,12 +72,15 @@ h2{font-size:15px;font-weight:800;color:var(--gold);margin:18px 16px 10px;letter
     <div class="name">尊享年卡</div>
     <div class="price" id="priceYear">—</div>
     <div class="fate">
-      · 立即贈 <b>10000 易幣</b><br>
-      · 工具 <b>一年內無限次</b>使用<br>
+      · 立即贈 <b>3000 易幣</b><br>
+      · 贈 <b>60 次</b>工具使用額度（一年內有效）<br>
       · 每年自動續期，可隨時取消
     </div>
     <button class="btn" id="btnYear" onclick="buy('year')">訂閱年卡</button>
   </div>
+
+  <h2>工具能量包</h2>
+  <div id="toolList"></div>
 
   <h2>易幣加購</h2>
   <div id="yibiList"></div>
@@ -102,7 +105,14 @@ var YIBI = [
   {id:'com.suanleme.yixue.yibi.100',  n:100},
   {id:'com.suanleme.yixue.yibi.500',  n:500},
   {id:'com.suanleme.yixue.yibi.1000', n:1000},
-  {id:'com.suanleme.yixue.yibi.3000', n:3000}
+  {id:'com.suanleme.yixue.yibi.3000', n:3000},
+  {id:'com.suanleme.yixue.yibi.10000', n:10000},
+  {id:'com.suanleme.yixue.yibi.20000', n:20000}
+];
+/* 工具能量包（2026-11-13 老板定价方案） */
+var TOOLPACK = [
+  {id:'com.suanleme.yixue.tool.60', n:'60 次', d:'不限時，用完為止'},
+  {id:'com.suanleme.yixue.tool.unlimited.year', n:'一年無限次', d:'有效期 365 天'}
 ];
 
 function $(id){ return document.getElementById(id); }
@@ -146,7 +156,9 @@ function fmtPrice(p){
   return '';
 }
 function loadProducts(){
-  var ids = [PID.month, PID.year].concat(YIBI.map(function(x){ return x.id; }));
+  var ids = [PID.month, PID.year]
+    .concat(TOOLPACK.map(function(x){ return x.id; }))
+    .concat(YIBI.map(function(x){ return x.id; }));
   iapCall({action:'products', ids: ids}).then(function(r){
     if (!r || r.status !== 'success' || !r.products){ return; }
     var map = {};
@@ -154,6 +166,21 @@ function loadProducts(){
 
     if (map[PID.month]){ $('priceMonth').textContent = fmtPrice(map[PID.month]) + ' / 月'; }
     if (map[PID.year]){ $('priceYear').textContent = fmtPrice(map[PID.year]) + ' / 年'; }
+
+    var tbox = $('toolList');
+    tbox.innerHTML = '';
+    TOOLPACK.forEach(function(item){
+      var p = map[item.id];
+      if (!p) return;
+      var row = document.createElement('div');
+      row.className = 'tier';
+      row.innerHTML = '<div class="name">工具 ' + esc(item.n) + '</div>' +
+        '<div class="price">' + esc(fmtPrice(p)) + '</div>' +
+        '<div class="fate" style="font-size:12px;color:#9a8a6a">' + esc(item.d) + '</div>' +
+        '<button class="btn" data-pid="' + item.id + '">購買</button>';
+      row.querySelector('button').onclick = function(){ purchase(item.id, this); };
+      tbox.appendChild(row);
+    });
 
     var box = $('yibiList');
     box.innerHTML = '';
