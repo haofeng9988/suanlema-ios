@@ -142,17 +142,62 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             NSLog("[wanleme] 找不到内置首页 index.html")
             return
         }
-        // 允许读取整个 Games 目录，保证本地相对跳转/资源可加载
-        let dir = url.deletingLastPathComponent()
+        // 授权整个 Games 目录（而非仅 xt192 子目录）：
+        // 首页在 Games/xt192/，充值/会员页在上一层 Games/vip.html，
+        // 若只授权 xt192，跳 ../vip.html 会越权失败 → 触发 didFailProvisionalNavigation
+        // 兜底回首页，表现为「点充值/会员中心跳到游戏主页」。
+        // 向上取到 Games/（含 xt192、tool-icons、vip.html 等全部本地资源）。
+        var dir = url.deletingLastPathComponent()          // Games/xt192
+        if dir.lastPathComponent == "xt192" {
+            dir = dir.deletingLastPathComponent()          // Games
+        }
         webView.loadFileURL(url, allowingReadAccessTo: dir)
     }
 
     // MARK: - WKNavigationDelegate
     func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
-        if webView.url?.scheme == "https" { loadLocalHome() }
+        handleNavFailure(error)
     }
     func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
-        loadLocalHome()
+        handleNavFailure(error)
+    }
+
+    /// 导航失败统一处理：本地页面失败不再静默回首页。
+    /// 原逻辑无差别 loadLocalHome()，于是「充值 / 会员中心」一旦导航失败，
+    /// 用户看到的就是游戏主页，误判为入口被重定向。
+    private func handleNavFailure(_ error: Error) {
+        let ns = error as NSError
+        // 主动取消（decidePolicy 拦截、重定向）不算失败
+        if ns.domain == NSURLErrorDomain && ns.code == NSURLErrorCancelled { return }
+        let current = webView.url
+        // 远程站点不可用（断网/服务异常）→ 回本地首页，保证离线可玩
+        if current?.isFileURL == false {
+            loadLocalHome()
+            return
+        }
+        // 本地页面导航失败：留在当前页 + 明确提示，绝不静默跳回游戏主页
+        NSLog("[wanleme] 本地导航失败: \(ns.code) \(ns.localizedDescription) url=\(current?.absoluteString ?? "-")")
+        showNavFailureTip()
+    }
+
+    private func showNavFailureTip() {
+        let js = """
+        (function(){
+          try{
+            var old=document.getElementById('__navfail'); if(old) old.remove();
+            var d=document.createElement('div');
+            d.id='__navfail';
+            d.textContent='页面打开失败，请重试';
+            d.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);'+
+              'background:rgba(0,0,0,.88);color:#f5d06f;padding:14px 20px;border-radius:12px;'+
+              'font-size:15px;z-index:2147483647;border:1px solid rgba(212,175,55,.55);'+
+              'box-shadow:0 8px 28px rgba(0,0,0,.6)';
+            (document.body||document.documentElement).appendChild(d);
+            setTimeout(function(){ if(d&&d.parentNode) d.parentNode.removeChild(d); },2600);
+          }catch(e){}
+        })();
+        """
+        webView.evaluateJavaScript(js, completionHandler: nil)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
