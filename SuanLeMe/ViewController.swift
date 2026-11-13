@@ -53,6 +53,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         config.userContentController.addUserScript(WKUserScript(source: Self.mediaShimJS,
                                                                injectionTime: .atDocumentStart,
                                                                forMainFrameOnly: false))
+        // 兼容修补：只对线上页面生效（内置首页除外），修生产页面自身的缺陷，不改服务器
+        config.userContentController.addUserScript(WKUserScript(source: Self.sitePatchCSSJS,
+                                                               injectionTime: .atDocumentEnd,
+                                                               forMainFrameOnly: true))
         config.userContentController.addUserScript(WKUserScript(source: Self.apiShimJS,
                                                                injectionTime: .atDocumentStart,
                                                                forMainFrameOnly: false))
@@ -237,6 +241,30 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
         top.present(vc, animated: true, completion: nil)
     }
+
+    // MARK: - 兼容修补：修生产页面自身的适配缺陷（仅在 App 内生效，不改服务器代码）
+    /// 1) 灵田天机底部「仓库/商店/偷菜」在短屏被裁：线上用 position:relative + margin-top:-14px，
+    ///    父级 .canvas-wrap 高度 100vh 且 overflow:hidden，底栏被推出视口外（已实测：iPhone SE 被裁 38px）。
+    ///    App 内改为固定在安全区内。
+    /// 2) 游戏页返回按钮热区仅 49x23，不足 44x44，改为扩大热区（不改位置与文案）。
+    private static let sitePatchCSSJS = """
+    (function(){
+      try {
+        var host = (location.host || '');
+        if (host.indexOf('tianji.matetechhk.com') < 0) return;   // 仅线上页面
+        var css = ''
+          + '.lt5-plates{position:fixed !important;left:auto !important;right:12px !important;'
+          + 'bottom:calc(8px + env(safe-area-inset-bottom,0px)) !important;'
+          + 'margin-top:0 !important;z-index:20 !important}'
+          + 'a[href*="#tianji"]{display:inline-flex !important;align-items:center !important;'
+          + 'min-height:44px !important;min-width:44px !important;padding:0 10px !important;margin:-10px 0 !important}';
+        var st = document.createElement('style');
+        st.id = '__ios_site_patch';
+        st.textContent = css;
+        (document.head || document.documentElement).appendChild(st);
+      } catch(e){}
+    })();
+    """
 
     // MARK: - 媒体桥：iOS 实现 AndroidApp 同签名（saveImage / shareImage / getBridgeVersion）
     private static let mediaShimJS = """
