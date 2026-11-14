@@ -23,6 +23,13 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     let loadingView = UIView()
     let activityIndicator = UIActivityIndicatorView(style: .large)
 
+    // 2026-11-14：登录态跨页面共享。
+    // 内置页用 loadFileURL 加载（file://），与远程站点 localStorage 不同源，
+    // 导致内置 vip.html 取不到 yx_tk → /api/iap/verify 401 → 付款后不发货。
+    // 由原生统一持有 token：页面登录时上报、API 转发时自动补 X-Token、打开页面时回灌。
+    let authTokenKey = "yx_tk"
+    var authToken: String = (UserDefaults.standard.string(forKey: "yx_tk") ?? "")
+
     // 允许站内跳转的远程域名（仅用于联网功能，如排行榜/账号；离线游戏不依赖）
     let allowedHosts: Set<String> = ["tianji.matetechhk.com"]
 
@@ -50,6 +57,11 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         // 媒体桥：为 iOS 补上 AndroidApp.saveImage / shareImage 同签名接口，
         // 保存海报交给原生相册写入，避免 WebView 处理 data: 大图导致闪退
         config.userContentController.add(self, name: "media")
+        // 登录态桥：documentStart 时页面上报自身 token，原生据此学习或回灌
+        config.userContentController.add(self, name: "auth")
+        config.userContentController.addUserScript(WKUserScript(source: Self.authShimJS,
+                                                               injectionTime: .atDocumentStart,
+                                                               forMainFrameOnly: true))
         config.userContentController.addUserScript(WKUserScript(source: Self.mediaShimJS,
                                                                injectionTime: .atDocumentStart,
                                                                forMainFrameOnly: false))
@@ -463,6 +475,21 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     })();
     """
 
+    /// 页面打开时上报自身 token：
+    /// - 页面有 token → 原生学习（远程登录后同步给内置页）
+    /// - 页面没有 → 原生回灌（内置页复用已有登录态）
+    private func handleAuth(_ dict: [String: Any]) {
+        let pageTok = (dict["token"] as? String) ?? ""
+        if !pageTok.isEmpty {
+            authToken = pageTok
+            UserDefaults.standard.set(pageTok, forKey: authTokenKey)
+            return
+        }
+        guard !authToken.isEmpty else { return }
+        let js = "try{localStorage.setItem('yx_tk', \(jsString(authToken)));window.__nativeToken=\(jsString(authToken));}catch(e){window.__nativeToken=\(jsString(authToken));}"
+        DispatchQueue.main.async { self.webView.evaluateJavaScript(js, completionHandler: nil) }
+    }
+
     private func handleAPIRequest(_ dict: [String: Any]) {
         let id = (dict["id"] as? String) ?? ""
         let path = (dict["path"] as? String) ?? ""
@@ -474,7 +501,14 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         var req = URLRequest(url: url)
         req.httpMethod = method
         req.timeoutInterval = 25
-        for (k, v) in headers { req.setValue(v, forHTTPHeaderField: k) }
+        var outHeaders = headers
+        // 关键修复：内置页（file://）拿不到 localStorage 里的 yx_tk，
+        // 由原生补上，否则 /api/iap/verify 会 401「请先登录」，付款后不发货。
+        let hdrTok = (outHeaders["X-Token"] ?? outHeaders["x-token"] ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        if hdrTok.isEmpty, !authToken.isEmpty {
+            outHeaders["X-Token"] = authToken
+        }
+        for (k, v) in outHeaders { req.setValue(v, forHTTPHeaderField: k) }
         // 以站内来源发送，保证生产端 CORS/鉴权判断与浏览器一致
         req.setValue(apiBase, forHTTPHeaderField: "Origin")
         req.setValue(apiBase + "/", forHTTPHeaderField: "Referer")
@@ -493,6 +527,15 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
                 return
             }
             let text = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+            // 登录/注册成功时记住 token，供内置内购页复用
+            if status == 200, path.hasPrefix("/api/login") || path.hasPrefix("/api/register") {
+                if let dt = text.data(using: .utf8),
+                   let obj = try? JSONSerialization.jsonObject(with: dt) as? [String: Any],
+                   let tk = obj["token"] as? String, !tk.isEmpty {
+                    self.authToken = tk
+                    UserDefaults.standard.set(tk, forKey: self.authTokenKey)
+                }
+            }
             self.replyAPI(id, status: status, body: text)
         }.resume()
     }
@@ -514,6 +557,10 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         }
         if message.name == "media" {
             handleMedia(dict)
+            return
+        }
+        if message.name == "auth" {
+            handleAuth(dict)
             return
         }
         let action = (dict["action"] as? String) ?? ""
@@ -556,6 +603,26 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             self.webView.evaluateJavaScript(js, completionHandler: nil)
         }
     }
+
+    // ===== 登录态 shim：让 file:// 内置页与远程页共用同一个 token =====
+    private static let authShimJS = """
+    (function(){
+      // 页面侧兜底读取
+      window.__nativeToken = window.__nativeToken || '';
+      window.__ybTok = function(){
+        try {
+          var t = localStorage.getItem('yx_tk');
+          if (t) return t;
+        } catch(e){}
+        return window.__nativeToken || '';
+      };
+      try {
+        var cur = '';
+        try { cur = localStorage.getItem('yx_tk') || ''; } catch(e){}
+        window.webkit.messageHandlers.auth.postMessage({ token: cur });
+      } catch(e){}
+    })();
+    """
 
     private func jsString(_ s: String) -> String {
         let data = try? JSONSerialization.data(withJSONObject: [s], options: [])

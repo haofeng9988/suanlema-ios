@@ -158,7 +158,13 @@ var TOOLPACK = [
 function $(id){ return document.getElementById(id); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){
   return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-function tok(){ try{ return localStorage.getItem('yx_tk')||''; }catch(e){ return ''; } }
+/* 2026-11-14：内置页是 file:// 加载，与远程站点 localStorage 不同源，
+   取不到 yx_tk 会导致 /api/iap/verify 401「请先登录」，付款后不发货。
+   优先本地，其次用原生回灌的 token。 */
+function tok(){
+  try{ var t=localStorage.getItem('yx_tk')||''; if(t) return t; }catch(e){}
+  return (window.__nativeToken||'');
+}
 function backHome(){ location.href='home.html'; }
 function jumpTo(id){
   var el = document.getElementById(id);
