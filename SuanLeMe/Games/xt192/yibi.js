@@ -26,9 +26,10 @@
   // millionaire: 基础入場 50；易學模式 +40；週賽 +140。锦囊另计 30~50/个。
   var GAME_COST_DETAIL = {
     millionaire: { title: '入場費', lines: [
-      { k: '天梯挑戰', v: 50 },
-      { k: '易學模式', v: 90 },
-      { k: '週賽模式', v: 190 }
+      { k: '天梯挑戰', v: 300 },
+      { k: '易學模式', v: 340 },
+      { k: '週賽模式', v: 440 },
+      { k: '邀請對賽', v: 300 }
     ], note: '錦囊另計：50/對 · 求教 40 · 觀眾 40 · 換題 50 · 加時 30（易幣）' },
     lingtian:   { title: '道具費', lines: [ { k: '道具', v: '20~80' } ], note: '收穫可兌易幣' },
     wuxing:     { title: '遊玩費', lines: [ { k: '單局', v: 20 } ], note: '消除得分換易幣，單局最高 ~280' },
@@ -291,7 +292,18 @@
           });
           if (det.note) rows += '<div style="color:#8a7c5c;font-size:11.5px;margin-top:3px;line-height:1.5">'+det.note+'</div>';
         }
-        // 2026-11-04 单一货币：只显示易币花费
+        // 2026-11-15 老板定案：百万富翁各模式入场费以服务端 entry_fee_of() 为准
+        // （天梯/邀请 300、易学 340、周赛 440）。入口弹窗不再单列「用易币 X」，
+        // 只保留易币余额，避免与真实扣费不一致。
+        if (game === 'millionaire') {
+          rows +=
+            '<div style="margin-top:7px;padding-top:7px;border-top:1px dashed rgba(212,175,55,.3);display:flex;justify-content:space-between;align-items:center;padding:5px 0">' +
+              '<span>🪙 易币余额</span>' +
+              '<span style="color:#8a7c5c;font-size:12px">' + balY + '</span>' +
+            '</div>';
+          return head + rows;
+        }
+        // 2026-11-04 单一货币：其他游戏只显示易币花费
         rows +=
           '<div style="margin-top:7px;padding-top:7px;border-top:1px dashed rgba(212,175,55,.3);display:flex;justify-content:space-between;align-items:center;padding:5px 0">' +
             '<span>🪙 用易币 <b style="color:#f5d06f">' + cost + '</b></span>' +
