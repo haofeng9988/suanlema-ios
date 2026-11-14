@@ -6,9 +6,11 @@
 <meta name="theme-color" content="#1a1612">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>天機百萬富翁 · 算了吗·易游</title>
-<script src="tool-intro.js?v=20261005"></script>
-<script src="share.js?v=20261005"></script>
+<title>天機百萬富翁 · 算了吗</title>
+<script>window.TI_BOOT=1;/* ml-room-fix-20261107 */</script>
+<script src="tool-intro.js?v=20261114d"></script>
+<script src="yibi.js?v=20261107a"></script>
+<script src="share.js?v=20261107a"></script>
 <script src="poster_bridge.js" defer></script>
 <style>
 :root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a;--green:#4a8}
@@ -21,10 +23,10 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
 button{font-family:inherit}
 
 /* ---------- 通用 ---------- */
-header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:14px 16px;text-align:center;border-bottom:2px solid var(--gold);position:relative;border-radius:0 0 4px 4px}
-header h1{font-size:18px;color:var(--gold);letter-spacing:3px;margin:0}
-header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
-.bal{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--sub);text-align:right;line-height:1.35}
+header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:14px 120px 9px;text-align:center;border-bottom:2px solid var(--gold);position:relative;border-radius:0 0 4px 4px}
+header h1{font-size:17px;color:var(--gold);letter-spacing:2px;margin:0;line-height:1.15}
+header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
+.bal{position:relative;display:inline-block;margin:8px auto 0;font-size:11px;color:var(--gold);text-align:center;line-height:1.45;background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.4);border-radius:8px;padding:4px 14px;letter-spacing:.3px;font-weight:700}
 .bal b{color:var(--gold);font-size:13px}
 .card{background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:16px;margin:14px}
 .card h2{font-size:15px;color:var(--gold);margin:0 0 12px;letter-spacing:1px}
@@ -46,12 +48,15 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
 .mode.pick{border-color:var(--gold);background:rgba(212,175,55,.12)}
 .mode .ic{font-size:26px}
 .mode .nm{font-size:14px;font-weight:800;color:var(--text);margin-top:8px}
-.mode .ds{font-size:10.5px;color:var(--sub);margin-top:4px;line-height:1.5;min-height:30px}
+.mode .ds{font-size:10.5px;color:#b3a281;margin-top:4px;line-height:1.5;min-height:30px}
 .mode .fee{font-size:11px;color:var(--gold);margin-top:6px;font-weight:700}
 .mode.pick .nm{color:var(--gold)}
 .home-enter{padding:14px}
 .mini-note{font-size:11px;color:var(--sub);text-align:center;padding:6px 20px 26px;line-height:1.8}
 .mini-note b{color:var(--gold)}
+.curbtn{flex:1;padding:10px 8px;border-radius:11px;border:1px solid var(--line);background:var(--card);
+  color:var(--sub);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+.curbtn.active{background:linear-gradient(135deg,#8a6a24,#c9922f);color:#fff;border-color:var(--gold)}
 
 /* ---------- 对局页 ---------- */
 #s-game{padding-bottom:20px}
@@ -93,8 +98,14 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
 .audbar .row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--sub);margin:5px 0}
 .audbar .row .lb{width:16px;color:var(--gold);font-weight:900}
 .audbar .track{flex:1;height:12px;background:var(--bg);border:1px solid var(--c2);border-radius:6px;overflow:hidden}
-.audbar .fill{height:100%;background:linear-gradient(90deg,#d4af37,#b8912a);width:0;transition:.5s}
+.audbar .fill{display:block;height:100%;background:linear-gradient(90deg,#d4af37,#b8912a);width:0;transition:.5s}
 .audbar .pc{width:34px;text-align:right}
+/* 2026-10-28 第1条(3)：你是否相信 */
+.believe{display:none;align-items:center;gap:8px;margin-top:12px;padding:9px 11px;background:rgba(212,175,55,.08);border:1px solid rgba(212,175,55,.35);border-radius:10px}
+.believe .q{flex:1;font-size:12px;color:var(--gold);font-weight:700}
+.believe .b{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;border:1px solid var(--gold);background:transparent;color:var(--gold)}
+.believe .b.y{background:var(--gold);color:#1a1612}
+.believe .b:active{transform:scale(.95)}
 .explain{margin-top:12px;font-size:12px;color:var(--sub);line-height:1.6;border-top:1px dashed var(--c2);padding-top:10px;display:none}
 .explain b{color:var(--gold)}
 
@@ -159,9 +170,26 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
 .inp:focus{outline:none;border-color:var(--gold)}
 .offline-tip{background:rgba(193,67,47,.12);border:1px solid var(--red);border-radius:10px;padding:10px 12px;font-size:11.5px;color:var(--text);margin:10px 14px;line-height:1.6;display:none}
 .offline-tip b{color:var(--gold)}
+
+/* ===== 可读性修复 2026-11-11（该页为固定深色美术页，不跟主题切换） =====
+   底色固定深，故把过暗的次要文字上调到可辨级别：正文 ≥4.5:1，次要 ≥4.5（字号小/信息关键），
+   纯装饰性（🔒、星阶）仍保持低存在感。 */
+:root{--sub2:#b3a281;--sub3:#c0b090;--gold-text:#e8c877;--ok-text:#8ed49a;--bad-text:#f0917c}
+body{color:#e8dcc8}
+
+:root{--sub2:#b3a281}
+/* 表单：原生占位符默认 #757575 在深底上仅 4.19:1，统一提亮；color-scheme 让原生控件也走深色 */
+body{color-scheme:dark}
+::placeholder{color:#c0b090;opacity:.9}
+.inp::placeholder{color:#c0b090;opacity:.9}
 </style>
+<script src="game-exit.js?v=2026100602" defer></script>
+<script src="game-recent.js?v=20261030p" defer></script>
+<script src="sfx.js?v=20261006b"></script>
+<script src="i18n-toolintro.js?v=20261010g"></script>
+<script src="dialog.js?v=20261107a"></script>
 </head>
-<body>
+<body data-sfx-toggle="0">
 <div id="wrap">
 
   <!-- ========== 游戏首页 ========== -->
@@ -171,15 +199,19 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
       <div class="sub">15 題衝百萬 · 易學 × 歷史</div>
       <div class="bal" id="balHome">🪙 易幣 <b>--</b></div>
     </header>
-    <div class="hero-mini">
+    <div class="hero-mini" style="margin-top:6px">
       <div class="big">🏆</div>
       <h1>天機百萬富翁</h1>
-      <div class="slogan">限時作答 · 錦囊助陣 · 答錯即止<br>衝上第 15 題，抱走終極大獎</div>
+      <div class="slogan">每題限時 20 秒 · 錦囊助陣 · 答錯即止<br>衝上第 15 題，抱走終極大獎</div>
     </div>
-    <div id="offlineTip" class="offline-tip">🎮 已進入 <b>單機暢玩</b> 模式，無需連線即可完整體驗。</div>
+    <div id="offlineTip" class="offline-tip">⚠️ 伺服器暫未就緒，已進入 <b>離線試玩</b>。可體驗完整流程，戰績暫不計分。</div>
     <div class="card" style="margin-top:6px">
       <h2>🎮 選擇模式</h2>
       <div class="modes" id="modes"></div>
+    </div>
+    <div class="card" style="margin-top:6px">
+      <h2>🪙 入場幣種</h2>
+      <div class="mini-note" style="margin-top:4px" id="curNote">入場費與錦囊一律以<b>易幣</b>扣費；<b>獎金也一律發放易幣</b>。</div>
     </div>
     <div class="home-enter">
       <button class="btn" id="enterBtn">進 入 挑 戰</button>
@@ -189,7 +221,7 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
 
   <!-- ========== 对局页 ========== -->
   <section id="s-game" class="screen">
-    <div class="host-bar"><span class="av">🎙</span><span class="tx" id="hostTx">昊峯大師：準備好了嗎？第一題來囉。</span></div>
+    <div class="host-bar"><span class="av">🎙</span><span class="tx" id="hostTx">算了吗：準備好了嗎？第一題來囉。</span></div>
     <div class="gtop">
       <button class="ringbtn" id="ladderBtn"><b id="ladderCur">$1,000</b>獎梯</button>
       <div class="qmeta">
@@ -201,18 +233,19 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
           <circle class="ringbg" cx="33" cy="33" r="28"></circle>
           <circle class="ringfg" id="ringFg" cx="33" cy="33" r="28" stroke-dasharray="175.9" stroke-dashoffset="0"></circle>
         </svg>
-        <div class="secs" id="secs">30</div>
+        <div class="secs" id="secs">20</div>
       </div>
     </div>
     <div class="qcard">
-      <div class="qidx"><span id="qCat">第 1 題</span><span>已得 <b id="qPrize">0</b> 積分</span></div>
+      <div class="qidx"><span id="qCat">第 1 題</span><span>已得 <b id="qPrize">0</b> 易幣</span></div>
       <div class="qtext" id="qText">載入題目中…</div>
       <div class="opts" id="opts"></div>
       <div class="audbar" id="audbar"></div>
+      <div class="believe" id="believeBar"></div>
       <div class="explain" id="explain"></div>
     </div>
     <div class="lifelines" id="lifelines"></div>
-    <div class="walk"><button class="wbtn" id="walkBtn">🚪 帶著 0 積分離場</button></div>
+    <div class="walk"><button class="wbtn" id="walkBtn">🚪 帶著 0 易幣離場</button></div>
   </section>
 
   <!-- 奖梯抽屉 -->
@@ -228,7 +261,7 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
     </div>
     <div class="rbox">
       <div class="prize" id="rPrize">0</div>
-      <div class="plabel">本次獲得積分</div>
+      <div class="plabel">本次獲得易幣</div>
       <div><span class="title" id="rTitle">稱號：初出茅廬</span></div>
     </div>
     <div class="card">
@@ -257,11 +290,13 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
         <button class="btn" id="createRoomBtn" style="margin-top:14px">創 建 房 間</button>
         <div id="roomCodeBox" style="display:none">
           <div class="codebox">
-            <div style="font-size:11px;color:var(--sub)">房間碼</div>
-            <div class="code" id="roomCode">------</div>
+            <div style="font-size:11px;color:var(--sub)">房間碼（點一下即可複製）</div>
+            <div class="code" id="roomCode" style="cursor:pointer">------</div>
             <div class="lnk" id="roomLink"></div>
           </div>
-          <button class="btn ghost" id="copyLinkBtn">📋 複製邀請連結</button>
+          <button class="btn ghost" id="copyCodeBtn">📋 複製房間碼</button>
+          <button class="btn ghost" id="shareRoomBtn" style="margin-top:8px">📤 分享邀請</button>
+          <button class="btn ghost" id="copyLinkBtn" style="margin-top:8px">📋 複製邀請連結</button>
         </div>
       </div>
       <div class="card">
@@ -288,7 +323,7 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
         </div>
       </div>
       <div class="qcard">
-        <div class="qidx"><span id="rqCat">第 1 題</span><span>已得 <b id="rqPrize">0</b> 積分</span></div>
+        <div class="qidx"><span id="rqCat">第 1 題</span><span>已得 <b id="rqPrize">0</b> 易幣</span></div>
         <div class="qtext" id="rqText">載入題目中…</div>
         <div class="opts" id="rqOpts"></div>
       </div>
@@ -306,14 +341,9 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:4px;letter-spacing:1px}
 'use strict';
 /* ============ 基础工具 ============ */
 function $(id){return document.getElementById(id);}
-// App 内以 file:// 加载时 location.origin 为 "null"，分享/房间链接必须用绝对域名
-var SITE_BASE='https://tianji.matetechhk.com';
 var API='';
 try{API=localStorage.getItem('yx_api')||'';}catch(e){}
-// 离线检测：iOS App 内置版从 file:// 加载 → 纯本地游戏模式（不发任何网络请求）
-var OFFLINE=false;
-try{OFFLINE=(location.protocol==='file:')||(location.origin==='null');}catch(e){OFFLINE=false;}
-function tok(){try{return localStorage.getItem('yx_tk')||'';}catch(e){return '';}}
+function tok(){try{var t=localStorage.getItem('yx_tk')||'';if(!t){var m=document.cookie.match(/(?:^|;\s*)yx_tk=([^;]+)/);if(m){t=m[1];localStorage.setItem('yx_tk',t);}}return t;}catch(e){return '';}}
 function H(extra){var h=extra||{};var t=tok();if(t)h['X-Token']=t;return h;}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
 function toast(msg,ms){var t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._tm);t._tm=setTimeout(function(){t.classList.remove('show');},ms||2200);}
@@ -332,12 +362,19 @@ var LADDER=[
  {idx:13,shown:'$4,000,000',prize:50000},{idx:14,shown:'$8,000,000',prize:100000},
  {idx:15,shown:'$16,000,000',prize:200000,grand:true}
 ];
-var TIME_BY_DIFF={easy:25,mid:40,hard:55};
+var CUR='yibi';
+try{ if(window.Yibi){} }catch(e){}
+/* 2026-10-30 算了吗第②項：全站單一貨幣（易幣）。易幣入口下線，此處鎖定易幣。 */
+function syncCurUI(){ CUR='yibi'; }
+function setCur(c){ CUR='yibi'; }
+window.setCur=setCur;
+var TIME_BY_DIFF={easy:20,mid:20,hard:20};   // 2026-10-30 统一每题 20 秒（防切屏搜题）
 var MODES=[
- {k:'ladder',ic:'🪜',nm:'天梯挑戰',ds:'經典 15 題，單人衝頂',fee:'入場 50 積分'},
- {k:'yixue',ic:'☯️',nm:'易學主題場',ds:'八字/紫微/奇門/風水/黃曆',fee:'入場 100 積分'},
- {k:'duel',ic:'⚔️',nm:'邀請對戰',ds:'好友同題競速',fee:'入場 50 積分'},
- {k:'weekly',ic:'🏅',nm:'週賽大賽',ds:'每週固定題庫限時賽',fee:'入場 200 積分'}
+ {k:'ladder',ic:'🪜',nm:'天梯挑戰',ds:'經典 15 題，單人衝頂',fee:'入場 300 易幣'},
+ {k:'yixue',ic:'☯️',nm:'易學主題場',ds:'八字/紫微/奇門/風水/黃曆',fee:'入場 340 易幣'},
+ {k:'duel',ic:'⚔️',nm:'邀請對戰',ds:'好友同題競速',fee:'入場 300 易幣'},
+ {k:'weekly',ic:'🏅',nm:'週賽大賽',ds:'每週固定題庫限時賽',fee:'入場 440 易幣 · 每週限 1 次',tip:'每週限 1 次 · 入場 440 易幣 · 獎金由獎池結算'},
+ {k:'grand',ic:'🎆',nm:'初一十五大獎賽',ds:'農曆初一·十五限定',fee:'入場 500 易幣 · 限初一十五',tip:'僅農曆初一、十五開放 · 每日限 1 次 · 頂級獎 36000 易幣'}
 ];
 function modeName(k){var m=MODES.filter(function(x){return x.k===k;})[0];return m?m.nm:k;}
 function titleFor(reached,prize){
@@ -354,7 +391,7 @@ function titleFor(reached,prize){
 var S={sid:null,mode:'ladder',idx:1,prize:0,safePrize:0,safeLine:0,finished:false,
        lifelines:{'5050':0,'ask_master':0,'audience':0,'switch':0,'time':0},
        startedAt:0,used:[],room:null,demo:false,q:null,
-       roomIdx:1,roomPrize:0,oppIdx:0,oppPrize:0};
+       roomIdx:0,roomPrize:0,oppIdx:0,oppPrize:0,meIdx:0};
 
 /* ============ 倒计时环 ============ */
 var CIRC=2*Math.PI*28;
@@ -364,16 +401,21 @@ function ringDraw(left,total){
   var ratio=total>0?Math.max(0,Math.min(1,left/total)):1;
   $('ringFg').setAttribute('stroke-dashoffset',(CIRC*(1-ratio)).toFixed(1));
   var sec=Math.ceil(left);$('secs').textContent=sec>=0?sec:0;
-  $('timer').classList.toggle('danger',left<=10);
+  $('timer').classList.toggle('danger',left<=5);   // 2026-10-30 最后 5 秒变色告警
 }
-function stopTimer(){if(timer.raf){cancelAnimationFrame(timer.raf);timer.raf=null;}}
+function stopTimer(){if(timer.raf){cancelAnimationFrame(timer.raf);timer.raf=null;} if(window.SFX)SFX.tensionStop();}
 function startTimer(sec){
   stopTimer();timer.total=sec;timer.deadline=Date.now()+sec*1000;
   ringDraw(sec,sec);
+  var _lastSec=Math.ceil(sec);
+  if(window.SFX)SFX.tensionStart();   // 悬念弦乐床
   function tick(){
     var left=(timer.deadline-Date.now())/1000;
     if(left<0)left=0;
     ringDraw(left,timer.total);
+    // 逐秒滴答（最后 10 秒加急）
+    var s=Math.ceil(left);
+    if(s!==_lastSec){ _lastSec=s; if(s>0 && window.SFX) SFX.tick(s<=5); }
     if(left<=0){stopTimer();onTimeout();return;}
     timer.raf=requestAnimationFrame(tick);
   }
@@ -389,7 +431,8 @@ function renderLadder(idx){
     if(l.idx<idx||(S.finished&&l.idx<=S.idx))cls+=' done';
     if(l.idx===idx&&!S.finished)cls+=' cur';
     if(l.safe)cls+=' safe';
-    html+='<div class="'+cls+'"><span class="n">'+l.idx+'</span><span class="m">'+esc(l.shown)+'</span><span class="p">'+l.prize+'分</span></div>';
+    /* 2026-11-11：积分已并入易币，奖梯金额按 prize×12 显示真实易币 */
+    html+='<div class="'+cls+'"><span class="n">'+l.idx+'</span><span class="m">'+esc(l.shown)+'</span><span class="p">'+(l.prize*12)+' 易幣</span></div>';
   }
   $('ladderList').innerHTML=html;
 }
@@ -402,43 +445,61 @@ $('drawerMask').addEventListener('click',closeDrawer);
 $('ladderList').addEventListener('click',closeDrawer);
 
 /* ============ 主持人旁白 ============ */
-function host(text,alert){var el=$('hostTx');el.textContent='昊峯大師：'+text;el.classList.toggle('alert',!!alert);}
+function host(text,alert){var el=$('hostTx');el.textContent='算了吗：'+text;el.classList.toggle('alert',!!alert);}
 var HOST_OK=['答得好！繼續向前。','漂亮，這題穩了。','大師點頭了，下一題。','不錯，氣勢如虹！','對了，保持節奏。'];
 function hostRandom(){host(HOST_OK[Math.floor(Math.random()*HOST_OK.length)],false);}
 
 /* ============ 首页 ============ */
 var pickedMode='ladder';
+var GRAND={open:false,left:0,lunar:'',pool:0,fee:500};
+function loadGrandStatus(){
+  fetch(API+'/api/millionaire/grand/status',{headers:H()})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d&&d.ok){
+        GRAND.open=!!d.open; GRAND.left=d.left||0; GRAND.lunar=d.lunar||'';
+        GRAND.pool=d.pool||0; GRAND.fee=d.entry_fee||500;
+      }
+      renderModes();
+    }).catch(function(){renderModes();});
+}
 function renderModes(){
-  var list=MODES.filter(function(m){return !(OFFLINE&&m.k==='duel');});
-  $('modes').innerHTML=list.map(function(m){
-    return '<div class="mode'+(m.k===pickedMode?' pick':'')+'" data-k="'+m.k+'">'
-      +'<div class="ic">'+m.ic+'</div><div class="nm">'+esc(m.nm)+'</div>'
-      +'<div class="ds">'+esc(m.ds)+'</div><div class="fee">'+esc(OFFLINE?'免費遊玩':m.fee)+'</div></div>';
+  $('modes').innerHTML=MODES.map(function(m){
+    var lock=(m.k==='grand'&&!GRAND.open);
+    return '<div class="mode'+(m.k===pickedMode?' pick':'')+(lock?' lock':'')+'" data-k="'+m.k+'"'
+      +(lock?' style="opacity:.8"':'')+'>'
+      +'<div class="ic">'+m.ic+(lock?' 🔒':'')+'</div><div class="nm">'+esc(m.nm)+'</div>'
+      +'<div class="ds">'+esc(m.ds)+'</div><div class="fee">'+esc(m.fee)+'</div>'
+      +'<div class="tip" style="font-size:11px;color:var(--sub2);margin-top:4px;line-height:1.4">'
+      +esc(lock?('今日農曆'+ (GRAND.lunar||'') +'，非初一/十五，暫未開放'):(m.tip||''))+'</div></div>';
   }).join('');
 }
 $('modes').addEventListener('click',function(e){
   var el=e.target.closest('.mode');if(!el)return;
-  pickedMode=el.getAttribute('data-k');renderModes();
+  var _k=el.getAttribute('data-k');
+  if(_k==='grand'&&!GRAND.open){toast('🎆 初一十五大獎賽只在農曆初一、十五開放');return;}
+  pickedMode=_k;renderModes();
   if(pickedMode==='duel'){/* 对战单独入口 */}
 });
 $('enterBtn').addEventListener('click',function(){
-  if(OFFLINE){
-    // 离线（App 内置）：只提供单人天梯玩法
-    if(pickedMode==='duel'){toast('單人模式下暫不支援邀請對戰');return;}
-    startGame('ladder');return;
-  }
   if(pickedMode==='duel'){show('s-room');resetRoom();return;}
-  startGame(pickedMode);
+  // 登录前花费公告：先弹确认（明示入场费/道具/锦囊 与 币种），确认后再开局
+  var _wk = (pickedMode==='weekly'), _gr = (pickedMode==='grand');
+  var _rw = _gr ? '僅農曆初一/十五 · 入場 500 易幣 · 頂級獎 36000 易幣 · 獎金由獎池結算'
+          : (_wk ? '每週限 1 次 · 入場 440 易幣 · 獎金由獎池結算'
+                 : '挑戰 15 關贏易幣，最高 31200 易幣（獎金由獎池結算）');
+  if(window.Yibi&&Yibi.entryGate){
+    Yibi.entryGate('millionaire',{reward:_rw,
+      onGo:function(){startGame(pickedMode);}});
+  } else { startGame(pickedMode); }
 });
 function loadBalance(){
-  if(OFFLINE){return;}
   fetch(API+'/api/me',{headers:H()}).then(function(r){return r.json();}).then(function(d){
-    if(d&&d.ok&&d.user){$('balHome').innerHTML='🪙 易幣 <b>'+esc((d.user.yibi!=null?d.user.yibi:0))+'</b>';}
+    if(d&&d.ok&&d.user){$('balHome').innerHTML='🪙 易币 <b>'+esc((d.user.yibi!=null?d.user.yibi:0))+'</b>';}
   }).catch(function(){});
 }
 
 /* ============ 对局逻辑 ============ */
-function setOffline(on){S.demo=on;var t=$('offlineTip');if(t)t.style.display=(on&&!OFFLINE)?'block':'none';}
+function setOffline(on){S.demo=on;$('offlineTip').style.display=on?'block':'none';}
 
 function startGame(mode){
   S.mode=mode;S.finished=false;S.used=[];S.lifelines={'5050':0,'ask_master':0,'audience':0,'switch':0,'time':0};
@@ -446,31 +507,17 @@ function startGame(mode){
   S.idx=1;S.prize=0;S.safePrize=0;S.startedAt=Date.now();
   $('gMode').textContent=modeName(mode);
   renderLifelines();renderLadder(1);updateWalk();updateProg();
-  show('s-game');
-  // 离线模式（App 内置 file://）：直接用内置题库开局，全程不发任何网络请求
-  if(OFFLINE){
-    S.demo=true;
-    S.sid='';
-    S.idx=1;S.prize=0;S.safePrize=0;
-    S.lifelines={'5050':1,'ask_master':1,'audience':1,'switch':1,'time':1};
-    S.lifelinePrices={};
-    setOffline(true);
-    renderLifelines();renderLadder(1);
-    updateWalk();updateProg();
-    $('qText').textContent='載入題目中…';$('opts').innerHTML='';
-    offlineQuestion(1);
-    host('準備好了嗎？第一題來囉。',false);
-    return;
-  }
-  host('準備好了嗎？第一題來囉。',false);
+  show('s-game');host('準備好了嗎？第一題來囉。',false);
   $('qText').textContent='載入題目中…';$('opts').innerHTML='';
-  fetch(API+'/api/millionaire/start',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({mode:mode})})
-    .then(function(r){return r.json().then(function(d){d._status=r.status;return d;});}).then(function(d){
+  fetch(API+'/api/millionaire/start',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({mode:mode,currency:CUR})})
+    .then(function(r){return r.json().then(function(d){d._status=r.status;return d;}).catch(function(){return {ok:false,msg:'服务器繁忙（'+r.status+'）'};});}).then(function(d){
       if(!d||!d.ok){
-        // 未登录 / 积分不足 / 维护中：明确提示，不回退到固定离线题（否则每次同一批题）
+        // 未登录 / 易币不足 / 维护中：明确提示，不回退到固定离线题（否则每次同一批题）
         setOffline(false);
         var msg=(d&&d.msg)||'无法开始游戏';
-        if(d&&d.need_login){toast('請先登入後再開始遊戲');setTimeout(function(){location.href='home.html';},1400);}
+        if(d&&d.need_login){toast('請先登入後再開始遊戲');setTimeout(function(){location.href='/index.html#me';},1400);}
+        else if(d&&d.weekly_limit){toast(msg,3200);}
+        else if(d&&(d.grand_closed||d.grand_limit)){toast(msg,3600);loadGrandStatus();}
         else {toast('⚠️ '+msg);}
         show('s-home');
         return;
@@ -482,7 +529,19 @@ function startGame(mode){
       if(d.lifeline_prices)S.lifelinePrices=d.lifeline_prices;
       renderLifelines();renderLadder(S.idx);
       if(d.question)renderQuestion(d.question);else fetchNextFallback();
-    }).catch(function(){setOffline(false);toast('⚠️ 連線失敗，請重試');show('s-home');});
+    }).catch(function(){
+      // 网络抖动：自动重试一次，仍失败才提示
+      setTimeout(function(){
+        fetch(API+'/api/millionaire/start',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({mode:mode,currency:CUR})})
+          .then(function(r){return r.json();}).then(function(d){
+            if(d&&d.ok){setOffline(false);S.sid=d.sid;S.idx=d.q_index||1;S.prize=d.prize||0;S.safePrize=d.safe_prize||0;
+              if(Array.isArray(d.ladder)&&d.ladder.length)LADDER=d.ladder;
+              if(d.lifelines)S.lifelines=d.lifelines;if(d.lifeline_prices)S.lifelinePrices=d.lifeline_prices;
+              renderLifelines();renderLadder(S.idx);if(d.question)renderQuestion(d.question);else fetchNextFallback();return;}
+            setOffline(false);toast('⚠️ '+(d&&d.msg||'無法開始'));show('s-home');
+          }).catch(function(){setOffline(false);toast('⚠️ 網絡不穩定，請檢查網絡後重試');show('s-home');});
+      },900);
+    });
 }
 function fetchNextFallback(){
   // 正常契约下 start/answer 都会带 question；此处仅在异常兜底，避免回退到固定离线题库造成「每次题目相同」
@@ -494,13 +553,14 @@ function updateProg(){
   $('qCat').textContent='第 '+S.idx+' 題 · '+diffOf(S.idx);
   $('qPrize').textContent=S.prize;
   $('ladderCur').textContent=ladderShown(S.idx);
-  $('walkBtn').textContent='🚪 帶著 '+S.prize+' 積分離場';
+  $('walkBtn').textContent='🚪 帶著 '+S.prize+' 易幣離場';
 }
 function diffOf(i){if(i<=4)return '簡單';if(i<=9)return '中等';return '困難';}
 function diffKey(i){if(i<=4)return 'easy';if(i<=9)return 'mid';return 'hard';}
 function updateWalk(){}
 
 function renderQuestion(q){
+  hideBelieve();
   S.q=q;$('qText').textContent=q.text||'（題面缺失）';
   var opts=q.options||[];
   $('opts').innerHTML=opts.map(function(o,i){
@@ -521,21 +581,29 @@ $('opts').addEventListener('click',function(e){
 });
 
 function answer(choice){
+  if(window.SFX)SFX.lock();   // 原版「最终答案」锁答顿音
   stopTimer();lockOpts();
   if(choice!=null)$('opts').querySelector('.opt[data-i="'+choice+'"]').classList.add('sel');
   if(S.demo){demoAnswer(choice);return;}
-  fetch(API+'/api/millionaire/answer',{method:'POST',headers:H({'Content-Type':'application/json'}),
-    body:JSON.stringify({sid:S.sid,choice:choice})})
-    .then(function(r){return r.json();}).then(function(d){
-      if(!d||!d.ok){toast('提交失敗，請重試');unlockOpts();return;}
-      applyAnswer(d,choice);
-    }).catch(function(){toast('網絡異常，請重新作答');unlockOpts();});
+  postAnswer({sid:S.sid,choice:choice},0);
+}
+function postAnswer(body,retried){
+  fetch(API+'/api/millionaire/answer',{method:'POST',headers:H({'Content-Type':'application/json'}),cache:'no-store',
+    body:JSON.stringify(body)})
+    .then(function(r){return r.json().catch(function(){return {ok:false,msg:'服务器繁忙（'+r.status+'）'};});}).then(function(d){
+      if(!d||!d.ok){toast((d&&d.msg)?('⚠️ '+d.msg):'提交失敗，請重試');unlockOpts();return;}
+      applyAnswer(d,body.choice);
+    }).catch(function(){
+      if(!retried){setTimeout(function(){postAnswer(body,1);},800);return;} // 网络抖动：自动重试一次
+      toast('⚠️ 網絡不穩定，請重新作答');unlockOpts();
+    });
 }
 function unlockOpts(){var os=$('opts').querySelectorAll('.opt');for(var i=0;i<os.length;i++)os[i].removeAttribute('disabled');}
 
 function applyAnswer(d,choice){
   var correct=(d.correct===true),ci=(typeof d.correct_idx==='number')?d.correct_idx:-1;
   highlight(ci,choice,correct);
+  if(window.SFX){ correct?SFX.revealCorrect():SFX.revealWrong(); if(correct)setTimeout(function(){SFX.ladderStep();},260); }
   if(d.explain){$('explain').innerHTML='💡 '+esc(d.explain);$('explain').style.display='block';}
   if(correct){
     S.prize=(typeof d.prize==='number')?d.prize:ladderPrize(S.idx);
@@ -568,7 +636,9 @@ function onTimeout(){host('時間到！',true);answer(null);}
 
 /* ============ 结果 ============ */
 function finish(kind){
+  hideBelieve();
   stopTimer();S.finished=true;
+  if(window.SFX){ kind==='win'?SFX.jackpot():SFX.lose(); }
   var reached=kind==='win'?15:S.idx;
   var prize=kind==='win'?S.prize:(S.safePrize||0);
   if(kind==='lose'&&S.safePrize===0)prize=0;
@@ -584,7 +654,28 @@ function finish(kind){
   }
 }
 function applyServerResult(d){
-  if(typeof d.prize==='number')$('rPrize').textContent=d.prize;
+  // 2026-10-29：服务端有每日封顶，实际到账可能少于奖梯金额。
+  // 以「实际到账」为准显示，差额另起一行说明，避免玩家以为钱被吞。
+  if(typeof d.credited==='number'){
+    $('rPrize').textContent=d.credited;
+    var _want=(typeof d.wantPrize==='number')?d.wantPrize:d.prize;
+    if(_want&&d.credited<_want){
+      var _note=document.getElementById('rCapNote');
+      if(!_note){
+        _note=document.createElement('div');
+        _note.id='rCapNote';
+        _note.style.cssText='font-size:11.5px;color:#ffb08a;text-align:center;margin-top:6px;line-height:1.7';
+        if($('rPrize')&&$('rPrize').parentNode){$('rPrize').parentNode.appendChild(_note);}
+      }
+      var _why='今日該遊戲上限已達，明天 0 點重置';
+      if(typeof d.poolShort==='number'&&d.poolShort>0){
+        _why=(d.capped?'今日已達上限，且':'')+'獎池餘額不足，先按現有獎池發放';
+      }
+      _note.textContent='獎梯 '+_want+' 易幣，'+_why+'，實發 '+d.credited;
+    }
+  }else if(typeof d.prize==='number'){
+    $('rPrize').textContent=d.prize;
+  }
   if(typeof d.reached==='number')$('rRowReach').textContent=d.reached+' / 15';
   if(d.title)$('rTitle').textContent='稱號：'+d.title;
   if(Array.isArray(d.used_lifelines)&&d.used_lifelines.length)$('rRowLife').textContent=d.used_lifelines.length+' 個';
@@ -617,7 +708,7 @@ function renderLifelines(){
     var available=S.lifelines[l.k];
     var used=(available===0 || available===undefined);
     var price=(S.lifelinePrices&&S.lifelinePrices[l.k])||0;
-    var pr=price>0?('<span class="p">'+price+'積分</span>'):'';
+    var pr=price>0?('<span class="p">'+price+'易幣</span>'):'';
     return '<div class="life'+(used?' used':'')+'" data-k="'+l.k+'"><span class="e">'+l.e+'</span><span class="t">'+l.t+'</span>'+pr+'</div>';
   }).join('');
 }
@@ -628,26 +719,40 @@ $('lifelines').addEventListener('click',function(e){
 function useLifeline(kind){
   if(S.finished)return;
   if(S.lifelines[kind]===0){toast('此錦囊已用過');return;}
+  if(window.SFX)SFX.tap();
   if(S.demo){demoLifeline(kind);S.lifelines[kind]=1;S.used.push(kind);renderLifelines();return;}
   fetch(API+'/api/millionaire/lifeline',{method:'POST',headers:H({'Content-Type':'application/json'}),
     body:JSON.stringify({sid:S.sid,kind:kind})})
     .then(function(r){return r.json();}).then(function(d){
       if(!d||!d.ok){toast((d&&d.msg)||'錦囊暫不可用');return;}
       S.lifelines[kind]=1;S.used.push(kind);renderLifelines();
-      applyLifeline(kind,d.payload||d);
+      // 2026-10-27 修（第4条）：换一题的新题在顶层 new_q，兼容 payload.question
+      var p=d.payload||d;
+      if(kind==='switch' && !p.question && d.new_q) p.question=d.new_q;
+      applyLifeline(kind,p);
     }).catch(function(){toast('網絡異常，錦囊未消耗');});
 }
 function applyLifeline(kind,p){
+  p=p||{};
   if(kind==='5050'&&p.remove){
     (p.remove||[]).forEach(function(i){var el=$('opts').querySelector('.opt[data-i="'+i+'"]');if(el)el.classList.add('gone');});
     host('去蕪存菁，剩下兩個選項。',false);
   }else if(kind==='ask_master'){
-    host('大師提示：'+(p.hint||'再想想題幹的關鍵詞。'),true);
+    // 2026-10-28 修（第1条）：后端 hint 已带完整句子，前缀由 host() 统一加一次，不再叠「大師指點」
+    var _h=(p.hint||'再想想題幹的關鍵詞。');
+    host(_h,true);
+    if(p.hint && p.hint.length>26){ try{toast(p.hint,5200);}catch(e){} }
+    showBelieve('ask_master');
   }else if(kind==='audience'){
-    showAudience(p.votes||[25,25,25,25]);
+    // 2026-10-27 修（第4条）：后端字段是 pct，前端原来只读 votes → 永远回退 25/25/25/25
+    var v=p.votes||p.pct||null;
+    if(!v||!v.length){ toast('觀眾投票獲取失敗'); return; }
+    showAudience(v);
     host('現場觀眾的投票結果出來了。',false);
-  }else if(kind==='switch'&&p.question){
-    host('換一道同難度的題目。',false);renderQuestion(p.question);
+    showBelieve('audience');
+  }else if(kind==='switch'){
+    if(p.question){ host('已換一道同難度的題目。',false); renderQuestion(p.question); }
+    else { host('此錦囊暫不可用。',false); }
   }else if(kind==='time'){
     addTime(15);host('時間銀行加時 15 秒！',true);
   }else{
@@ -666,11 +771,34 @@ function showAudience(votes){
   },60);
 }
 
+/* ===== 2026-10-28 第1条(3)：答案/投票展示后提示「你是否相信」 ===== */
+// 2026-10-29 第7项：该弹窗在用户不点「相信/不相信」时会残留到下一题乃至下一局，
+// 故新增统一销毁，并在「渲染新题」「开局」「结算」时主动清掉。
+function hideBelieve(){
+  var b=$('believeBar');
+  if(b){b.style.display='none';b.innerHTML='';}
+}
+function showBelieve(kind){
+  var host0=$('believeBar');
+  if(!host0){return;}
+  var txt = (kind==='audience') ? '你是否相信觀眾的判斷？' : '你是否相信大師的指點？';
+  host0.innerHTML='<span class="q">'+txt+'</span>'+
+    '<button class="b y" data-b="1">相信</button>'+
+    '<button class="b n" data-b="0">不相信</button>';
+  host0.style.display='flex';
+  host0.querySelector('.y').onclick=function(){pickBelieve(1);};
+  host0.querySelector('.n').onclick=function(){pickBelieve(0);};
+}
+async function pickBelieve(yes){
+  hideBelieve();
+  host(yes?'好，那就信一次。':'有自己的判斷，很好。',false);
+}
+
 /* ============ 见好就收 ============ */
-$('walkBtn').addEventListener('click',function(){
+$('walkBtn').addEventListener('click',async function(){
   if(S.finished)return;
   if(S.demo){S.safePrize=S.prize;finish('lose');return;}
-  if(!confirm('確定帶著目前 '+S.prize+' 積分離場？'))return;
+  if(!await Dlg.confirm('確定帶著目前 '+S.prize+' 易幣離場？'))return;
   fetch(API+'/api/millionaire/walkaway',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({sid:S.sid})})
     .then(function(r){return r.json();}).then(function(d){
       if(d&&d.ok){S.prize=(typeof d.prize==='number')?d.prize:S.prize;S.safePrize=S.prize;
@@ -686,7 +814,7 @@ $('shareBtn').addEventListener('click',function(){
   var reached=S.lastReached||S.idx, prize=S.prize, title=S.lastTitle||titleFor(reached,prize);
   try{
     if(window.UnifiedShare&&UnifiedShare.open){
-      UnifiedShare.open({tool:'天機百萬富翁',name:title,score:prize+' 積分',level:'到達第 '+reached+' 題',
+      UnifiedShare.open({tool:'天機百萬富翁',name:title,score:prize+' 易幣',level:'到達第 '+reached+' 題',
         subtitle:'答對 '+reached+' 題 · 稱號「'+title+'」'});
     }else{
       posterFallback();
@@ -698,7 +826,7 @@ function posterFallback(){
   var reached=S.lastReached||S.idx,prize=S.prize,title=S.lastTitle||titleFor(reached,prize);
   toast('正在生成海報…');
   fetch(API+'/api/share/poster',{method:'POST',headers:H({'Content-Type':'application/json'}),
-    body:JSON.stringify({tool:'天機百萬富翁',name:title,score:prize+' 積分',level:'到達第 '+reached+' 題',
+    body:JSON.stringify({tool:'天機百萬富翁',name:title,score:prize+' 易幣',level:'到達第 '+reached+' 題',
       subtitle:'答對 '+reached+' 題 · 稱號「'+title+'」',brand:'算了吗',bg:'cool'})})
     .then(function(r){return r.json();}).then(function(d){
       if(d&&d.ok&&d.image){openImg('data:image/png;base64,'+d.image);}
@@ -733,30 +861,26 @@ var DEMO_BANK=[
  {t:'「天機」一詞最早見於哪部典籍？',o:['《論語》','《莊子》','《尚書》','《詩經》'],a:1,e:'《莊子·大宗師》有「其耆欲深者，其天機淺」。'}
 ];
 function demoPick(i){return DEMO_BANK[(i-1)%DEMO_BANK.length];}
-// 离线出题：记录当前展示的完整题目（含答案），保证答题与锦囊判定一致
-function offlineQuestion(i,qObj){
-  S.idx=i;
-  var q=qObj||demoPick(i);
-  S.offQ=q;
-  renderQuestion({text:q.t,options:q.o});
-}
 function demoStart(){
-  S.sid='DEMO';S.demo=true;S.prize=0;S.safePrize=0;
-  offlineQuestion(1);
+  S.sid='DEMO';S.demo=true;S.idx=1;S.prize=0;S.safePrize=0;
+  var q=demoPick(1);
+  renderQuestion({text:q.t,options:q.o});
   host('離線試玩模式：第一題。',false);
 }
 function demoAnswer(choice){
-  var q=S.offQ||demoPick(S.idx);
+  var q=demoPick(S.idx);
   var correct=(choice===q.a);
+  if(window.SFX){ correct?SFX.revealCorrect():SFX.revealWrong(); }
   if(choice!=null){var el=$('opts').querySelector('.opt[data-i="'+choice+'"]');if(el)el.classList.add('sel');}
   if(correct){
     S.prize=ladderPrize(S.idx);
     if(S.idx===5||S.idx===10)S.safePrize=S.prize;
     highlight(q.a,choice,true);
+    if(window.SFX)setTimeout(function(){SFX.ladderStep();},260);
     $('explain').innerHTML='💡 '+esc(q.e);$('explain').style.display='block';
     updateProg();hostRandom();
     if(S.idx>=15){setTimeout(function(){finish('win');},1400);return;}
-    setTimeout(function(){offlineQuestion(S.idx+1);},1400);
+    setTimeout(function(){S.idx++;var n=demoPick(S.idx);renderQuestion({text:n.t,options:n.o});},1400);
   }else{
     highlight(q.a,choice,false);
     $('explain').innerHTML='💡 '+esc(q.e);$('explain').style.display='block';
@@ -765,57 +889,182 @@ function demoAnswer(choice){
   }
 }
 function demoLifeline(kind){
-  var q=S.offQ||demoPick(S.idx);
   if(kind==='5050'){
-    var wrong=[0,1,2,3].filter(function(i){return i!==q.a;});
+    var q=demoPick(S.idx),wrong=[0,1,2,3].filter(function(i){return i!==q.a;});
     wrong.sort(function(){return Math.random()-.5;});
     wrong.slice(0,2).forEach(function(i){var el=$('opts').querySelector('.opt[data-i="'+i+'"]');if(el)el.classList.add('gone');});
     host('去蕪存菁，剩下兩個選項。',false);
-  }else if(kind==='ask_master'){host('大師提示：留意題幹的關鍵詞，先排除明顯錯誤的選項。',true);}
+  }else if(kind==='ask_master'){
+    // 2026-10-28 修（第1条）：占位处填选项里的某个值（不保证是正解），大师未必对
+    var qm=demoPick(S.idx);
+    var ex=(qm&&qm.e)?qm.e:'留意題幹的關鍵詞，先排除明顯錯誤的選項。';
+    if(qm&&qm.o&&qm.o[qm.a]&&ex.indexOf(qm.o[qm.a])>=0){
+      var _pick=qm.o[Math.floor(Math.random()*qm.o.length)];
+      ex=ex.replace(qm.o[qm.a],_pick);
+    }
+    host(ex,true);
+    showBelieve('ask_master');
+  }
   else if(kind==='audience'){
-    var v=[8,8,8,8];var rest=76;
-    v[q.a]=60;var o=[0,1,2,3].filter(function(i){return i!==q.a;});
-    v[o[0]]=Math.floor(rest*.5);v[o[1]]=Math.floor(rest*.3);v[o[2]]=rest-v[o[0]]-v[o[1]];
-    showAudience(v);host('現場觀眾的投票結果出來了。',false);
+    // 2026-10-27 修（第4条）：原来固定 60/38/22/16 → 近似均分，没有参考价值
+    var q=demoPick(S.idx),v=[0,0,0,0];
+    var wrong=[0,1,2,3].filter(function(i){return i!==q.a;});
+    wrong.sort(function(){return Math.random()-.5});
+    var rightPct=38+Math.floor(Math.random()*35);      // 正解 38%~72%
+    v[q.a]=rightPct;
+    var left=100-rightPct;
+    var w=[0.55+Math.random()*0.2, 0.28+Math.random()*0.12, 0];  // 错误项权重也拉开差距
+    w[2]=1-w[0]-w[1];
+    v[wrong[0]]=Math.round(left*w[0]);
+    v[wrong[1]]=Math.round(left*w[1]);
+    v[wrong[2]]=left-v[wrong[0]]-v[wrong[1]];
+    if(v[wrong[2]]<0){v[wrong[1]]+=v[wrong[2]];v[wrong[2]]=0;}
+    showAudience(v);host('現場觀眾的投票結果出來了。',false);showBelieve('audience');
   }else if(kind==='switch'){
     var qi=(S.idx+3)%DEMO_BANK.length;var n=DEMO_BANK[qi];
-    host('換一道同難度的題目。',false);offlineQuestion(S.idx,n);
+    host('換一道同難度的題目。',false);renderQuestion({text:n.t,options:n.o});
   }else if(kind==='time'){addTime(15);host('時間銀行加時 15 秒！',true);}
 }
 
 /* ============ 多人对战 ============ */
+/* 2026-11-07 修复：房间链路整体重写
+   BUG1 join 返回结构统一含 room{id,...}      → 前端 S.room.id 一定有值
+   BUG2 房主创建后无轮询                      → pollRoomStatus() 等你进来
+   BUG3 轮询调错接口（result 是单人局战绩）    → 改调 /room/<id>
+   BUG4 对战用本地 DEMO_BANK                   → 改调 /room/<id>/question?idx=N
+   BUG5 答题 index 错位一题                    → 全程 0 基，显示时 +1
+   约定：q_index / S.roomIdx 一律 0 基；界面上「第 N 題」= idx+1。 */
 var roomMode='ladder';
+var _oppPoll=null,_lobbyPoll=null;
+
+function stopRoomPoll(){
+  if(_oppPoll){clearInterval(_oppPoll);_oppPoll=null;}
+  if(_lobbyPoll){clearInterval(_lobbyPoll);_lobbyPoll=null;}
+}
 function resetRoom(){
+  stopRoomPoll();
   $('roomLobby').style.display='block';$('roomPlay').style.display='none';
   $('roomCodeBox').style.display='none';
+  S.room=null;S.roomIdx=0;S.roomPrize=0;S.oppIdx=0;S.oppPrize=0;S.meIdx=0;
+  $('rqOpts').innerHTML='';$('rqText').textContent='載入題目中…';
   $('roomModes').innerHTML='<div class="mode'+(roomMode==='ladder'?' pick':'')+'" data-k="ladder"><div class="ic">🪜</div><div class="nm">天梯挑戰</div><div class="ds">經典題庫</div></div>'
     +'<div class="mode'+(roomMode==='yixue'?' pick':'')+'" data-k="yixue"><div class="ic">☯️</div><div class="nm">易學主題</div><div class="ds">易學題庫</div></div>';
   var code=roomCodeFromUrl();
-  if(code){$('joinCode').value=code;toast('偵測到房間碼 '+code+'，點「加入房間」');}
+  if(code){$('joinCode').value=code;}
 }
 function roomCodeFromUrl(){
-  try{var m=/[?&]room=([A-Za-z0-9]{4,8})/.exec(location.search);return m?m[1].toUpperCase():'';}catch(e){return '';}
+  // 2026-10-31 第8项：原正则字符集里带 '='，会把 ?room=AB12 捕获成 '=AB12'，
+  // 导致房间码多一个等号，加入必然失败。修正为只取房间码本身。
+  try{var m=/[?&]room=([A-Za-z0-9]{2,12})(?:&|$)/.exec(location.search);return m?m[1].toUpperCase():'';}catch(e){return '';}
 }
+/* 2026-10-31 算了吗第8项：从邀请链接进入（?room=CODE）
+   - 已登录：自动加入房间并进入对战页
+   - 未登录：不强制跳登录页，先在大厅显示「即将加入房间 CODE」，
+     并把 CODE 存起来；登录回来后自动继续。 */
+function autoResumeInvite(){
+  var code=roomCodeFromUrl();
+  if(!code) return;
+  try{sessionStorage.setItem('ml_pending_room', code);}catch(e){}
+  show('s-room'); resetRoom();
+  $('joinCode').value=code;
+  var tk=(function(){try{return localStorage.getItem('yx_tk')||'';}catch(e){return '';}})();
+  if(!tk){
+    toast('房間 '+code+' 已就緒，登入後自動加入');
+    return;
+  }
+  var rc=$('roomCode'); if(rc) rc.textContent=code;
+  var cc=$('roomCodeBox'); if(cc) cc.style.display='block';
+  var jb=$('joinBtn'); if(jb) jb.click();
+}
+
+/* ---------- A. 房间码复制 / 分享 ---------- */
+function roomInviteLink(code){
+  var inv='';
+  try{var _me=JSON.parse(localStorage.getItem('yx_user')||'{}');inv=_me&&_me.id?_me.id:'';}catch(e){inv='';}
+  return location.origin+'/millionaire?room='+encodeURIComponent(code||'')+(inv?('&inviterId='+inv):'');
+}
+function roomInviteText(code){
+  return '我在算了吗·天機百萬富翁创建了房间，房间码 '+code+'，点这里直接进：'+roomInviteLink(code);
+}
+function copyPlain(txt,okMsg){
+  txt=String(txt==null?'':txt);
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(function(){toast(okMsg||'已複製');})
+      .catch(function(){prompt('複製以下內容',txt);});
+  }else{prompt('複製以下內容',txt);}
+}
+function currentRoomCode(){
+  var c=(S.room&&S.room.code)||$('roomCode').textContent||'';
+  c=String(c).trim().toUpperCase();
+  return (c&&c!=='------')?c:'';
+}
+function copyRoomCode(){
+  var c=currentRoomCode();
+  if(!c){toast('請先創建房間');return;}
+  copyPlain(c,'房間碼 '+c+' 已複製');
+}
+/* 分享：优先系统分享面板（微信/WhatsApp/传信都会出现在里面）；
+   不支持 navigator.share 时降级为复制文案。
+   注：传信（chuanyin）APK 的 AndroidManifest 只有 MAIN/LAUNCHER 入口，
+   没有注册任何 scheme intent-filter，因此**不存在官方深链**，不臆造 scheme。 */
+function shareRoomInvite(){
+  var c=currentRoomCode();
+  if(!c){toast('請先創建房間');return;}
+  var txt=roomInviteText(c), url=roomInviteLink(c);
+  if(navigator.share){
+    navigator.share({title:'天機百萬富翁 · 邀請對戰',text:txt,url:url})
+      .catch(function(e){if(e&&e.name==='AbortError')return;copyPlain(txt,'已複製邀請內容');});
+  }else{
+    copyPlain(txt,'已複製邀請內容，貼到聊天裡即可');
+  }
+}
+
 $('roomModes').addEventListener('click',function(e){
   var el=e.target.closest('.mode');if(!el)return;roomMode=el.getAttribute('data-k');resetRoom();
 });
-$('roomBackBtn').addEventListener('click',function(){show('s-home');});
+$('roomBackBtn').addEventListener('click',function(){stopRoomPoll();show('s-home');});
+$('roomCode').addEventListener('click',copyRoomCode);
+$('copyCodeBtn').addEventListener('click',copyRoomCode);
+$('shareRoomBtn').addEventListener('click',shareRoomInvite);
+
+/* ---------- BUG2：房主建房后轮询「客人是否进来」 ---------- */
+function pollRoomStatus(){
+  if(_lobbyPoll)clearInterval(_lobbyPoll);
+  var tick=function(){
+    if(!S.room||!S.room.id){stopRoomPoll();return;}
+    fetch(API+'/api/millionaire/room/'+encodeURIComponent(S.room.id),{headers:H(),cache:'no-store'})
+      .then(function(r){return r.json();}).then(function(d){
+        if(!d||!d.ok||!d.room)return;
+        S.room.status=d.room.status;S.room.guest_id=d.room.guest_id||0;
+        if((d.room.guest_id||0)>0&&d.room.status!=='waiting'){
+          if(_lobbyPoll){clearInterval(_lobbyPoll);_lobbyPoll=null;}
+          toast('對手已加入，開始對戰！');
+          enterRoomPlay();
+        }
+      }).catch(function(){});
+  };
+  tick();
+  _lobbyPoll=setInterval(tick,2500);
+}
+
 $('createRoomBtn').addEventListener('click',function(){
   fetch(API+'/api/millionaire/room/create',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({mode:roomMode})})
     .then(function(r){return r.json();}).then(function(d){
       if(!d||!d.ok){toast('房間創建失敗，請稍後再試');return;}
-      S.room={id:d.room_id,code:(d.code||'').toUpperCase()};
+      var rm=d.room||{};
+      S.room={id:(rm.id||d.room_id),code:String(rm.code||d.code||'').toUpperCase(),
+              status:rm.status||'waiting',host_id:rm.host_id||0,guest_id:rm.guest_id||0,role:'host'};
       $('roomCode').textContent=S.room.code;
-      var link=SITE_BASE+'/millionaire?room='+S.room.code;
-      $('roomLink').textContent=link;
+      $('roomLink').textContent=roomInviteLink(S.room.code);
       $('roomCodeBox').style.display='block';
       toast('房間已創建，邀請好友加入吧');
+      pollRoomStatus();   // BUG2：开始等客人
     }).catch(function(){toast('網絡異常，房間創建失敗');});
 });
 $('copyLinkBtn').addEventListener('click',function(){
-  var link=$('roomLink').textContent;
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(link).then(function(){toast('邀請連結已複製');}).catch(function(){prompt('複製此連結',link);});}
-  else{prompt('複製此連結',link);}
+  var link=$('roomLink').textContent||(currentRoomCode()?roomInviteLink(currentRoomCode()):'');
+  if(!link){toast('請先創建房間');return;}
+  copyPlain(link,'邀請連結已複製');
 });
 $('joinBtn').addEventListener('click',function(){
   var code=($('joinCode').value||'').trim().toUpperCase();
@@ -823,43 +1072,76 @@ $('joinBtn').addEventListener('click',function(){
   fetch(API+'/api/millionaire/room/join',{method:'POST',headers:H({'Content-Type':'application/json'}),body:JSON.stringify({code:code})})
     .then(function(r){return r.json();}).then(function(d){
       if(!d||!d.ok){toast((d&&d.msg)||'加入失敗，請檢查房間碼');return;}
-      S.room=d.room||{code:code};
+      var rm=d.room||{};
+      /* BUG1：后端现在一定回 room.id；仍保留 room_id 兜底 */
+      S.room={id:(rm.id||d.room_id),code:String(rm.code||code).toUpperCase(),
+              status:rm.status||'ready',host_id:rm.host_id||0,guest_id:rm.guest_id||0,
+              role:rm.role||d.role||'guest'};
+      if(!S.room.id){toast('加入失敗：房間信息異常');return;}
+      try{sessionStorage.removeItem('ml_pending_room');}catch(e){}
       enterRoomPlay();
     }).catch(function(){toast('網絡異常，加入失敗');});
 });
+
+/* ---------- 进入对战 ---------- */
 function enterRoomPlay(){
-  S.roomIdx=1;S.roomPrize=0;S.oppIdx=0;S.oppPrize=0;
+  stopRoomPoll();
+  S.roomIdx=0;S.roomPrize=0;S.oppIdx=0;S.oppPrize=0;S.meIdx=0;
   $('roomLobby').style.display='none';$('roomPlay').style.display='block';
   updateBars();
-  var q=demoPick(1);renderRoomQ({text:q.t,options:q.o});
-  pollOpponent();
+  $('rqOpts').innerHTML='';$('rqText').textContent='載入題目中…';
+  loadRoomQuestion(0);
+  pollRoomState();
 }
 function updateBars(){
-  $('meFill').style.width=Math.round((S.roomIdx-1)/15*100)+'%';
-  $('mePg').textContent='第 '+S.roomIdx+' / 15 題 · '+S.roomPrize+' 積分';
-  $('oppFill').style.width=Math.round(S.oppIdx/15*100)+'%';
-  $('oppPg').textContent=(S.oppIdx>0?('第 '+S.oppIdx+' / 15 題 · '+S.oppPrize+' 積分'):'等待對手…');
+  var m=Math.min(S.meIdx,15);
+  $('meFill').style.width=Math.round(m/15*100)+'%';
+  $('mePg').textContent='第 '+Math.min(m+1,15)+' / 15 題 · '+S.roomPrize+' 易幣';
+  var o=Math.min(S.oppIdx,15);
+  $('oppFill').style.width=Math.round(o/15*100)+'%';
+  $('oppPg').textContent=(o>0?('已答 '+o+' / 15 題 · '+S.oppPrize+' 易幣'):'等待對手…');
 }
-var _oppPoll=null;
-function pollOpponent(){
+/* BUG3：轮询房间接口（不是单人局 /result） */
+function pollRoomState(){
   if(_oppPoll)clearInterval(_oppPoll);
-  _oppPoll=setInterval(function(){
+  var tick=function(){
     if(!S.room||!S.room.id)return;
-    fetch(API+'/api/millionaire/result/'+encodeURIComponent(S.room.id),{headers:H()})
+    fetch(API+'/api/millionaire/room/'+encodeURIComponent(S.room.id),{headers:H(),cache:'no-store'})
       .then(function(r){return r.json();}).then(function(d){
-        if(d&&d.ok&&typeof d.opp_index==='number'){S.oppIdx=d.opp_index;S.oppPrize=d.opp_prize||0;updateBars();}
+        if(!d||!d.ok)return;
+        if(typeof d.opp_index==='number'){S.oppIdx=d.opp_index;S.oppPrize=d.opp_prize||0;}
+        if(typeof d.me_index==='number'&&d.me_index>S.meIdx)S.meIdx=d.me_index;
+        if(typeof d.me_prize==='number'&&d.me_prize>S.roomPrize)S.roomPrize=d.me_prize;
+        updateBars();
       }).catch(function(){});
-  },4000);
+  };
+  tick();
+  _oppPoll=setInterval(tick,3000);
+}
+/* BUG4：题目从房间接口取（双方同一套）；拿不到才降级 DEMO 并提示 */
+function loadRoomQuestion(idx){
+  if(!S.room||!S.room.id){roomDemoFallback(idx,true);return;}
+  fetch(API+'/api/millionaire/room/'+encodeURIComponent(S.room.id)+'/question?idx='+idx,{headers:H(),cache:'no-store'})
+    .then(function(r){return r.json();}).then(function(d){
+      if(d&&d.ok&&d.question){S.roomIdx=d.question.q_index;renderRoomQ(d.question);}
+      else{roomDemoFallback(idx,true);}
+    }).catch(function(){roomDemoFallback(idx,true);});
+}
+function roomDemoFallback(idx,notify){
+  if(notify)toast('題目接口異常，暫用離線題庫');
+  var q=demoPick(idx+1);
+  renderRoomQ({text:q.t,options:q.o,q_index:idx,idx:idx+1,seconds:20});
 }
 function renderRoomQ(q){
   S.q=q;
+  if(typeof q.q_index==='number')S.roomIdx=q.q_index;
   $('rqText').textContent=q.text||'（題面缺失）';
   var opts=q.options||[];
   $('rqOpts').innerHTML=opts.map(function(o,i){
     var K=['A','B','C','D'][i]||'?';
     return '<button class="opt" data-i="'+i+'"><span class="k">'+K+'</span><span class="o">'+esc(o)+'</span></button>';
   }).join('');
-  $('rqCat').textContent='第 '+S.roomIdx+' 題 · '+diffOf(S.roomIdx);
+  $('rqCat').textContent='第 '+(S.roomIdx+1)+' 題 · '+diffOf(S.roomIdx+1);
   $('rqPrize').textContent=S.roomPrize;
 }
 $('rqOpts').addEventListener('click',function(e){
@@ -868,28 +1150,37 @@ $('rqOpts').addEventListener('click',function(e){
   $('rqOpts').querySelector('.opt[data-i="'+i+'"]').classList.add('sel');
   var all=$('rqOpts').querySelectorAll('.opt');for(var j=0;j<all.length;j++)all[j].setAttribute('disabled','');
   if(!S.room||!S.room.id){toast('房間未連線');return;}
-  fetch(API+'/api/millionaire/room/answer',{method:'POST',headers:H({'Content-Type':'application/json'}),
+  /* BUG5：提交 0 基 q_index（第 1 题 = 0），后端同口径 */
+  fetch(API+'/api/millionaire/room/answer',{method:'POST',headers:H({'Content-Type':'application/json'}),cache:'no-store',
     body:JSON.stringify({room_id:S.room.id,choice:i,q_index:S.roomIdx})})
     .then(function(r){return r.json();}).then(function(d){
-      if(d&&d.ok){
-        if(d.correct){
-          S.roomPrize=d.prize||ladderPrize(S.roomIdx);
-          if(S.roomIdx>=15){toast('🏆 你率先完成 15 題！');}
-          else{S.roomIdx++;setTimeout(function(){var q=d.question||demoPick(S.roomIdx);renderRoomQ(q);},900);}
-        }else{
-          toast('答錯了，對手有機會追上！');
-          setTimeout(function(){S.roomIdx++;var q=demoPick(S.roomIdx);renderRoomQ(q);},900);
-        }
-        if(typeof d.opp_index==='number'){S.oppIdx=d.opp_index;S.oppPrize=d.opp_prize||0;}
-        updateBars();
-      }else{toast('提交失敗');}
+      if(!d||!d.ok){toast((d&&d.msg)||'提交失敗');return;}
+      var els=$('rqOpts').querySelectorAll('.opt');
+      for(var k=0;k<els.length;k++){
+        var ki=parseInt(els[k].getAttribute('data-i'),10);
+        if(ki===d.correct_idx)els[k].classList.add('correct');
+        else if(ki===i)els[k].classList.add('wrong');
+      }
+      if(typeof d.me_index==='number')S.meIdx=d.me_index;
+      if(typeof d.me_prize==='number')S.roomPrize=d.me_prize;
+      if(typeof d.opp_index==='number'){S.oppIdx=d.opp_index;S.oppPrize=d.opp_prize||0;}
+      S.roomIdx=(typeof d.next_question==='object'&&d.next_question)?d.next_question.q_index:S.roomIdx;
+      updateBars();
+      toast(d.correct?('答對了！+'+(d.prize||0)+' 易幣'):'答錯了，對手有機會追上！');
+      if(d.finished){setTimeout(function(){toast('🏆 你已完成 15 題，等待對手…',3000);},1200);return;}
+      setTimeout(function(){
+        if(d.next_question){renderRoomQ(d.next_question);}
+        else{loadRoomQuestion(Math.max(S.roomIdx+1,0));}
+      },1000);
     }).catch(function(){toast('網絡異常');});
 });
-$('roomQuitBtn').addEventListener('click',function(){if(_oppPoll)clearInterval(_oppPoll);resetRoom();show('s-home');});
+$('roomQuitBtn').addEventListener('click',function(){stopRoomPoll();resetRoom();show('s-home');});
 
 /* ============ 启动 ============ */
-renderModes();renderLadder(1);renderLifelines();loadBalance();
-if(OFFLINE){try{$('balHome').innerHTML='🏆 單機挑戰<br>離線暢玩';}catch(e){}}
+renderModes();renderLadder(1);renderLifelines();loadBalance();loadGrandStatus();
+// 2026-10-31 第8项：邀请恢复不能只挂在 ToolIntro 的 onEnter 上，
+// 万一引导层未挂载就会整条链路失效。这里独立执行一次兜底。
+try{ if(roomCodeFromUrl()) { show('s-room'); resetRoom(); autoResumeInvite(); } }catch(e){}
 // 落地页（玩法说明 + 收费说明），点「进入工具」后落到游戏首页
 try{
   ToolIntro.mount({
@@ -898,17 +1189,52 @@ try{
     title:'天機百萬富翁',
     slogan:'還原《百萬富翁》經典玩法：<br>15 道題衝上獎梯，限時作答、錦囊助陣、答錯即止。',
     steps:[
-      '選擇模式（天梯挑戰 / 易學主題場 / 邀請對戰 / 週賽）並進入；',
-      '15 道題目由易到難，每題 <b>30 / 45 / 60 秒</b> 限時，倒計時環歸零即算逾時；',
+      '選擇模式（天梯挑戰 / 易學主題場 / 邀請對戰 / 週賽 / 初一十五大獎賽）並進入；',
+      '15 道題目由易到難，<b>每題一律 20 秒</b>限時（難度不延長時間），倒計時環歸零即算逾時；',
       '答對逐級登上獎梯，第 <b>5 題</b>、第 <b>10 題</b> 為保險線，過線即保底；',
       '善用 <b>5 個錦囊</b>：50:50 / 問大師 / 問觀眾 / 換一題 / 加時 15 秒；',
-      '隨時可「見好就收」帶著積分離場；答錯或逾時結算至最近保險線，可分享戰績海報。'
+      '隨時可「見好就收」帶著易幣離場；答錯或逾時結算至最近保險線，可分享戰績海報。'
     ],
-    note:'⚠️ 本遊戲為單機益智娛樂，所有積分與錦囊均為遊戲內虛擬玩法，不涉及任何真實賭博或金錢兌換。<br>命理內容僅供傳統文化參考 · 理性遊戲。',
-    onEnter:function(){show('s-home');loadBalance();}
+    note:'⚠️ 入場與錦囊按會員易幣計費；正確答案由服務端裁決，前端不會取得。<br>命理僅供文化參考 · 理性遊戲。',
+    onEnter:function(){show('s-home');syncCurUI();loadBalance();autoResumeInvite();}
   });
+
+  // 2026-11-11 第6項：賽事規則塊（插在「玩法說明」之後、「收費說明」之前）
+  try{
+    var _m=document.getElementById('tiMask');
+    if(_m){
+      var _sc=_m.querySelector('.ti-scroll');
+      var _cards=_m.querySelectorAll('.ti-card');
+      var _r=document.createElement('div');
+      _r.className='ti-card'; _r.id='tiRules';
+      _r.innerHTML="<h2>🏆 賽事規則</h2><div class=\"ti-row\"><span class=\"ic\">🕐</span><span><b>開放時間</b>：週賽每自然週限 1 次；初一十五大獎賽僅農曆初一、十五開放，每個農曆日限 1 次。</span></div><div class=\"ti-row\"><span class=\"ic\">🔥</span><span><b>賽事難度</b>：兩者使用獨立獎梯，保底與獎金檔位不同於普通模式；同為 15 題、每題 20 秒，且受次數限制。</span></div><div class=\"ti-row\"><span class=\"ic\">💰</span><span><b>結算規則</b>：獎金由各自獨立獎池結算；答對過保險線即保底，答錯或逾時結算至最近保險線（獎池不足時按池內實際金額發放）。</span></div><div class=\"ti-row\"><span class=\"ic\">🎁</span><span><b>獎勵領取</b>：結算完成即時發放易幣，無需另外領取，也沒有過期時限。</span></div><div class=\"ti-row\"><span class=\"ic\">🎫</span><span>入場費以模式卡顯示為準，實際扣費以服務端結算金額為準。</span></div>";
+      if(_sc){ if(_cards.length>1){_sc.insertBefore(_r,_cards[1]);} else {_sc.appendChild(_r);} }
+    }
+  }catch(e){}
 }catch(e){/* 无 ToolIntro 时直接进入首页 */}
 })();
+</script>
+<script>
+TIPatch({"天機百萬富翁": {"en": "Tianji Millionaire", "zhTW": "天機百萬富翁", "zhHK": "天機百萬富翁", "ja": "天機ミリオネア", "ko": "천기 밀리오네어", "es": "Tianji Millonario", "fr": "Tianji Millionnaire", "de": "Tianji Millionär", "pt": "Tianji Milionário", "ar": "تشانجي المليونير"}, "還原《百萬富翁》經典玩法：<br>15 道題衝上獎梯，限時作答、錦囊助陣、答錯即止。": {"en": "A classic Millionaire revival:<br>15 questions up the prize ladder, timed answers, lifelines, one wrong answer and it's over.", "zhTW": "還原《百萬富翁》經典玩法：<br>15 道題衝上獎梯，限時作答、錦囊助陣、答錯即止。", "zhHK": "還原《百萬富翁》經典玩法：<br>15 道題衝上獎梯，限時作答、錦囊助陣、答錯即止。", "ja": "「ミリオネア」の古典的なゲームプレイを復元します。<br>賞品のはしごに急ぐための 15 の質問、限られた解答時間、役立つヒントがあり、答えは間違った場合のみ正解となります。", "ko": "\"Millionaire\"의 클래식 게임플레이를 복원하세요. <br>상금 사다리를 향해 달려가는 15개의 질문, 제한된 답변 시간, 도움이 되는 팁, 답변은 틀렸을 경우에만 정답이 됩니다.", "es": "Restaura la jugabilidad clásica de \"Millionaire\": <br>15 preguntas para subir rápidamente a la escala de premios, tiempo limitado para responder, consejos para ayudarte y la respuesta solo será correcta si te equivocas.", "fr": "Restaurez le gameplay classique de \"Millionaire\" : <br>15 questions pour vous précipiter vers l'échelle des prix, un temps de réponse limité, des conseils pour vous aider, et la réponse ne sera correcte que si vous vous trompez.", "de": "Stellen Sie das klassische Gameplay von „Millionaire“ wieder her: <br>15 Fragen, die Sie auf die Gewinnleiter stürmen müssen, begrenzte Zeit zum Beantworten, Tipps, die Ihnen helfen, und die Antwort ist nur dann richtig, wenn Sie etwas falsch machen.", "pt": "Restaure a jogabilidade clássica de \"Millionaire\": <br>15 perguntas para correr para a escada de prêmios, tempo limitado para responder, dicas para ajudá-lo, e a resposta só será correta se você errar.", "ar": "استعد طريقة اللعب الكلاسيكية لـ \"Millionaire\": <br>15 سؤالًا للاندفاع نحو سلم الجوائز، ووقتًا محدودًا للإجابة، ونصائح لمساعدتك، ولن تكون الإجابة صحيحة إلا إذا أخطأت في الإجابة عليها."}, "選擇模式（天梯挑戰 / 易學主題場 / 邀請對戰 / 週賽 / 初一十五大獎賽）並進入；": {"en": "Pick a mode (Ladder / Yixue theme / Invite duel / Weekly / Grand Tournament) and enter;", "zhTW": "選擇模式（天梯挑戰 / 易學主題場 / 邀請對戰 / 週賽 / 初一十五大獎賽）並進入；", "zhHK": "選擇模式（天梯挑戰 / 易學主題場 / 邀請對戰 / 週賽 / 初一十五大獎賽）並進入；", "ja": "モード（ラダーチャレンジ／易学テーマ／招待対戦／週間大会／初一十五グランド大会）を選んで入場します。", "ko": "모드(사다리 도전/역학 테마/초대 대전/주간 대회/초하루·보름 그랜드 대회)를 선택해 입장합니다.", "es": "Elige un modo (Escalera / Tema Yixue / Duelo por invitación / Torneo semanal / Gran Torneo) y entra;", "fr": "Choisissez un mode (Échelle / Thème Yixue / Duel sur invitation / Tournoi hebdomadaire / Grand Tournoi) et entrez ;", "de": "Wählen Sie einen Modus (Leiter / Yixue-Thema / Einladungsduell / Wochenturnier / Großturnier) und starten Sie;", "pt": "Escolha um modo (Escada / Tema Yixue / Duelo por convite / Torneio semanal / Grande Torneio) e entre;", "ar": "اختر الوضع (تحدي السلم / موضوع يي شيويه / مبارزة بالدعوة / بطولة أسبوعية / البطولة الكبرى) وادخل؛"}, "15 道題目由易到難，每題 <b>30 / 45 / 60 秒</b> 限時，倒計時環歸零即算逾時；": {"en": "15 questions from easy to hard, each with a <b>30 / 45 / 60 s</b> limit; when the ring hits zero it counts as timeout;", "zhTW": "15 道題目由易到難，每題 <b>30 / 45 / 60 秒</b> 限時，倒計時環歸零即算逾時；", "zhHK": "15 道題目由易到難，每題 <b>30 / 45 / 60 秒</b> 限時，倒計時環歸零即算逾時；", "ja": "簡単な問題から難しい問題まで 15 問あり、 各問題の制限時間は<b>30 / 45 / 60 秒</b>で、カウントダウン リングがゼロになると延長とみなされます。", "ko": "쉬운 것부터 어려운 것까지 15개의 질문이 있으며, 각 질문에는 <b>30/45/60초</b>의 시간 제한이 있으며, 카운트다운 링이 0에 도달하면 초과 근무로 간주됩니다.", "es": "Hay 15 preguntas de fácil a difícil, cada pregunta tiene un límite de tiempo de <b>30 / 45 / 60 segundos</b>, y el anillo de cuenta regresiva se considerará tiempo extra cuando llegue a cero;", "fr": "Il y a 15 questions de facile à difficile, chaque question a une limite de temps de <b>30/45/60 secondes</b>, et le compte à rebours sera considéré comme une heure supplémentaire lorsqu'il atteint zéro ;", "de": "Es gibt 15 Fragen von leicht bis schwer, jede Frage hat ein Zeitlimit von <b>30/45/60 Sekunden</b> und der Countdown-Ring gilt als verlängert, wenn er Null erreicht;", "pt": "São 15 questões de fácil a difícil, cada questão tem um limite de tempo de <b>30/45/60 segundos</b>, e o anel de contagem regressiva será considerado prorrogação quando chegar a zero;", "ar": "هناك 15 سؤالًا من السهل إلى الصعب، كل سؤال له حد زمني <b>30 / 45 / 60 ثانية</b>، وستعتبر حلقة العد التنازلي وقتًا إضافيًا عندما تصل إلى الصفر؛"}, "答對逐級登上獎梯，第 <b>5 題</b>、第 <b>10 題</b> 為保險線，過線即保底；": {"en": "Correct answers climb the ladder; questions <b>5</b> and <b>10</b> are safety lines that lock in your winnings;", "zhTW": "答對逐級登上獎梯，第 <b>5 題</b>、第 <b>10 題</b> 為保險線，過線即保底；", "zhHK": "答對逐級登上獎梯，第 <b>5 題</b>、第 <b>10 題</b> 為保險線，過線即保底；", "ja": "正解すると賞品のはしごを一歩ずつ登っていきます。質問 <b>5</b> と <b>10</b> は保険の項目です。一線を超えても保証されます。", "ko": "정답을 맞히면 상금 사다리를 한 단계씩 올라갈 수 있습니다. 질문 <b>5</b>과 <b>10</b>은 보험 항목입니다. 선을 넘으면 보장됩니다.", "es": "Si respondes correctamente, ascenderás en la escala de premios paso a paso. Las preguntas <b>5</b> y <b>10</b> son las líneas de seguros. Si cruza la línea, tendrá la garantía;", "fr": "Si vous répondez correctement, vous gravirez les échelons étape par étape. Les questions <b>5</b> et <b>10</b> sont les lignes d'assurance. Si vous franchissez la ligne, vous serez assuré ;", "de": "Wenn Sie richtig antworten, steigen Sie Schritt für Schritt die Gewinnleiter hinauf. Die Fragen <b>5</b> und <b>10</b> sind die Versicherungssparten. Wenn Sie die Grenze überschreiten, ist Ihnen das garantiert;", "pt": "Se você responder corretamente, você subirá na escada de prêmios passo a passo. As questões <b>5</b> e <b>10</b> são as linhas de seguro. Se você cruzar a linha, estará garantido;", "ar": "إذا أجبت بشكل صحيح، فسوف تصعد سلم الجائزة خطوة بخطوة. الأسئلة <b>5</b> و<b>10</b> هي خطوط التأمين. إذا تجاوزت الخط، فسيتم ضمانك؛"}, "善用 <b>5 個錦囊</b>：50:50 / 問大師 / 問觀眾 / 換一題 / 加時 15 秒；": {"en": "Use your <b>5 lifelines</b>: 50:50 / Ask the Master / Ask the Audience / Swap question / +15 s;", "zhTW": "善用 <b>5 個錦囊</b>：50:50 / 問大師 / 問觀眾 / 換一題 / 加時 15 秒；", "zhHK": "善用 <b>5 個錦囊</b>：50:50 / 問大師 / 問觀眾 / 換一題 / 加時 15 秒；", "ja": "50:50 / マスターに質問する / 聴衆に質問する / 質問を変更する / 15 秒追加する<b> 5 つのヒント</b> を上手に活用しましょう。", "ko": "<b>5가지 팁</b>을 잘 활용하세요: 50:50 / 마스터에게 물어보세요 / 청중에게 물어보세요 / 질문 변경 / 15초 추가;", "es": "Haz buen uso de los <b>5 consejos</b>: 50:50 / Pregúntale al maestro / Pregúntale al público / Cambia una pregunta / Añade 15 segundos;", "fr": "Faites bon usage des <b>5 conseils</b> : 50:50 / Demandez au maître / Demandez au public / Changez une question / Ajoutez 15 secondes ;", "de": "Nutzen Sie <b>5 Tipps</b>: 50:50 / Fragen Sie den Meister / Fragen Sie das Publikum / Ändern Sie eine Frage / Fügen Sie 15 Sekunden hinzu;", "pt": "Faça bom uso de <b>5 dicas</b>: 50:50 / Pergunte ao mestre / Pergunte ao público / Mude uma pergunta / Adicione 15 segundos;", "ar": "استفد جيدًا من <b>5 نصائح</b>: 50:50 / اسأل المعلم / اسأل الجمهور / غيّر سؤالًا / أضف 15 ثانية؛"}, "隨時可「見好就收」帶著易幣離場；答錯或逾時結算至最近保險線，可分享戰績海報。": {"en": "You can quit anytime with your Yibi; a wrong answer or timeout settles to the last safety line, and you can share a poster.", "zhTW": "隨時可「見好就收」帶著易幣離場；答錯或逾時結算至最近保險線，可分享戰績海報。", "zhHK": "隨時可「見好就收」帶著易幣離場；答錯或逾時結算至最近保險線，可分享戰績海報。", "ja": "「完了」することで、いつでも Yi コインを持ってゲームを終了できます。答えが間違っていたり期限を過ぎた場合は、最寄りの保険窓口で解決することができ、パフォーマンスポスターを共有することもできます。", "ko": "\"완료\"를 통해 언제든지 Yi 코인을 가지고 게임을 떠날 수 있습니다. 답변이 틀리거나 연체된 경우 가장 가까운 보험 라인으로 정산하실 수 있으며, 성과 포스터를 공유하실 수 있습니다.", "es": "Puedes abandonar el juego con monedas Yi en cualquier momento \"haciéndolo\"; Si responde incorrectamente o está vencido, puede liquidarlo en la línea de seguros más cercana y puede compartir sus carteles de desempeño.", "fr": "Vous pouvez quitter le jeu avec des pièces Yi à tout moment en « le faisant » ; si vous répondez incorrectement ou si vous êtes en retard, vous pouvez régler le problème auprès de la compagnie d'assurance la plus proche et partager vos affiches de performance.", "de": "Sie können das Spiel jederzeit mit Yi-Münzen verlassen, indem Sie „es erledigen“; Wenn Sie falsch antworten oder es überfällig ist, können Sie es bei der nächstgelegenen Versicherungssparte begleichen und Ihre Leistungsplakate teilen.", "pt": "Você pode sair do jogo com moedas Yi a qualquer momento, \"fazendo isso\"; se você responder incorretamente ou estiver atrasado, poderá resolver o problema com a linha de seguros mais próxima e poderá compartilhar seus pôsteres de desempenho.", "ar": "يمكنك ترك اللعبة باستخدام عملات Yi في أي وقت عن طريق \"إنجاز الأمر\"؛ إذا كانت إجابتك خاطئة أو متأخرة، يمكنك تسويتها إلى أقرب خط تأمين، ويمكنك مشاركة ملصقات الأداء الخاصة بك."}, "⚠️ 入場與錦囊按會員易幣計費；正確答案由服務端裁決，前端不會取得。<br>命理僅供文化參考 · 理性遊戲。": {"en": "⚠️ Entry and lifelines cost member Yibi; correct answers are decided server-side and never sent to the client.<br>Numerology is for cultural reference only · play responsibly.", "zhTW": "⚠️ 入場與錦囊按會員易幣計費；正確答案由服務端裁決，前端不會取得。<br>命理僅供文化參考 · 理性遊戲。", "zhHK": "⚠️ 入場與錦囊按會員易幣計費；正確答案由服務端裁決，前端不會取得。<br>命理僅供文化參考 · 理性遊戲。", "ja": "⚠️ 入場料とチップはメンバーコインで課金されます。正しい答えはサーバーによって決定され、フロントエンドによって取得されることはありません。 <br>数秘術は文化的な参考のみを目的としています · 合理的なゲームです。", "ko": "⚠️ 입장료와 팁은 회원 코인으로 청구됩니다. 정답은 서버에 의해 결정되며 프런트 엔드에서 얻지 않습니다. <br>수비학은 문화적 참고용으로만 사용됩니다. · 합리적인 게임.", "es": "⚠️ La entrada y las propinas se cobran en monedas de miembro; la respuesta correcta la determina el servidor y no la obtendrá el front-end. <br>La numerología es sólo para referencia cultural · Juego racional.", "fr": "⚠️ L'entrée et les pourboires sont facturés en pièces de membre ; la bonne réponse est déterminée par le serveur et ne sera pas obtenue par le front-end. <br>La numérologie est uniquement à titre de référence culturelle · Jeu rationnel.", "de": "⚠️ Eintritt und Trinkgeld werden in Mitgliedsmünzen berechnet; Die richtige Antwort wird vom Server bestimmt und nicht vom Frontend abgerufen. <br>Numerologie dient nur der kulturellen Referenz · Rationales Spiel.", "pt": "⚠️ Entradas e gorjetas são cobradas em moedas de associado; a resposta correta é determinada pelo servidor e não será obtida pelo front-end. <br>A numerologia é apenas para referência cultural · Jogo racional.", "ar": "⚠️ يتم تحصيل رسوم الدخول والإكراميات بالعملات المعدنية للأعضاء؛ يتم تحديد الإجابة الصحيحة بواسطة الخادم ولن تحصل عليها الواجهة الأمامية. <br>علم الأعداد هو للإشارة الثقافية فقط · لعبة عقلانية."}},
+{"‹ 天机": {"en": "‹ Tianji", "zhTW": "‹ 天機", "zhHK": "‹ 天機", "ja": "‹ 天吉", "ko": "‹ 천지", "es": "‹Tianji", "fr": "‹ Tianji", "de": "‹ Tianji", "pt": "‹Tianji", "ar": "‹ تيانجي"}});
+</script>
+<script>
+/* 2026-11-11 第6項：賽事規則塊文案（10 語） */
+TIPatch({"🏆 賽事規則": {"en": "🏆 Tournament Rules", "zhTW": "🏆 賽事規則", "zhHK": "🏆 賽事規則", "ja": "🏆 大会ルール", "ko": "🏆 대회 규칙", "es": "🏆 Reglas del torneo", "fr": "🏆 Règles du tournoi", "de": "🏆 Turnierregeln", "pt": "🏆 Regras do torneio", "ar": "🏆 قواعد البطولة"}, "<b>開放時間</b>：週賽每自然週限 1 次；初一十五大獎賽僅農曆初一、十五開放，每個農曆日限 1 次。": {"en": "<b>Schedule</b>: the Weekly Cup allows 1 entry per calendar week; the Grand Tournament opens only on the 1st and 15th of the lunar month, 1 entry per lunar day.", "zhTW": "<b>開放時間</b>：週賽每自然週限 1 次；初一十五大獎賽僅農曆初一、十五開放，每個農曆日限 1 次。", "zhHK": "<b>開放時間</b>：週賽每自然週限 1 次；初一十五大獎賽僅農曆初一、十五開放，每個農曆日限 1 次。", "ja": "<b>開催時間</b>：週間大会は暦週ごとに 1 回まで。初一十五グランド大会は旧暦の初一・十五のみ開催（旧暦 1 日につき 1 回）。", "ko": "<b>개최 시간</b>: 주간 대회는 달력 기준 주당 1회, 초하루·보름 그랜드 대회는 음력 초하루와 보름에만 개최(음력 하루 1회)됩니다.", "es": "<b>Horario</b>: la Copa semanal admite 1 entrada por semana natural; el Gran Torneo solo abre el día 1 y el 15 del mes lunar, 1 entrada por día lunar.", "fr": "<b>Horaires</b> : la Coupe hebdomadaire est limitée à 1 entrée par semaine civile ; le Grand Tournoi n’ouvre que le 1er et le 15 du mois lunaire, 1 entrée par jour lunaire.", "de": "<b>Spielzeiten</b>: Der Wochenpokal ist auf 1 Teilnahme pro Kalenderwoche begrenzt; das Großturnier öffnet nur am 1. und 15. Tag des Mondmonats, 1 Teilnahme pro Mondtag.", "pt": "<b>Horário</b>: a Copa semanal permite 1 entrada por semana civil; o Grande Torneio abre apenas no dia 1 e no dia 15 do mês lunar, 1 entrada por dia lunar.", "ar": "<b>وقت الإتاحة</b>: البطولة الأسبوعية مرة واحدة لكل أسبوع ميلادي؛ البطولة الكبرى تُفتح فقط في اليوم الأول والخامس عشر من الشهر القمري، مرة واحدة لكل يوم قمري."}, "<b>賽事難度</b>：兩者使用獨立獎梯，保底與獎金檔位不同於普通模式；同為 15 題、每題 20 秒，且受次數限制。": {"en": "<b>Difficulty</b>: both use their own prize ladder, with safety-line and prize tiers different from normal modes; still 15 questions at 20 seconds each, and entries are limited.", "zhTW": "<b>賽事難度</b>：兩者使用獨立獎梯，保底與獎金檔位不同於普通模式；同為 15 題、每題 20 秒，且受次數限制。", "zhHK": "<b>賽事難度</b>：兩者使用獨立獎梯，保底與獎金檔位不同於普通模式；同為 15 題、每題 20 秒，且受次數限制。", "ja": "<b>難易度</b>：どちらも専用の賞金ラダーを使用し、保険ラインと賞金段階が通常モードと異なります。15 問・各 20 秒で、参加回数に制限があります。", "ko": "<b>난이도</b>: 두 대회 모두 전용 상금 사다리를 사용하며 보험선과 상금 구간이 일반 모드와 다릅니다. 15문제, 문제당 20초이며 참가 횟수 제한이 있습니다.", "es": "<b>Dificultad</b>: ambos usan su propia escalera de premios, con línea de seguridad y tramos distintos a los modos normales; 15 preguntas de 20 segundos y entradas limitadas.", "fr": "<b>Difficulté</b> : les deux utilisent leur propre échelle de prix, avec ligne de sécurité et paliers différents des modes normaux ; 15 questions de 20 secondes et entrées limitées.", "de": "<b>Schwierigkeit</b>: Beide nutzen eine eigene Gewinnleiter mit anderen Sicherheitslinien und Stufen als die normalen Modi; 15 Fragen mit je 20 Sekunden, begrenzte Teilnahmen.", "pt": "<b>Dificuldade</b>: ambos usam escada de prêmios própria, com linha de segurança e faixas diferentes dos modos normais; 15 perguntas de 20 segundos e entradas limitadas.", "ar": "<b>الصعوبة</b>: كلتاهما تستخدمان سلم جوائز خاصًا بخط أمان وفئات مختلفة عن الأوضاع العادية؛ 15 سؤالًا ومدة 20 ثانية لكل سؤال، مع تحديد عدد المشاركات."}, "<b>結算規則</b>：獎金由各自獨立獎池結算；答對過保險線即保底，答錯或逾時結算至最近保險線（獎池不足時按池內實際金額發放）。": {"en": "<b>Settlement</b>: prizes are paid from a separate prize pool per event; passing a safety line locks in the minimum, and a wrong answer or timeout settles to the last safety line (if the pool is short, only the available amount is paid).", "zhTW": "<b>結算規則</b>：獎金由各自獨立獎池結算；答對過保險線即保底，答錯或逾時結算至最近保險線（獎池不足時按池內實際金額發放）。", "zhHK": "<b>結算規則</b>：獎金由各自獨立獎池結算；答對過保險線即保底，答錯或逾時結算至最近保險線（獎池不足時按池內實際金額發放）。", "ja": "<b>精算ルール</b>：賞金は大会ごとの独立した賞金プールから支払われます。保険ラインを通過すれば最低額を確保、誤答や時間切れは直近の保険ラインで精算します（プール不足時は実際の残額を支給）。", "ko": "<b>정산 규칙</b>: 상금은 대회별 독립 상금 풀에서 지급됩니다. 보험선을 통과하면 최소 금액이 보장되며, 오답이나 시간 초과 시 가장 가까운 보험선으로 정산합니다(풀이 부족하면 실제 잔액만 지급).", "es": "<b>Liquidación</b>: los premios se pagan de un fondo independiente por evento; pasar la línea de seguridad asegura el mínimo y un fallo o tiempo agotado liquida en la última línea de seguridad (si el fondo no alcanza, se paga lo disponible).", "fr": "<b>Règlement</b> : les prix sont payés depuis une cagnotte distincte par épreuve ; franchir la ligne de sécurité garantit le minimum, une erreur ou un temps écoulé règle à la dernière ligne de sécurité (si la cagnotte est insuffisante, seul le disponible est versé).", "de": "<b>Abrechnung</b>: Die Preise werden je Veranstaltung aus einem eigenen Preispool gezahlt; eine bestandene Sicherheitslinie sichert das Minimum, eine falsche Antwort oder Zeitablauf rechnet auf die letzte Sicherheitslinie ab (bei zu kleinem Pool wird nur der vorhandene Betrag ausgezahlt).", "pt": "<b>Liquidação</b>: os prêmios são pagos de um fundo próprio por evento; passar a linha de segurança garante o mínimo, e erro ou tempo esgotado liquida na última linha de segurança (se o fundo não bastar, paga-se o disponível).", "ar": "<b>التسوية</b>: تُدفع الجوائز من صندوق جوائز مستقل لكل بطولة؛ تجاوز خط الأمان يضمن الحد الأدنى، والإجابة الخاطئة أو انتهاء الوقت تُسوَّى عند أقرب خط أمان (وإذا كان الصندوق غير كافٍ يُدفع المتاح فقط)."}, "<b>獎勵領取</b>：結算完成即時發放易幣，無需另外領取，也沒有過期時限。": {"en": "<b>Rewards</b>: Yibi is credited immediately at settlement — no separate claim step and no expiry.", "zhTW": "<b>獎勵領取</b>：結算完成即時發放易幣，無需另外領取，也沒有過期時限。", "zhHK": "<b>獎勵領取</b>：結算完成即時發放易幣，無需另外領取，也沒有過期時限。", "ja": "<b>報酬受取</b>：精算完了と同時に易コインを付与します。別途受け取る必要はなく、有効期限もありません。", "ko": "<b>보상 수령</b>: 정산 완료 즉시 이비가 지급되며, 별도로 수령할 필요가 없고 만료 기한도 없습니다.", "es": "<b>Recompensas</b>: los Yibi se abonan al instante al liquidar; no hay que reclamarlos ni caducan.", "fr": "<b>Récompenses</b> : les Yibi sont crédités immédiatement au règlement, sans démarche de récupération ni expiration.", "de": "<b>Belohnungen</b>: Yibi werden bei der Abrechnung sofort gutgeschrieben – kein separater Abruf, kein Verfall.", "pt": "<b>Recompensas</b>: os Yibi são creditados imediatamente na liquidação — sem resgate separado e sem expiração.", "ar": "<b>المكافآت</b>: تُضاف عملات يبي فور التسوية دون خطوة استلام منفصلة ودون انتهاء صلاحية."}, "入場費以模式卡顯示為準，實際扣費以服務端結算金額為準。": {"en": "Entry fees are shown on the mode cards; the amount actually charged is decided by the server at settlement.", "zhTW": "入場費以模式卡顯示為準，實際扣費以服務端結算金額為準。", "zhHK": "入場費以模式卡顯示為準，實際扣費以服務端結算金額為準。", "ja": "入場料はモードカードの表示どおりで、実際の引き落とし額はサーバー側の精算額に基づきます。", "ko": "입장료는 모드 카드에 표시된 금액이며, 실제 차감 금액은 서버 정산 금액을 기준으로 합니다.", "es": "La entrada se muestra en las tarjetas de modo; el importe real lo determina el servidor al liquidar.", "fr": "L’entrée est indiquée sur les cartes de mode ; le montant réellement débité est fixé par le serveur au règlement.", "de": "Der Eintritt steht auf den Moduskarten; der tatsächlich abgebuchte Betrag wird serverseitig bei der Abrechnung bestimmt.", "pt": "A entrada é a mostrada nos cartões de modo; o valor efetivamente cobrado é definido pelo servidor na liquidação.", "ar": "رسوم الدخول كما تظهر في بطاقات الأوضاع، والمبلغ المخصوم فعليًا يحدده الخادم عند التسوية."}},{});
+</script>
+<script>
+TIPatch({"💰 天機百萬富翁": {"en": "💰 Tianji Millionaire", "zhTW": "💰 天機百萬富翁", "zhHK": "💰 天機百萬富翁", "ja": "💰 天吉億万長者", "ko": "💰 천지 백만장자", "es": "💰 Millonario de Tianji", "fr": "💰 Millionnaire de Tianji", "de": "💰 Tianji-Millionär", "pt": "💰 Milionário Tianji", "ar": "💰 مليونير تيانجي"}, "15 題衝百萬 · 易學 × 歷史": {"en": "15 questions to a million · Yixue × history", "zhTW": "15 題衝百萬 · 易學 × 歷史", "zhHK": "15 題衝百萬 · 易學 × 歷史", "ja": "100万に値する15の質問 · Yi Xue × 歴史", "ko": "백만불짜리 15가지 질문 · Yi Xue × 역사", "es": "15 preguntas que valen un millón · Yi Xue × Historia", "fr": "15 questions qui valent un million · Yi Xue × Histoire", "de": "15 Fragen, die eine Million wert sind · Yi Xue × Geschichte", "pt": "15 perguntas que valem um milhão · Yi Xue × História", "ar": "15 سؤالاً بقيمة مليون · يي شيويه × التاريخ"}, "限時作答 · 錦囊助陣 · 答錯即止": {"en": "Timed answers · lifelines · one wrong answer ends it", "zhTW": "限時作答 · 錦囊助陣 · 答錯即止", "zhHK": "限時作答 · 錦囊助陣 · 答錯即止", "ja": "解答時間制限・役立つヒント・不正解のみ", "ko": "답변 시간 제한 · 도움이 되는 팁 · 오답만", "es": "Límite de tiempo para responder · Consejos para ayudarte · Sólo respuesta incorrecta", "fr": "Délai de réponse · Conseils pour vous aider · Mauvaise réponse uniquement", "de": "Zeitlimit für die Beantwortung · Tipps, die Ihnen helfen · Nur falsche Antwort", "pt": "Prazo para resposta · Dicas para ajudá-lo · Apenas resposta errada", "ar": "الحد الزمني للإجابة · نصائح تساعدك · الإجابة الخاطئة فقط"}, "衝上第 15 題，抱走終極大獎": {"en": "Climb to question 15 and take the grand prize", "zhTW": "衝上第 15 題，抱走終極大獎", "zhHK": "衝上第 15 題，抱走終極大獎", "ja": "質問 15 に急いで、究極の賞品を獲得しましょう", "ko": "서둘러 15번 문제를 풀고 최고의 상품을 획득하세요", "es": "Corre a la pregunta 15 y gana el premio final.", "fr": "Passez à la question 15 et gagnez le prix ultime", "de": "Beeilen Sie sich zu Frage 15 und gewinnen Sie den ultimativen Preis", "pt": "Corra para a pergunta 15 e ganhe o prêmio final", "ar": "سارع إلى السؤال 15 واربح الجائزة النهائية"}, "離線試玩": {"en": "Play offline", "zhTW": "離線試玩", "zhHK": "離線試玩", "ja": "オフライントライアル", "ko": "오프라인 평가판", "es": "Prueba sin conexión", "fr": "Essai hors ligne", "de": "Offline-Testversion", "pt": "Teste off-line", "ar": "المحاكمة دون اتصال"}, "🎮 選擇模式": {"en": "🎮 Choose mode", "zhTW": "🎮 選擇模式", "zhHK": "🎮 選擇模式", "ja": "🎮 モードを選択", "ko": "🎮 모드 선택", "es": "🎮 Seleccionar modo", "fr": "🎮 Sélectionnez le mode", "de": "🎮 Modus auswählen", "pt": "🎮 Selecione o modo", "ar": "🎮 حدد الوضع"}, "天梯挑戰": {"en": "Ladder Challenge", "zhTW": "天梯挑戰", "zhHK": "天梯挑戰", "ja": "ラダーチャレンジ", "ko": "사다리 챌린지", "es": "desafío de escalera", "fr": "Défi d'échelle", "de": "Leiter-Herausforderung", "pt": "Desafio de escada", "ar": "تحدي السلم"}, "經典 15 題，單人衝頂": {"en": "Classic 15 questions, solo run to the top", "zhTW": "經典 15 題，單人衝頂", "zhHK": "經典 15 題，單人衝頂", "ja": "古典的な 15 の質問、シングル プレイヤーでトップを目指す", "ko": "클래식 15개 질문, 싱글 플레이어가 정상에 도달", "es": "Clásico de 15 preguntas, un jugador para llegar a la cima", "fr": "Classique 15 questions, solo pour atteindre le sommet", "de": "Klassische 15 Fragen, Einzelspieler, um an die Spitze zu gelangen", "pt": "15 perguntas clássicas, single player para chegar ao topo", "ar": "الكلاسيكية 15 سؤالا، لاعب واحد للوصول إلى القمة"}, "入場 50 易幣": {"en": "Entry 50 Yibi", "zhTW": "入場 50 易幣", "zhHK": "入場 50 易幣", "ja": "入場料 50 Eコイン", "ko": "입장료 50 ECoin", "es": "Entrada 50 ECoin", "fr": "Entrée 50 ECoins", "de": "Eintritt 50 ECoin", "pt": "Entrada 50 ECcoins", "ar": "القبول 50 عملة نقدية"}, "易學主題場": {"en": "Yixue Theme", "zhTW": "易學主題場", "zhHK": "易學主題場", "ja": "Yi Xueテーマフィールド", "ko": "이설테마분야", "es": "Campo temático Yi Xue", "fr": "Champ thématique Yi Xue", "de": "Yi Xue-Themenfeld", "pt": "Campo temático Yi Xue", "ar": "مجال موضوع يي شيويه"}, "八字/紫微/奇門/風水/黃曆": {"en": "BaZi / ZiWei / QiMen / FengShui / Almanac", "zhTW": "八字/紫微/奇門/風水/黃曆", "zhHK": "八字/紫微/奇門/風水/黃曆", "ja": "八子/紫微/奇門/風水/年鑑", "ko": "바지/쯔웨이/기문/풍수/연감", "es": "Bazi/Ziwei/Qimen/Feng Shui/Almanaque", "fr": "Bazi/Ziwei/Qimen/Feng Shui/Almanach", "de": "Bazi/Ziwei/Qimen/Feng Shui/Almanach", "pt": "Bazi/Ziwei/Qimen/Feng Shui/Almanaque", "ar": "بازي/زيوي/كيمن/فنغ شوي/تقويم"}, "入場 100 易幣": {"en": "Entry 100 Yibi", "zhTW": "入場 100 易幣", "zhHK": "入場 100 易幣", "ja": "エントリー 100 Eコイン", "ko": "엔트리 100 ECoin", "es": "Entrada 100 ECoin", "fr": "Entrée 100 ECoins", "de": "Eintritt 100 ECoin", "pt": "Entrada 100 ECcoin", "ar": "دخول 100 عملة نقدية"}, "邀請對戰": {"en": "Invite Duel", "zhTW": "邀請對戰", "zhHK": "邀請對戰", "ja": "バトルに招待する", "ko": "전투에 초대", "es": "invitar a la batalla", "fr": "Inviter au combat", "de": "Zum Kampf einladen", "pt": "Convidar para a batalha", "ar": "دعوة للمعركة"}, "好友同題競速": {"en": "Race a friend on the same questions", "zhTW": "好友同題競速", "zhHK": "好友同題競速", "ja": "同じテーマで競う友達", "ko": "같은 주제로 경주하는 친구들", "es": "Amigos compitiendo sobre el mismo tema.", "fr": "Des amis courent sur le même sujet", "de": "Freunde streiten sich zum gleichen Thema", "pt": "Amigos competindo no mesmo assunto", "ar": "أصدقاء يتسابقون حول نفس الموضوع"}, "週賽大賽": {"en": "Weekly Cup", "zhTW": "週賽大賽", "zhHK": "週賽大賽", "ja": "毎週のコンテスト", "ko": "주간 대회", "es": "Competencia semanal", "fr": "Concours hebdomadaire", "de": "Wöchentlicher Wettbewerb", "pt": "Competição semanal", "ar": "المسابقة الأسبوعية"}, "每週固定題庫限時賽": {"en": "Weekly fixed question set, timed", "zhTW": "每週固定題庫限時賽", "zhHK": "每週固定題庫限時賽", "ja": "週替わり固定問題バンクの期間限定コンテスト", "ko": "주간 고정 문제 은행 제한된 시간 경쟁", "es": "Concurso semanal de banco de preguntas fijas por tiempo limitado", "fr": "Banque de questions fixes hebdomadaire, concours à durée limitée", "de": "Wöchentlicher zeitlich begrenzter Wettbewerb mit fester Fragenbank", "pt": "Competição semanal de perguntas fixas por tempo limitado", "ar": "مسابقة أسبوعية لبنك الأسئلة الثابتة لفترة محدودة"}, "入場 200 易幣": {"en": "Entry 200 Yibi", "zhTW": "入場 200 易幣", "zhHK": "入場 200 易幣", "ja": "エントリー 200 Eコイン", "ko": "엔트리 200 ECoin", "es": "Entrada 200 ECoin", "fr": "Entrée 200 ECoins", "de": "Eintritt 200 ECoin", "pt": "Entrada 200 ECcoin", "ar": "دخول 200 عملة نقدية"}, "💱 入場幣種": {"en": "💱 Currency", "zhTW": "💱 入場幣種", "zhHK": "💱 入場幣種", "ja": "💱 入場通貨", "ko": "💱 입장 화폐", "es": "💱 Moneda de admisión", "fr": "💱 Devise d'entrée", "de": "💱 Eintrittswährung", "pt": "💱 Moeda de admissão", "ar": "💱 عملة القبول"}, "🪙 易幣": {"en": "🪙 Yibi", "zhTW": "🪙 易幣", "zhHK": "🪙 易幣", "ja": "🪙イビ", "ko": "🪙 이비", "es": "🪙 Yibi", "fr": "🪙Yibi", "de": "🪙 Yibi", "pt": "🪙 Yibi", "ar": "🪙 يبي"}, "💠 易幣": {"en": "💠 Points", "zhTW": "💠 易幣", "zhHK": "💠 易幣", "ja": "💠ポイント", "ko": "💠 포인트", "es": "💠 Puntos", "fr": "💠 Points", "de": "💠 Punkte", "pt": "💠 Pontos", "ar": "💠 النقاط"}, "入場費與錦囊按所選幣種扣費；": {"en": "Entry and lifelines are charged in the chosen currency;", "zhTW": "入場費與錦囊按所選幣種扣費；", "zhHK": "入場費與錦囊按所選幣種扣費；", "ja": "入場料とチップは選択した通貨に応じて差し引かれます。", "ko": "선택한 통화에 따라 입장료와 팁이 공제됩니다.", "es": "Las tarifas de entrada y las propinas se deducirán según la moneda seleccionada;", "fr": "Les frais d'entrée et les pourboires seront déduits en fonction de la devise sélectionnée ;", "de": "Eintrittsgelder und Trinkgelder werden entsprechend der gewählten Währung abgezogen;", "pt": "As taxas de admissão e gorjetas serão deduzidas de acordo com a moeda selecionada;", "ar": "سيتم خصم رسوم القبول والإكراميات وفقًا للعملة المختارة؛"}, "獎金一律為易幣": {"en": "prizes are always in Yibi", "zhTW": "獎金一律為易幣", "zhHK": "獎金一律為易幣", "ja": "ボーナスは常に Yi コインです", "ko": "보너스는 항상 Yi 코인입니다", "es": "El bono siempre son monedas Yi.", "fr": "Le bonus est toujours des pièces Yi", "de": "Der Bonus besteht immer aus Yi-Münzen", "pt": "O bônus são sempre moedas Yi", "ar": "المكافأة هي دائمًا عملات Yi"}, "進 入 挑 戰": {"en": "ENTER CHALLENGE", "zhTW": "進 入 挑 戰", "zhHK": "進 入 挑 戰", "ja": "チャレンジに参加してください", "ko": "도전에 참여하세요", "es": "Entra al desafío", "fr": "Participez au défi", "de": "Nehmen Sie an der Herausforderung teil", "pt": "Entre no desafio", "ar": "أدخل التحدي"}, "💡 第": {"en": "💡 Question", "zhTW": "💡 第", "zhHK": "💡 第", "ja": "💡いいえ。", "ko": "💡 아니요.", "es": "💡No.", "fr": "💡Non.", "de": "💡 Nein.", "pt": "💡 Não.", "ar": "💡 لا."}, "題為保險線，過線即保底": {"en": "is a safety line — passing it locks in winnings", "zhTW": "題為保險線，過線即保底", "zhHK": "題為保險線，過線即保底", "ja": "タイトルは保険ラインです。一線を越えるということは、収益が保証されていることを意味します。", "ko": "제목은 보험라인입니다. 선을 넘었다는 것은 수익이 보장된다는 것을 의미합니다.", "es": "El título es la línea de seguro. Cruzar la línea significa que el resultado final está garantizado.", "fr": "Le titre est la ligne d'assurance. Franchir la ligne signifie que les résultats sont garantis.", "de": "Der Titel ist die Versicherungssparte. Das Überschreiten der Grenze bedeutet, dass das Endergebnis garantiert ist.", "pt": "O título é a linha de seguros. Cruzar a linha significa que o resultado final está garantido.", "ar": "العنوان هو خط التأمين. عبور الخط يعني أن النتيجة النهائية مضمونة."}, "答錯或逾時將結算至最近保險線": {"en": "A wrong answer or timeout settles to the last safety line", "zhTW": "答錯或逾時將結算至最近保險線", "zhHK": "答錯或逾時將結算至最近保險線", "ja": "不正解や時間外回答をした場合は、最寄りの保険窓口に請求されます。", "ko": "오답 또는 초과 근무의 경우, 가장 가까운 보험 라인으로 요금이 청구됩니다.", "es": "Si responde incorrectamente o hace horas extras, se le facturará a la línea de seguro más cercana.", "fr": "Si vous répondez incorrectement ou si vous faites des heures supplémentaires, vous serez facturé à la compagnie d'assurance la plus proche.", "de": "Wenn Sie falsch antworten oder Überstunden machen, wird Ihnen die nächstgelegene Versicherungssparte in Rechnung gestellt.", "pt": "Se você responder incorretamente ou fizer horas extras, será cobrado da seguradora mais próxima.", "ar": "إذا أجبت بشكل غير صحيح أو العمل الإضافي، سيتم محاسبتك على أقرب خط تأمين."}, "算了吗：準備好了嗎？第一題來囉。": {"en": "Suanleme: Ready? Here comes question one.", "zhTW": "算了吗：準備好了嗎？第一題來囉。", "zhHK": "算了吗：準備好了嗎？第一題來囉。", "ja": "算了吗：準備はできていますか？最初の質問です。", "ko": "算了吗: 준비됐나요? 첫 번째 질문입니다.", "es": "算了吗: ¿Estás listo? Aquí viene la primera pregunta.", "fr": "算了吗 : Êtes-vous prêt ? Voici la première question.", "de": "算了吗: Bist du bereit? Hier kommt die erste Frage.", "pt": "算了吗: Você está pronto? Aí vem a primeira pergunta.", "ar": "算了吗: هل أنت مستعد؟ إليك السؤال الأول."}, "獎梯": {"en": "Ladder", "zhTW": "獎梯", "zhHK": "獎梯", "ja": "賞品のはしご", "ko": "상금 사다리", "es": "escalera de premios", "fr": "échelle de prix", "de": "Preisleiter", "pt": "escada de prêmios", "ar": "سلم الجائزة"}, "第 1 / 15 題": {"en": "Q1 / 15", "zhTW": "第 1 / 15 題", "zhHK": "第 1 / 15 題", "ja": "質問 1 / 15", "ko": "질문 1 / 15", "es": "Pregunta 1 / 15", "fr": "Question 1 / 15", "de": "Frage 1/15", "pt": "Pergunta 1/15", "ar": "السؤال 1 / 15"}, "第 1 題": {"en": "Question 1", "zhTW": "第 1 題", "zhHK": "第 1 題", "ja": "質問1", "ko": "질문 1", "es": "Pregunta 1", "fr": "Question 1", "de": "Frage 1", "pt": "Pergunta 1", "ar": "السؤال 1"}, "已得": {"en": "Won", "zhTW": "已得", "zhHK": "已得", "ja": "取得しました", "ko": "획득", "es": "Obtenido", "fr": "Obtenu", "de": "Erhalten", "pt": "Obtido", "ar": "مُقتَنىً"}, "易幣": {"en": "Yibi", "zhTW": "易幣", "zhHK": "易幣", "ja": "宜備", "ko": "이비", "es": "Yibi", "fr": "Yibi", "de": "Yibi", "pt": "Yibi", "ar": "يبي"}, "載入題目中…": {"en": "Loading questions…", "zhTW": "載入題目中…", "zhHK": "載入題目中…", "ja": "質問を読み込んでいます...", "ko": "질문 로드 중...", "es": "Cargando preguntas...", "fr": "Chargement des questions...", "de": "Fragen werden geladen...", "pt": "Carregando perguntas...", "ar": "جارٍ تحميل الأسئلة..."}, "問大師": {"en": "Ask Master", "zhTW": "問大師", "zhHK": "問大師", "ja": "マスターに聞く", "ko": "마스터에게 물어보세요", "es": "pregúntale al maestro", "fr": "Demandez au maître", "de": "Fragen Sie den Meister", "pt": "Pergunte ao mestre", "ar": "اسأل السيد"}, "問觀眾": {"en": "Ask Audience", "zhTW": "問觀眾", "zhHK": "問觀眾", "ja": "聴衆に尋ねる", "ko": "청중에게 물어보세요", "es": "pregunta a la audiencia", "fr": "demander au public", "de": "Fragen Sie das Publikum", "pt": "pergunte ao público", "ar": "اسأل الجمهور"}, "換一題": {"en": "Swap", "zhTW": "換一題", "zhHK": "換一題", "ja": "質問を変更します", "ko": "질문을 바꾸세요", "es": "cambiar la pregunta", "fr": "Changer la question", "de": "Ändern Sie die Frage", "pt": "Mude a pergunta", "ar": "تغيير السؤال"}, "加時15秒": {"en": "+15s", "zhTW": "加時15秒", "zhHK": "加時15秒", "ja": "延長15秒", "ko": "추가시간 15초", "es": "15 segundos de tiempo extra", "fr": "15 secondes de prolongation", "de": "15 Sekunden Verlängerung", "pt": "15 segundos de acréscimo", "ar": "15 ثانية وقت إضافي"}, "🚪 帶著 0 易幣離場": {"en": "🚪 Leave with 0 Yibi", "zhTW": "🚪 帶著 0 易幣離場", "zhHK": "🚪 帶著 0 易幣離場", "ja": "🚪 YiCoin 0 で終了", "ko": "🚪 0 YiCoin으로 종료", "es": "🚪 Salir con 0 YiCoin", "fr": "🚪 Sortez avec 0 YiCoin", "de": "🚪 Beenden Sie mit 0 YiCoin", "pt": "🚪 Saia com 0 YiCoin", "ar": "🚪 الخروج بـ 0 YiCoin"}, "🏆 獎 梯": {"en": "🏆 LADDER", "zhTW": "🏆 獎 梯", "zhHK": "🏆 獎 梯", "ja": "🏆賞品はしご", "ko": "🏆 상품 사다리", "es": "🏆 Escalera de premios", "fr": "🏆 Échelle de prix", "de": "🏆 Preisleiter", "pt": "🏆 Escada de prêmios", "ar": "🏆 سلم الجائزة"}, "挑戰結束": {"en": "Challenge over", "zhTW": "挑戰結束", "zhHK": "挑戰結束", "ja": "チャレンジ終了", "ko": "챌린지 종료", "es": "El desafío termina", "fr": "Fin du défi", "de": "Die Herausforderung endet", "pt": "O desafio termina", "ar": "ينتهي التحدي"}, "到達第 1 題": {"en": "Reached Q1", "zhTW": "到達第 1 題", "zhHK": "到達第 1 題", "ja": "質問 1 に到達しました", "ko": "질문 1에 도달함", "es": "Pregunta 1 alcanzada", "fr": "J'ai atteint la question 1", "de": "Frage 1 erreicht", "pt": "Atingiu a questão 1", "ar": "وصلت للسؤال 1"}, "本次獲得易幣": {"en": "Yibi won this round", "zhTW": "本次獲得易幣", "zhHK": "本次獲得易幣", "ja": "今回はイーコインを入手", "ko": "이번에 Yi 코인을 획득했습니다", "es": "Obtuviste monedas Yi esta vez.", "fr": "J'ai obtenu des pièces Yi cette fois", "de": "Diesmal Yi-Münzen erhalten", "pt": "Obteve moedas Yi desta vez", "ar": "تم الحصول على عملات Yi هذه المرة"}, "稱號：初出茅廬": {"en": "Title: Novice", "zhTW": "稱號：初出茅廬", "zhHK": "稱號：初出茅廬", "ja": "タイトル: 駆け出し", "ko": "제목: 신생", "es": "Título: Incipiente", "fr": "Titre : Jeune", "de": "Titel: Fledgling", "pt": "Título: Incipiente", "ar": "العنوان: الوليدة"}, "到達題號": {"en": "Reached question", "zhTW": "到達題號", "zhHK": "到達題號", "ja": "質問番号に到達する", "ko": "질문 번호에 도달", "es": "Llegar al número de pregunta", "fr": "Atteindre le numéro de question", "de": "Fragennummer erreichen", "pt": "Alcance o número da pergunta", "ar": "الوصول إلى رقم السؤال"}, "是否過保險線": {"en": "Past safety line", "zhTW": "是否過保險線", "zhHK": "是否過保險線", "ja": "保険のラインを超えているかどうか", "ko": "보험라인 통과 여부", "es": "Si ha pasado la línea del seguro.", "fr": "S'il a dépassé la ligne d'assurance", "de": "Ob es die Versicherungslinie passiert hat", "pt": "Se passou pela linha de seguro", "ar": "ما إذا كان قد اجتاز خط التأمين"}, "未過線": {"en": "Not past", "zhTW": "未過線", "zhHK": "未過線", "ja": "一線を超えていない", "ko": "선을 넘지 않았어", "es": "No sobre la línea", "fr": "Pas au-delà de la ligne", "de": "Nicht über der Grenze", "pt": "Não ultrapassou a linha", "ar": "ليس فوق الخط"}, "已用錦囊": {"en": "Lifelines used", "zhTW": "已用錦囊", "zhHK": "已用錦囊", "ja": "使用済みチップ", "ko": "사용한 팁", "es": "Consejos usados", "fr": "Conseils utilisés", "de": "Gebrauchte Tipps", "pt": "Dicas usadas", "ar": "نصائح مستعملة"}, "無": {"en": "None", "zhTW": "無", "zhHK": "無", "ja": "それなし", "ko": "없이", "es": "sin", "fr": "sans", "de": "ohne", "pt": "sem", "ar": "بدون"}, "用時": {"en": "Time", "zhTW": "用時", "zhHK": "用時", "ja": "時間", "ko": "시간", "es": "tiempo", "fr": "temps", "de": "Zeit", "pt": "tempo", "ar": "وقت"}, "🔁 再 來 一 局": {"en": "🔁 PLAY AGAIN", "zhTW": "🔁 再 來 一 局", "zhHK": "🔁 再 來 一 局", "ja": "🔁 もう一つゲーム", "ko": "🔁 한 라운드 더", "es": "🔁 Un juego más", "fr": "🔁 Encore un jeu", "de": "🔁 Noch ein Spiel", "pt": "🔁 Mais um jogo", "ar": "🔁 لعبة أخرى"}, "📲 分 享 海 報": {"en": "📲 SHARE POSTER", "zhTW": "📲 分 享 海 報", "zhHK": "📲 分 享 海 報", "ja": "📲 ポスターをシェアする", "ko": "📲 포스터 공유", "es": "📲 Compartir cartel", "fr": "📲 Partager l'affiche", "de": "📲 Poster teilen", "pt": "📲 Compartilhe pôster", "ar": "📲 شارك الملصق"}, "← 返 回 首 頁": {"en": "← HOME", "zhTW": "← 返 回 首 頁", "zhHK": "← 返 回 首 頁", "ja": "← トップページに戻る", "ko": "← 홈페이지로 돌아가기", "es": "← Volver a la página de inicio", "fr": "← Retour à la page d'accueil", "de": "← Zurück zur Startseite", "pt": "← Voltar à página inicial", "ar": "← العودة إلى الصفحة الرئيسية"}, "⚔️ 邀請對戰": {"en": "⚔️ Invite Duel", "zhTW": "⚔️ 邀請對戰", "zhHK": "⚔️ 邀請對戰", "ja": "⚔️ バトルに招待する", "ko": "⚔️ 전투에 초대", "es": "⚔️ Invitar a la batalla", "fr": "⚔️ Inviter au combat", "de": "⚔️ Zum Kampf einladen", "pt": "⚔️ Convide para a batalha", "ar": "⚔️ دعوة للمعركة"}, "好友同題競速 · 先答對者得分": {"en": "Race a friend · first correct answer scores", "zhTW": "好友同題競速 · 先答對者得分", "zhHK": "好友同題競速 · 先答對者得分", "ja": "友達が同じ問題で競い合います・最初に正解した人がポイントを獲得します", "ko": "친구들이 같은 질문으로 경쟁합니다. · 가장 먼저 정답을 맞춘 사람이 점수를 얻습니다.", "es": "Los amigos compiten en la misma pregunta · La primera persona que responda correctamente obtiene puntos", "fr": "Les amis s'affrontent sur la même question · La première personne à répondre correctement marque des points", "de": "Freunde konkurrieren um die gleiche Frage. · Die erste Person, die richtig antwortet, erhält Punkte", "pt": "Amigos competem na mesma pergunta · A primeira pessoa a responder corretamente ganha pontos", "ar": "يتنافس الأصدقاء على نفس السؤال · أول شخص يجيب بشكل صحيح يحصل على نقاط"}, "🎯 創建房間": {"en": "🎯 Create Room", "zhTW": "🎯 建立房間", "zhHK": "🎯 創建房間", "ja": "🎯 ルームを作成する", "ko": "🎯 방 만들기", "es": "🎯 Crea una habitación", "fr": "🎯 Créer une salle", "de": "🎯 Erstellen Sie einen Raum", "pt": "🎯 Crie uma sala", "ar": "🎯 إنشاء غرفة"}, "創 建 房 間": {"en": "CREATE ROOM", "zhTW": "創 建 房 間", "zhHK": "創 建 房 間", "ja": "部屋を作成する", "ko": "방 만들기", "es": "crear una habitación", "fr": "Créer une pièce", "de": "Erstelle einen Raum", "pt": "Crie uma sala", "ar": "قم بإنشاء غرفة"}, "房間碼": {"en": "Room code", "zhTW": "房間碼", "zhHK": "房間碼", "ja": "ルームコード", "ko": "객실 코드", "es": "código de habitación", "fr": "Code de la chambre", "de": "Zimmercode", "pt": "Código do quarto", "ar": "رمز الغرفة"}, "📋 複製邀請連結": {"en": "📋 Copy invite link", "zhTW": "📋 複製邀請連結", "zhHK": "📋 複製邀請連結", "ja": "📋 招待リンクをコピー", "ko": "📋 초대 링크 복사", "es": "📋 Copiar enlace de invitación", "fr": "📋 Copier le lien d'invitation", "de": "📋Einladungslink kopieren", "pt": "📋 Copiar link do convite", "ar": "📋 انسخ رابط الدعوة"}, "🔑 加入房間": {"en": "🔑 Join Room", "zhTW": "🔑 加入房間", "zhHK": "🔑 加入房間", "ja": "🔑 ルームに参加する", "ko": "🔑 룸에 참여하기", "es": "🔑 Únete a una sala", "fr": "🔑 Rejoignez une salle", "de": "🔑 Tritt einem Raum bei", "pt": "🔑 Entre em uma sala", "ar": "🔑 انضم إلى الغرفة"}, "加 入 房 間": {"en": "JOIN ROOM", "zhTW": "加 入 房 間", "zhHK": "加 入 房 間", "ja": "ルームに参加する", "ko": "방에 참여하기", "es": "Únete a la sala", "fr": "Rejoignez la salle", "de": "Treten Sie dem Raum bei", "pt": "Entre na sala", "ar": "انضم إلى الغرفة"}, "🙋 我": {"en": "🙋 Me", "zhTW": "🙋 我", "zhHK": "🙋 我", "ja": "🙋私", "ko": "🙋 나", "es": "🙋 yo", "fr": "🙋 moi", "de": "🙋 ich", "pt": "🙋 eu", "ar": "🙋 انا"}, "第 0 / 15 題": {"en": "Q0 / 15", "zhTW": "第 0 / 15 題", "zhHK": "第 0 / 15 題", "ja": "質問0 / 15", "ko": "질문 0 / 15", "es": "Pregunta 0 / 15", "fr": "Question 0 / 15", "de": "Frage 0 / 15", "pt": "Pergunta 0/15", "ar": "السؤال 0 / 15"}, "😎 對手": {"en": "😎 Opponent", "zhTW": "😎 對手", "zhHK": "😎 對手", "ja": "😎 対戦相手", "ko": "😋 상대", "es": "😎 oponente", "fr": "😎 Adversaire", "de": "😎 Gegner", "pt": "😎 Oponente", "ar": "😉 خصم"}, "等待對手…": {"en": "Waiting for opponent…", "zhTW": "等待對手…", "zhHK": "等待對手…", "ja": "相手を待っています…", "ko": "상대를 기다리며…", "es": "Esperando al oponente...", "fr": "En attendant l'adversaire…", "de": "Warten auf den Gegner…", "pt": "Esperando pelo adversário…", "ar": "في انتظار المنافس..."}, "← 離 開 房 間": {"en": "← LEAVE ROOM", "zhTW": "← 離 開 房 間", "zhHK": "← 離 開 房 間", "ja": "← 部屋を出る", "ko": "← 방에서 나가기", "es": "← Sal de la habitación", "fr": "← Quitter la pièce", "de": "← Verlasse den Raum", "pt": "← Saia da sala", "ar": "← غادر الغرفة"}},
+{"退出游戏": {"en": "Exit game", "zhTW": "退出遊戲", "zhHK": "退出遊戲", "ja": "ゲームを終了する", "ko": "게임 종료", "es": "Salir del juego", "fr": "Quitter le jeu", "de": "Spiel beenden", "pt": "Sair do jogo", "ar": "الخروج من اللعبة"}});
+</script>
+<script>
+window.TIRules=(window.TIRules||[]).concat([{"re":/^([\d,]+)分$/,"out":function(m){var n=m[1]+" pts";return {en:n,ja:m[1]+"点",ko:m[1]+"점",es:m[1]+" pts",fr:m[1]+" pts",de:m[1]+" Pkt",pt:m[1]+" pts",ar:m[1]+" نقطة",zhTW:m[1]+"分",zhHK:m[1]+"分"};}}]);
+</script>
+<script>
+TIPatch({"🪙 易币": {"en": "🪙 Yibi", "ja": "🪙 易コイン", "ko": "🪙 이코인", "es": "🪙 Yibi", "fr": "🪙 Yibi", "de": "🪙 Yibi", "pt": "🪙 Yibi", "ar": "🪙 ييبي", "zhTW": "🪙 易幣", "zhHK": "🪙 易幣"}, "· 💠 易币": {"en": "· 💠 Points", "ja": "· 💠 ポイント", "ko": "· 💠 포인트", "es": "· 💠 Puntos", "fr": "· 💠 Points", "de": "· 💠 Punkte", "pt": "· 💠 Pontos", "ar": "· 💠 نقاط", "zhTW": "· 💠 易幣", "zhHK": "· 💠 易幣"}, "10分": {"en": "10 pts", "ja": "10点", "ko": "10점", "es": "10 pts", "fr": "10 pts", "de": "10 Pkt", "pt": "10 pts", "ar": "10 نقطة", "zhTW": "10分", "zhHK": "10分"}},
+{});
+</script>
+<script>
+window.TIRules=(window.TIRules||[]).concat([{"re":/^·[\s\u00a0]*💠[\s\u00a0]*易币$/,"out":function(){return {en:"· 💠 Points",ja:"· 💠 ポイント",ko:"· 💠 포인트",es:"· 💠 Puntos",fr:"· 💠 Points",de:"· 💠 Punkte",pt:"· 💠 Pontos",ar:"· 💠 نقاط",zhTW:"· 💠 易幣",zhHK:"· 💠 易幣"};}}]);
 </script>
 </body>
 </html>
