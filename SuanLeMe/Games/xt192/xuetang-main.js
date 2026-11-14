@@ -2097,3 +2097,34 @@ async function loadToolStatus(){
   applyHash();
   window.addEventListener('hashchange',applyHash);
 })();
+
+// ===== 断网兜底（2026-11-14）：无本地副本的入口，断网时明确提示，不白屏 =====
+function goRemote(name, url){
+  var offline = false;
+  try { offline = (navigator.onLine === false); } catch(e) {}
+  if(offline){
+    try {
+      if(window.Yibi && Yibi.resolveGameUrl){ /* 复用离线判断 */ }
+    } catch(e){}
+    var d=document.createElement('div');
+    d.style.cssText='position:fixed;left:50%;bottom:18%;transform:translateX(-50%);z-index:9999;background:rgba(20,15,8,.95);color:#f5e6c8;border:1px solid rgba(212,175,55,.55);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;max-width:80%;text-align:center';
+    d.textContent='📶 '+name+' 需聯網遊玩，請恢復網絡後再進入';
+    document.body.appendChild(d);
+    setTimeout(function(){ try{document.body.removeChild(d);}catch(e){} },3200);
+    return;
+  }
+  location.href=url;
+}
+function goOfflineGuard(name, fn){
+  var offline = false;
+  try { offline = (navigator.onLine === false); } catch(e) {}
+  if(offline){
+    var d=document.createElement('div');
+    d.style.cssText='position:fixed;left:50%;bottom:18%;transform:translateX(-50%);z-index:9999;background:rgba(20,15,8,.95);color:#f5e6c8;border:1px solid rgba(212,175,55,.55);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;max-width:80%;text-align:center';
+    d.textContent='📶 '+name+' 需聯網遊玩，請恢復網絡後再進入';
+    document.body.appendChild(d);
+    setTimeout(function(){ try{document.body.removeChild(d);}catch(e){} },3200);
+    return;
+  }
+  if(typeof fn==='function') fn();
+}

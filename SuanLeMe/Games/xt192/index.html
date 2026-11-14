@@ -581,7 +581,7 @@ body[data-theme="white"]{color-scheme:light}
 
   <!-- 游戏专区（玩了吗 · 全部游戏） -->
   <div class="game-zone" id="gameZone">
-    <div class="game-zone-title"><div class="t" data-i18n="🎮 精选玩法">🎮 精选玩法</div><div class="more" data-i18n="共 7 款">共 7 款</div></div>
+    <div class="game-zone-title"><div class="t" data-i18n="🎮 精选玩法">🎮 精选玩法</div><div class="more" data-i18n="共 9 款">共 9 款</div></div>
 
     <!-- 双主推大卡 -->
     <div class="hero-row">
@@ -621,7 +621,7 @@ body[data-theme="white"]{color-scheme:light}
         <div class="gm-name" data-i18n="五行消消乐">五行消消乐</div>
         <div class="gm-desc" data-i18n="相生相剋消除">相生相剋消除</div>
       </div>
-      <div class="game-mini m-quiz" onclick="openQuiz()">
+      <div class="game-mini m-quiz" onclick="goOfflineGuard('易学闯关',openQuiz)">
         <div class="gm-art"></div>
         <div class="gm-name" data-i18n="易学闯关">易学闯关</div>
         <div class="gm-desc" id="quizSub" data-i18n="每日答题赢易币">每日答题赢易币</div>
@@ -632,13 +632,13 @@ body[data-theme="white"]{color-scheme:light}
         <div class="gm-name" data-i18n="八卦解谜">八卦解谜</div>
         <div class="gm-desc" data-i18n="阴阳爻拼六十四卦">阴阳爻拼六十四卦</div>
       </div>
-      <div class="game-mini m-market" onclick="location.href='https://tianji.matetechhk.com/market'">
+      <div class="game-mini m-market" onclick="goRemote('矿石市集','https://tianji.matetechhk.com/market')">
         <div class="gm-tag" data-i18n="新">新</div>
         <div class="gm-art"></div>
         <div class="gm-name" data-i18n="矿石市集">矿石市集</div>
         <div class="gm-desc" data-i18n="矿石自由买卖">矿石自由买卖</div>
       </div>
-      <div class="game-mini m-minecard" onclick="location.href='https://tianji.matetechhk.com/mine'">
+      <div class="game-mini m-minecard" onclick="goRemote('天機礦場','https://tianji.matetechhk.com/mine')">
         <div class="gm-tag" data-i18n="新">新</div>
         <div class="gm-art"></div>
         <div class="gm-name" data-i18n="天機礦場">天機礦場</div>

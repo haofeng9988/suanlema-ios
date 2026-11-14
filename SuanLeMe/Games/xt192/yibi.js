@@ -330,12 +330,66 @@
   // ===== 一键进入游戏：先弹确认（明示花费/奖励）→ 跳转 =====
   // 真正的扣费在各游戏开局时由 Yibi.enter / 后端 enter_game 执行，避免重复扣费
   // 未登录也弹公告（让访客先看清易币/易币花费），点「登入并开始」再去登录
+  // ===== 断网兜底（2026-11-14）：包内自带本地游戏文件，断网也能玩 =====
+  // 只在这 4 款在包内有完整离线副本（不依赖任何网络接口）：
+  //   五行消消乐 / 天机卦卡 / 天机修行 / 八卦解谜
+  // 其余（百万富翁、灵田、闯关、市集、矿场）必须联网，断网时明确提示，不做假兜底。
+  var YB_LOCAL_GAMES = {
+    wuxing:  '../wuxing-match.html',
+    guacard: '../gua-card.html',
+    xiuxing: '../xiuxing.html',
+    bagua:   '../bagua-puzzle.html'
+  };
+
+  function ybIsOnline() {
+    try { return navigator.onLine !== false; } catch (e) { return true; }
+  }
+
+  function ybToast(msg) {
+    try {
+      if (w.__yb_toast) { w.__yb_toast(msg, 3200); return; }
+    } catch (e) {}
+    try {
+      var d = document.createElement('div');
+      d.style.cssText = 'position:fixed;left:50%;bottom:18%;transform:translateX(-50%);z-index:9999;' +
+        'background:rgba(20,15,8,.95);color:#f5e6c8;border:1px solid rgba(212,175,55,.55);' +
+        'border-radius:10px;padding:10px 16px;font-size:13px;font-weight:700;line-height:1.5;' +
+        'max-width:80%;text-align:center;box-shadow:0 8px 28px rgba(0,0,0,.55)';
+      d.textContent = msg;
+      document.body.appendChild(d);
+      setTimeout(function () { try { document.body.removeChild(d); } catch (e) {} }, 3200);
+    } catch (e) {}
+  }
+
+  // 解析最终要跳的地址：在线→远程（保留易币/榜单等完整功能），离线→包内本地文件
+  Yibi.resolveGameUrl = function (game, url) {
+    var online = ybIsOnline();
+    var local = YB_LOCAL_GAMES[game];
+    if (!online && local) { return { url: local, offline: true }; }
+    if (!online && !local) { return { url: '', offline: true, blocked: true }; }
+    return { url: url, offline: false };
+  };
+
   Yibi.gotoGame = function (game, url, reward) {
     var loggedIn = !!tok();
     Yibi.entryGate(game, {
       reward: reward,
       needLogin: !loggedIn,
-      onGo: function () { location.href = loggedIn ? url : 'https://tianji.matetechhk.com/index.html#me'; }
+      onGo: function () {
+        if (!loggedIn) {
+          // 2026-11-14：离线时跳远程登录页必然打不开，直接明确提示，避免白屏
+          if (!ybIsOnline()) { ybToast('📶 目前離線，請先連網登入後再玩'); return; }
+          location.href = 'https://tianji.matetechhk.com/index.html#me';
+          return;
+        }
+        var r = Yibi.resolveGameUrl(game, url);
+        if (r.blocked) {
+          ybToast('📶 此遊戲需聯網遊玩，請恢復網絡後再進入');
+          return;
+        }
+        if (r.offline) { ybToast('📶 目前離線 · 已切換本地模式'); }
+        location.href = r.url;
+      }
     });
   };
 
