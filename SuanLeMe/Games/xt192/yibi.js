@@ -43,7 +43,23 @@
   var PATH2GAME = { '/millionaire': 'millionaire', '/lingtian': 'lingtian', '/wuxing': 'wuxing',
                     '/bagua': 'bagua', '/guacard': 'guacard', '/xiuxing': 'xiuxing',
                     '/daxiaoren': 'daxiaoren' };
-  function tok() { try { return localStorage.getItem('yx_tk') || ''; } catch (e) { return ''; } }
+  // 2026-11-14：iOS App 用 loadFileURL 加载（file://），与远程站点不同源，
+  // localStorage 里没有 yx_tk。原生侧通过 authShimJS 注入 __nativeToken / __ybTok，
+  // 这里必须回退到它，否则 file:// 下所有需要登录的请求都拿不到身份。
+  function tok() {
+    try {
+      var t = localStorage.getItem('yx_tk');
+      if (t) return t;
+    } catch (e) {}
+    try {
+      if (typeof window.__ybTok === 'function') {
+        var n = window.__ybTok();
+        if (n) return n;
+      }
+      if (window.__nativeToken) return window.__nativeToken;
+    } catch (e) {}
+    return '';
+  }
   function H(extra) {
     var h = { 'X-Token': tok() }; if (extra) for (var k in extra) h[k] = extra[k];
     return h;
@@ -530,9 +546,12 @@
     var DEBOUNCE_MS = 3000;
     var st = { game: '', read: null, write: null, merge: null, ts: 0, timer: 0, bound: false };
 
-    // ── 双重硬闸 ──
-    function isFileProtocol() { try { return location.protocol === 'file:'; } catch (e) { return false; } }
-    function disabled() { return isFileProtocol() || !tok(); }
+    // ── 硬闸：只按登录态判定 ──
+    // 2026-11-14 变更：原先另有「file:// 一律空转」的硬闸，导致 iOS App 内
+    // 云存档完全失效（服务端接口本身正常）。iOS 用 loadFileURL 加载，协议必然是
+    // file:，但请求经原生 URLSession 转发，能正常到达后端 → 该闸必须去掉。
+    // 未登录仍然完全空转（不发任何请求）。
+    function disabled() { return !tok(); }
 
     function nowTs() { return Date.now(); }
 
@@ -641,7 +660,7 @@
 
     // 立即同步一次（登录态）：云端有档→merge 回本地；本地有、云端无→迁移上云
     function bind(game, opts) {
-      if (isFileProtocol() || !GAMES[game]) return Promise.resolve(null);
+      if (!GAMES[game]) return Promise.resolve(null);
       opts = opts || {};
       st.game = game; st.read = opts.read || null; st.write = opts.write || null;
       st.merge = opts.merge || deepMerge; st.bound = true;

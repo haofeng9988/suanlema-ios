@@ -638,10 +638,10 @@
     ctx.fillStyle = _rgba('#ffffff', 0.5);
     ctx.beginPath(); ctx.arc(sunX - sunR * 0.30, sunY - sunR * 0.30, sunR * 0.30, 0, Math.PI * 2); ctx.fill();
 
-    // ---- 云 ----
-    _cloud(ctx, W * 0.22, hz * 0.34, 1.00, t);
-    _cloud(ctx, W * 0.56, hz * 0.16, 0.82, t);
-    _cloud(ctx, W * 0.10, hz * 0.62, 0.70, t);
+    // ---- 云 ----（不横移，只上下 bob，避免和天气叠层云一起飘得乱）
+    _cloud(ctx, W * 0.22, hz * 0.34, 1.00, t * 0.3);
+    _cloud(ctx, W * 0.56, hz * 0.16, 0.82, t * 0.3);
+    _cloud(ctx, W * 0.10, hz * 0.62, 0.70, t * 0.3);
 
     // ---- 远山（两层）----
     _mountain(ctx, W, hz + 2, H * 0.085, THEME.mountainFar, 0.6);
@@ -1260,7 +1260,7 @@
   }
 
   /* =======================================================================
-   *  drawHUD —— 顶部金棕圆角头像卡 + 右侧金币/钻石条
+   *  drawHUD —— 顶部金棕圆角头像卡 + 右侧易币/钻石条
    *  state = { me: { name, exp, level, maxExp, avatar? }, coins, diamonds }
    *  state 可选（缺失则用默认示例数据）
    * =====================================================================*/
@@ -1393,14 +1393,14 @@
     ctx.fillText(exp + '/' + maxExp, expBarX, expBarY + expBarH + 2);
     ctx.restore();
 
-    /* --- 金币/钻石条（右上） --- */
+    /* --- 易币/钻石条（右上） --- */
     var cBarW = W - cardX - cardW - padX - 8;
     var cBarX = cardX + cardW + 6;
     var cBarH = cardH * 0.46;
     var cBarY1 = cardY + 1;
     var cBarY2 = cBarY1 + cBarH + 4;
 
-    // 金币条
+    // 易币条
     ctx.save();
     var coinG = ctx.createLinearGradient(cBarX, cBarY1, cBarX, cBarY1 + cBarH);
     coinG.addColorStop(0, _lighten(THEME.sun, 0.06));
@@ -1412,7 +1412,7 @@
     ctx.lineWidth = 1.2;
     roundRectPath(ctx, cBarX, cBarY1, cBarW, cBarH, cBarH / 2);
     ctx.stroke();
-    // 金币图标
+    // 易币图标
     var cIcR = cBarH * 0.36;
     var cIcX = cBarX + cIcR + 4, cIcY = cBarY1 + cBarH / 2;
     ctx.fillStyle = _lighten(THEME.sun, 0.20);
@@ -1543,10 +1543,12 @@
       g2.addColorStop(0, _rgba('#8a94a0', 0.18));
       g2.addColorStop(1, _rgba('#8a94a0', 0));
       ctx.fillStyle = g2; ctx.fillRect(0, 0, W, H * 0.5);
-      // 几朵阴云缓慢飘
-      for (var ci = 0; ci < 4; ci++) {
-        var cx2 = ((ci * 0.27 + t * 0.006) % 1.2 - 0.1) * W;
-        _cloud(ctx, cx2, H * 0.08 + ci * 8, 1.1, t + ci * 40);
+      // 几朵阴云缓慢飘（约 300s 飘过一屏 · 极少 2 朵 · 与基础场景 3 朵错开位置）
+      for (var ci = 0; ci < 2; ci++) {
+        // 起始位置 0.45 / 0.75(在基础云 0.22 / 0.56 / 0.10 之外)
+        var phase = ci * 0.30 + 0.45;
+        var cx2 = ((phase + t * 0.0000033) % 1.3 - 0.15) * W;
+        _cloud(ctx, cx2, H * 0.10 + ci * 12, 1.0, t + ci * 50);
       }
       ctx.restore();
       return;
@@ -1556,13 +1558,14 @@
       ctx.save();
       ctx.fillStyle = _rgba('#2c3a4e', 0.20);
       ctx.fillRect(0, 0, W, H);
-      // 雨丝（斜向下）
+      // 雨丝（斜向下）：从顶到滚底约 7s(原来 1.5s 太快, 像暴闪)
       ctx.strokeStyle = _rgba('#cfe6ff', 0.42);
       ctx.lineWidth = 1.2;
-      var RN = 90;
+      var RN = 70;
       for (var i = 0; i < RN; i++) {
         var sx = _rand(i * 3.7 + 1) * W;
-        var sy = ((_rand(i * 1.9 + 3) * H) + t * (0.55 + _rand(i * 0.7) * 0.5)) % (H + 40) - 20;
+        var vy = 0.11 + _rand(i * 0.7) * 0.06;
+        var sy = ((_rand(i * 1.9 + 3) * H) + t * vy) % (H + 40) - 20;
         var len = 9 + _rand(i * 2.3 + 5) * 10;
         ctx.beginPath();
         ctx.moveTo(sx, sy);

@@ -4,8 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#1a1612">
-<title>天機修行 · 算了吗·易游</title>
-<script src="tool-intro.js?v=20261005"></script>
+<title>天機修行 · 算了吗.易游</title>
+<!-- xx-ver: 20261105a (修行效率/裝備聯動) -->
+<script>window.TI_BOOT=1;</script>
+<script src="tool-intro.js?v=20261114d"></script>
 <style>
 :root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a;
  --qing:#4caf7d;--dan:#e0563f;--chi:#cfd6dd}
@@ -18,9 +20,12 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
 button{font-family:inherit;cursor:pointer}
 .screen{display:none;flex-direction:column;flex:1}
 .screen.active{display:flex}
-header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:11px 16px 9px;text-align:center;border-bottom:2px solid var(--gold)}
+header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:11px 120px 9px;text-align:center;border-bottom:2px solid var(--gold)}
 header h1{font-size:17px;color:var(--gold);letter-spacing:2px;margin:0}
 header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
+header .ybadge{position:absolute;left:8px;top:13px;font-size:11px;color:#7ea6d8;background:rgba(126,166,216,.12);border:1px solid rgba(126,166,216,.45);border-radius:9px;padding:2px 7px;white-space:nowrap;font-weight:700}
+header .ybadge b{color:#a9c7ee}
+header{position:relative}
 
 /* 人物卡 */
 .charCard{margin:14px 12px;background:linear-gradient(160deg,#3a2e1e,#241c12);border:1px solid var(--gold);border-radius:16px;padding:18px 16px;text-align:center;position:relative;overflow:hidden}
@@ -30,7 +35,7 @@ header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
 .charCard .realm{font-size:12px;color:var(--text);margin:4px 0 10px;letter-spacing:1px}
 .expbar{background:var(--c2);height:10px;border-radius:5px;overflow:hidden;margin:6px 0 4px}
 .expbar .fill{height:100%;background:linear-gradient(90deg,#8a6a20,#d4af37);transition:width .4s}
-.charCard .expTxt{display:flex;justify-content:space-between;font-size:10px;color:var(--sub)}
+.charCard .expTxt{display:flex;justify-content:space-between;font-size:10px;color:#b3a281}
 
 /* 资源 */
 .res{display:flex;gap:8px;margin:0 12px 14px}
@@ -41,7 +46,7 @@ header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
 /* 主操作 */
 .actions{padding:0 12px}
 .bigBtn{background:linear-gradient(180deg,var(--gold),#b08920);color:#1a1612;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:800;width:100%;margin-bottom:10px;letter-spacing:1px}
-.bigBtn:disabled{opacity:.4}
+.bigBtn:disabled{opacity:1;background:var(--c2);color:var(--sub);border:1px solid var(--c2)}
 .bigBtn.alt{background:transparent;color:var(--gold);border:1px solid var(--gold)}
 
 /* 修为条 */
@@ -61,10 +66,10 @@ header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
 .realmCard{margin:14px 12px;background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:14px}
 .realmCard h3{font-size:13px;color:var(--gold);margin:0 0 10px}
 .ring{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
-.ring .dot{width:32px;height:32px;border-radius:50%;background:var(--c2);color:var(--sub);font-size:10px;display:flex;align-items:center;justify-content:center;border:1px solid transparent}
+.ring .dot{width:32px;height:32px;border-radius:50%;background:var(--c2);color:var(--text);font-size:10px;display:flex;align-items:center;justify-content:center;border:1px solid transparent}
 .ring .dot.past{background:#3a2e1e;color:var(--text);border-color:var(--gold)}
 .ring .dot.now{background:var(--gold);color:#1a1612;font-weight:800;box-shadow:0 0 12px rgba(212,175,55,.5)}
-.ring .dot.next{background:var(--c2);color:var(--sub);border-color:var(--gold);border-style:dashed}
+.ring .dot.next{background:var(--c2);color:var(--text);border-color:var(--gold);border-style:dashed}
 
 /* 吐纳动画 */
 .meditation{position:absolute;top:6px;right:6px;font-size:10px;color:var(--gold);background:rgba(0,0,0,.4);border-radius:6px;padding:2px 7px}
@@ -77,17 +82,51 @@ header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
 .offlineBox .big{font-size:38px;color:#fff;font-weight:900;margin:10px 0}
 .offlineBox .desc{font-size:12px;color:var(--sub);line-height:1.9;margin-bottom:12px}
 
+/* 修行效率 / 裝備 */
+.spdCard{margin:0 12px 14px;background:linear-gradient(160deg,#2e2418,#221a11);border:1px solid rgba(212,175,55,.35);border-radius:14px;padding:12px 14px}
+.spdCard h3{font-size:13px;color:var(--gold);margin:0 0 8px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}
+.spdCard h3 span{font-size:11px;color:#7ea6d8;font-weight:700}
+.spdCard .row{padding:5px 0;font-size:12.5px}
+.spdCard .row b{color:#ffd777}
+.gearItem{display:flex;align-items:center;gap:8px;background:var(--c1);border:1px solid var(--c2);border-radius:11px;padding:9px 10px;margin-bottom:8px}
+.gearItem.on{border-color:var(--gold);box-shadow:0 0 10px rgba(212,175,55,.25)}
+.gearItem .gi-n{flex:1;min-width:0}
+.gearItem .gi-n .nm{font-size:13px;color:var(--text);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gearItem .gi-n .sub2{font-size:10.5px;color:var(--sub);margin-top:2px}
+.gearItem .gi-p{font-size:12px;color:#7ddf9c;font-weight:800;white-space:nowrap}
+.gearItem button{border:none;border-radius:8px;padding:7px 10px;font-size:11.5px;font-weight:800;white-space:nowrap;
+ background:linear-gradient(180deg,var(--gold),#b08920);color:#1a1612}
+.gearItem button.off{background:transparent;color:#c1432f;border:1px solid rgba(193,67,47,.6)}
+
 /* 底部 */
 .foot{font-size:10px;color:var(--sub);text-align:center;padding:10px 14px 16px;line-height:1.7}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:rgba(0,0,0,.85);color:var(--gold);border:1px solid var(--gold);border-radius:10px;padding:9px 16px;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.show{opacity:1}
+
+/* ===== 可读性修复 2026-11-11（该页为固定深色美术页，不跟主题切换） =====
+   底色固定深，故把过暗的次要文字上调到可辨级别：正文 ≥4.5:1，次要 ≥4.5（字号小/信息关键），
+   纯装饰性（🔒、星阶）仍保持低存在感。 */
+:root{--sub2:#b3a281;--sub3:#c0b090;--gold-text:#e8c877;--ok-text:#8ed49a;--bad-text:#f0917c}
+body{color:#e8dcc8}
+
+:root{--sub2:#b3a281}
+/* 原生控件跟随固定深色美术底（本页不引用 theme.js，--gold 恒为 #d4af37，
+   .dot.now 的 #1a1612 字形对比 8.55:1，无需按主题覆盖） */
+body{color-scheme:dark}
 </style>
+<script src="yibi.js?v=20261105a"></script>
+<script src="game-exit.js?v=2026100601" defer></script>
+<script src="game-recent.js?v=20261030p" defer></script>
+<script src="sfx.js?v=20261006b"></script>
+<script src="i18n-toolintro.js?v=20261010g"></script>
+<script src="dialog.js?v=20261105a"></script>
 </head>
-<body>
+<body data-sfx-toggle="0">
 <div id="wrap">
 
   <div class="screen active" id="s-home">
     <header>
+      <div class="ybadge" id="yibiBadge">🪙 —</div>
       <h1>☯ 天機修行</h1>
       <div class="sub">打坐吐納 · 修煉渡劫 · 收集法寶</div>
     </header>
@@ -110,6 +149,18 @@ header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
       <div class="r"><div class="k">⚡ 靈力</div><div class="v" id="rMana">0</div></div>
     </div>
 
+    <!-- 修行效率（服務端速率 + 装备加成 + 预计突破）-->
+    <div class="spdCard" id="spdCard">
+      <h3>⚡ 修行效率<span id="spdGearPct">裝備 +0%</span></h3>
+      <div class="row"><span>當前修行速度</span><b id="spdRate">--</b></div>
+      <div class="row"><span>預計突破</span><b id="spdEta">--</b></div>
+      <div class="row"><span>今日修行增益</span><b id="spdToday">--</b></div>
+      <div class="row"><span>可凝聚體力</span><b id="spdEnergy">--</b></div>
+      <div class="row"><span>裝備加成</span><b id="spdGear">--</b></div>
+      <div style="font-size:11px;color:var(--sub);margin-top:6px;line-height:1.6" id="spdSrc">未應用修行裝備 · 純等待亦可正常修行</div>
+      <button class="bigBtn alt" style="margin:10px 0 0;padding:10px" id="btnGear" onclick="xxGearOpen()">🧿 應用裝備 · 更換修行裝備</button>
+    </div>
+
     <!-- 操作 -->
     <div class="actions">
       <button class="bigBtn" id="btnMed" onclick="doMeditate()">🧘 打坐吐納（+修為）</button>
@@ -123,13 +174,25 @@ header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
       <div class="m" onclick="useMed('破境丹')"><b>✨ 破境丹</b><span class="cd" id="mPo">+200 修為 · 剩 0</span></div>
     </div>
 
+    <!-- 凝气为力（联动消消乐体力） -->
+    <div class="sec">
+      <h3>⚡ 凝氣為力<span id="enPackN"></span></h3>
+      <div class="row"><span>目的：補充消消樂體力</span><b id="enNeed">--</b></div>
+      <button class="bigBtn" style="background:linear-gradient(180deg,#a87716,#6f5310);color:#fff" id="btnCondense" onclick="doCondense()">⚡ 凝聚體力（消耗修為）</button>
+      <div style="font-size:11px;color:var(--sub);margin-top:8px;line-height:1.7">
+        以修為凝聚消消樂<b style="color:var(--gold)">體力</b>：每 <b>20 修為 = 1 體力</b>，每次最多凝 5 點。<br>
+        凝得體力將在下次進入「五行消消樂」時自動補入（上限 5）。
+      </div>
+    </div>
+
     <!-- 渡劫 -->
     <div class="sec">
       <h3>⚡ 渡劫<span id="duJieBtn"></span></h3>
       <div id="duJieArea">
         <div class="row" id="djReq"><span>要求</span><b>--</b></div>
         <div class="row" id="djRew"><span>獎勵</span><b>--</b></div>
-        <button class="bigBtn" style="background:linear-gradient(180deg,var(--red),#8a2418);color:#fff;margin-top:8px" id="btnTdj" onclick="doTribulation()">⚡ 渡劫</button>
+        <button class="bigBtn" style="background:linear-gradient(180deg,#a8331f,#6d1c12);color:#fff;margin-top:8px" id="btnTdj" onclick="doTribulation()">⚡ 渡劫</button>
+        <div style="font-size:11px;color:var(--sub);margin-top:8px;line-height:1.7">成功率約 <b style="color:var(--gold)">50%</b>：失敗損失部分修為與 <b style="color:#e8705a">易幣</b>（修為不足亦可能反噬）；成功另有易幣獎勵。</div>
       </div>
     </div>
 
@@ -156,11 +219,24 @@ header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
   </div>
 </div>
 
+<!-- 修行装备 -->
+<div class="offlineBox" id="xxGearBox"><div class="panel" style="max-width:400px;text-align:left">
+  <h2 style="text-align:center;margin-bottom:4px">🧿 修行裝備</h2>
+  <div style="font-size:11.5px;color:var(--sub);line-height:1.7;margin:6px 0 12px" id="xxGearTip">
+    從礦場已穿戴的裝備中，選 1 件/部位應用到修行。<br>
+    單件上限 <b style="color:var(--gold)">+15%</b>，總加成上限 <b style="color:var(--gold)">+60%</b>；
+    裝備加成同時提升修行產出與每日修為上限。
+  </div>
+  <div id="xxGearList" style="max-height:46vh;overflow:auto"></div>
+  <button class="bigBtn" style="margin:12px 0 0" onclick="xxGearClose()">關 閉</button>
+</div></div>
+
 <!-- 离线收益 -->
 <div class="offlineBox" id="offlineBox"><div class="panel">
   <h2>☯ 歡迎回來</h2>
   <div class="big" id="offXp">+0</div>
   <div class="desc" id="offDesc">你在塵世中打坐，<br>一日之內又進修了些許功夫。</div>
+  <div class="desc" style="color:#7ea6d8" id="offYb"></div>
   <button class="bigBtn" onclick="closeOffline()">收下回歸</button>
 </div></div>
 
@@ -202,8 +278,118 @@ var ST = {
   lastTs: load('lastTs',Date.now()),
   today: load('today',new Date().toISOString().slice(0,10)),
   totalTs: load('totalTs',0),
+  yibi:0,               // 易币余额（服务端）
+  points:0,             // 易币余额（服务端，徽章统一显示）
+  earnedToday:0,        // 今日已赚易币（服务端统计）
+  earnCap:3000,         // 每日赚币上限
+  onlineTs:load('onlineTs',Date.now()),   // 上次结算在线收益时间戳
+  offDate:load('offDate',''),             // 离线收益归属日期
+  offSecToday:load('offSecToday',0),      // 今日离线收益已结算秒数
+  lastOnlineEarn:load('lastOnlineEarn',0),
+  onSecToday:load('onSecToday',0),
+  onDate:load('onDate',''),
+  lastDlEarnTs:load('lastDlEarnTs',0),
+  cold:load('cold',0),
+  dayEarned:0,   // 今日已产出修为（服务端）
+  dayCap:3000,   // 今日修为上限（服务端）
+  serverOk:0,    // 是否已拉到服务端权威值
 };
-function persist(){ save('xp',ST.xp);save('lvl',ST.lvl);save('realm',ST.realm);save('coin',ST.coin);save('mana',ST.mana);save('meds',ST.meds);save('tdk',ST.tdk);save('dlcnt',ST.dlcnt);save('zhi',ST.zhi);save('lastTs',ST.lastTs);save('today',ST.today);save('totalTs',ST.totalTs); }
+function persist(){ save('lvl',ST.lvl);save('coin',ST.coin);save('mana',ST.mana);save('tdk',ST.tdk);save('dlcnt',ST.dlcnt);save('zhi',ST.zhi);save('lastTs',ST.lastTs);save('today',ST.today);save('totalTs',ST.totalTs);
+ save('onlineTs',ST.onlineTs); save('offDate',ST.offDate); save('offSecToday',ST.offSecToday);
+ save('lastOnlineEarn',ST.lastOnlineEarn); save('onSecToday',ST.onSecToday); save('onDate',ST.onDate); save('lastDlEarnTs',ST.lastDlEarnTs); save('cold',ST.cold);
+ /* ⚠️ 修為(xp)/境界(realm)/丹藥(meds) 為服務端權威，不再寫入本地 localStorage（防改本地刷分） */
+ try{ if(window.GameSave && _cloudBound) GameSave.markDirty(); }catch(e){} }
+
+function todayKey(){ var d=new Date(); return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
+
+/* ============ 云存档双保险（GameSave 公共层 · 契约B/C1） ============ */
+// 本地优先：本地读完即渲染；登录态下异步拉云合并（换手机恢复）。file:// / 未登录由 GameSave 空转。
+var _cloudBound=false;
+function gsRead(){
+  return { xp:ST.xp, lvl:ST.lvl, realm:ST.realm, coin:ST.coin, mana:ST.mana, meds:ST.meds,
+           tdk:ST.tdk, dlcnt:ST.dlcnt, zhi:ST.zhi, totalTs:ST.totalTs||0,
+           cold:ST.cold||0, lastTs:ST.lastTs||0, today:ST.today||'' };
+}
+function gsWrite(obj){
+  if(!obj || typeof obj!=='object') return;
+  // ⚠️ 修為(xp)/境界(realm)/丹藥(meds) 為服務端權威，**不接受雲端存檔覆蓋**（否則舊存檔會把服務端值拉低）。
+  //    這些欄位一律以 GET /api/xiuxing/state 為準；其餘進度欄位照舊合併。
+  ['lvl','zhi','tdk','totalTs'].forEach(function(k){
+    if(obj[k]!==undefined && !isNaN(+obj[k])){ var v=+obj[k]; ST[k]=(v>(+ST[k]||0))?v:(+ST[k]||0); }
+  });
+  // 可消耗資源：以雲端為準（但若本地更多，說明雲端落後，仍取本地以防丢档）
+  ['coin','mana','dlcnt','cold'].forEach(function(k){
+    if(obj[k]!==undefined && !isNaN(+obj[k])){ if(+obj[k]!==0 || (+ST[k]||0)===0) ST[k]=+obj[k]; }
+  });
+  if(obj.lastTs) ST.lastTs=Math.max(+obj.lastTs||0, +ST.lastTs||0);
+  if(obj.today) ST.today=obj.today;
+  try{ persist(true); }catch(e){ try{ persist(); }catch(e2){} }
+}
+function initCloudSave(){
+  try{
+    if(!(window.GameSave && GameSave.bind)){ setTimeout(initCloudSave, 400); return; }   // yibi.js 未就绪则稍后重试
+    if(_cloudBound) return;
+    _cloudBound=true;
+    GameSave.bind('xiuxing',{ read:gsRead, write:gsWrite }).then(function(){ try{ render(); }catch(e){} });
+  }catch(e){}
+}
+// ☁️（已移除「上傳舊進度到雲端」按钮 —— 算了吗 2026-10-09 要求删除；GameSave 自动同步已足够）
+
+/* ============ 易币桥接 ============ */
+function hasLogin(){ try{ return !!localStorage.getItem('yx_tk'); }catch(e){ return false; } }
+function fmtY(n){ return window.Yibi?Yibi.fmt(n):n; }
+function renderYibiBadge(){
+  var el=$('yibiBadge'); if(!el) return;
+  el.innerHTML = hasLogin() ? (window.Yibi?Yibi.badgeHTML(ST.yibi, ST.points):('🪙 易币 <b>'+fmtY(ST.yibi)+'</b>')) : '🪙 未登錄';
+}
+function refreshYibi(){
+  renderYibiBadge();
+  if(isFileProtocol()) return Promise.resolve(null);   // file:// 硬闸：不联网
+  if(!hasLogin()||!window.Yibi) return Promise.resolve(null);
+  return Yibi.wallet().then(function(d){
+    if(d && d.ok!==false){
+      ST.yibi=Number(d.yibi||0);
+      ST.points=Number(d.points||0);
+      ST.earnedToday=Number(d.earned_today||0);
+      ST.earnUnlimited=(d.earn_cap_unlimited===true)||(d.earn_daily_cap===0);
+      if(d.earn_daily_cap!=null && !ST.earnUnlimited) ST.earnCap=Number(d.earn_daily_cap);
+    }
+    renderYibiBadge();
+    return d;
+  }).catch(function(){ renderYibiBadge(); return null; });
+}
+function earnYibi(amount, reason, opt){
+  opt=opt||{};
+  amount=Math.floor(amount);
+  if(amount<=0) return Promise.resolve({ok:false,skipped:true});
+  if(isFileProtocol()) return Promise.resolve({ok:false,noop:true});   // file:// 硬闸：不联网
+  if(!hasLogin()){ if(!opt.silent) toastMsg('登錄後方可獲得易幣'); return Promise.resolve({ok:false,need_login:true}); }
+  if(amount>500) amount=500;
+  if(!ST.earnUnlimited && ST.earnedToday+amount>ST.earnCap) amount=ST.earnCap-ST.earnedToday;
+  if(amount<=0){ if(!opt.silent) toastMsg('🪙 今日易幣已滿（上限 '+ST.earnCap+'），明天 0 點重置，明天再來～'); return Promise.resolve({ok:false,cap:true}); }
+  return Yibi.earn(amount,'xiuxing',reason).then(function(r){
+    if(r&&r.ok!==false){ ST.earnedToday+=(r.added||amount); ST.yibi=Number(r.yibi!=null?r.yibi:(ST.yibi+amount)); renderYibiBadge(); if(!opt.silent) toastMsg('+'+amount+' 易幣 · '+reason); }
+    else if(!opt.silent) toastMsg((r&&r.msg)||'易幣發放失敗');
+    return r;
+  }).catch(function(){ return {ok:false,msg:'網絡錯誤'}; });
+}
+function spendYibi(amount, reason, opt){
+  opt=opt||{};
+  amount=Math.floor(amount);
+  if(amount<=0) return Promise.resolve({ok:true,spent:0});
+  if(isFileProtocol()) return Promise.resolve({ok:false,noop:true});   // file:// 硬闸：不联网
+  if(!hasLogin()){ if(!opt.silent) toastMsg('登錄後方可消耗易幣'); return Promise.resolve({ok:false,need_login:true}); }
+  if(ST.yibi<amount){ if(!opt.silent) toastMsg('易幣不足！需要 '+amount+'.當前 '+ST.yibi); return Promise.resolve({ok:false,insufficient:true}); }
+  return Yibi.spend(amount,'xiuxing',reason).then(function(r){
+    if(r&&r.ok!==false){ ST.yibi=Number(r.yibi!=null?r.yibi:(ST.yibi-amount)); renderYibiBadge(); }
+    else if(!opt.silent) toastMsg((r&&r.msg)||'易幣扣除失敗');
+    return r;
+  }).catch(function(){ return {ok:false,msg:'網絡錯誤'}; });
+}
+function coldStartAward(){
+  if(ST.cold) return;
+  earnYibi(60,'新手保底').then(function(r){ if(r&&r.ok!==false){ ST.cold=1; persist(); } });
+}
 
 /* ============ 修为累加 & 离线收益 ============ */
 function fmtTime(sec){
@@ -213,28 +399,49 @@ function fmtTime(sec){
   return Math.floor(sec/86400)+'天';
 }
 function offlineGain(){
+  // ⚠️ 修為(xp) 已改服務端權威：離線收益由服務端在 GET /api/xiuxing/state 時補發（§五），
+  //    本地不再自行加 xp（原為刷分漏洞）。此處僅更新本地計時，返回 null 表示「無本地離線修為」。
   var now=Date.now();
   var sec=Math.max(0,Math.floor((now-ST.lastTs)/1000));
-  if(sec<60) return 0;
-  // 每秒 +1 修为（基础），离线效率 60%（防挂机刷）
-  var perSec=1*0.6;
-  var gain=Math.floor(sec*perSec);
-  ST.xp += gain;
   ST.lastTs=now;
-  ST.totalTs=(ST.totalTs||0)+sec;
+  if(sec>=60) ST.totalTs=(ST.totalTs||0)+sec;
   persist();
-  return {sec:sec,xp:gain};
+  return null;
 }
-function showOffline(g){
+// 离线易币收益：每日封顶（防挂机刷）。返回本日剩余可发易币。
+function offlineYibiGain(sec){
+  if(!hasLogin()) return 0;
+  if(ST.offDate!==todayKey()){ ST.offDate=todayKey(); ST.offSecToday=0; }
+  var cap=(ST.realm>=5?800:(ST.realm>=2?500:300));   // 每日离线封顶
+  var usedU=Math.floor(ST.offSecToday/600);           // 每 600 秒(10分)折算 1 次
+  var newSec=Math.min(sec, 12*3600);                  // 单次最多累计 12 小时
+  var canSec=Math.max(0, Math.floor((cap-usedU)*600));
+  var useSec=Math.min(newSec, canSec);
+  var chunk=Math.floor(useSec/600)*5;                 // 每 10 分钟 +5 易币
+  ST.offSecToday += useSec;
+  persist();
+  return chunk;
+}
+function showOffline(g, yb){
   if(!g||!g.xp) return;
   $('offXp').textContent = '+'+g.xp+' 修為';
   var day=Math.floor(g.sec/86400);
   var hour=Math.floor(g.sec/3600)%24;
   var min=Math.floor(g.sec/60)%60;
   $('offDesc').textContent='你離開了 '+fmtTime(g.sec)+'（'+day+'天'+hour+'時'+min+'分），\n歸來之際氣海已增厚了不少。';
+  var oy=$('offYb');
+  if(yb>0){
+    $('offlineBox').dataset.yb = yb;
+    if(oy) oy.textContent='（含離線易幣待收，點擊收下發放）';
+  } else if(oy){ oy.textContent=''; }
   $('offlineBox').classList.add('show');
 }
-function closeOffline(){ $('offlineBox').classList.remove('show'); }
+function closeOffline(){
+  $('offlineBox').classList.remove('show');
+  var yb=Number($('offlineBox').dataset.yb||0);
+  if(yb>0){ earnYibi(yb,'離線掛機收益'); $('offlineBox').dataset.yb=''; }
+  if(window.SFX)SFX.coin();
+}
 
 /* ============ 渲染 ============ */
 function $(id){return document.getElementById(id);}
@@ -263,6 +470,10 @@ function render(){
   $('mHuqi').textContent='+5 修為 · 剩 ∞';
   $('mJuli').textContent='+30 修為 · 剩 '+(ST.meds['聚靈丹']||0);
   $('mPo').textContent='+200 修為 · 剩 '+(ST.meds['破境丹']||0);
+  // 凝气为力：修为需求 + 已凝体力
+  var _pk=0; try{ _pk=Number(localStorage.getItem('wx_energy_pack')||0)||0; }catch(e){ _pk=0; }
+  $('enNeed').innerHTML='每 20 修為 = 1 體力 · 修為 '+Math.floor(ST.xp);
+  if($('enPackN')) $('enPackN').textContent = _pk>0 ? ('· 已凝 '+_pk+' 點') : '';
   // 渡劫区
   if(ST.realm>=REALMS.length){
     $('djReq').innerHTML='<span>已圓滿</span><b>大乘之境，諸劫不動</b>';
@@ -294,63 +505,429 @@ function render(){
   $('fblDj').textContent=ST.tdk;
   var days = Math.max(1, Math.ceil((Date.now()-(ST.lastTs||Date.now()))/86400000 + (ST.totalTs||0)/86400));
   $('fblDay').textContent = days;
+  xxPaintSpeed();
 }
 
-/* ============ 操作 ============ */
+/* ============ 修行效率面板 + 裝備（2026-11-05）============ */
+/* 2026-11-11：預計突破文案統一兜底，永不渲染 null/undefined/NaN/Infinity */
+function xxSafeTxt(v, fb){
+  if(v===null || v===undefined) return fb;
+  var s=String(v).trim();
+  if(!s) return fb;
+  if(/null|undefined|NaN|Infinity/i.test(s)) return fb;
+  return s;
+}
+function xxFmtNum(n){ n=Number(n||0); return n>=10000 ? (Math.round(n/100)/100)+'萬' : String(Math.round(n)); }
+function xxPaintSpeed(){
+  try{
+    var gp = Number(ST.gearPct||0);
+    var rp = Number(ST.ratePerHour||0);
+    var base = Number(ST.baseRate||0);
+    var dayE = Number(ST.dayEarned||0);
+    var dcap = Number(ST.dayCap||3000);
+    if($('spdGearPct')) $('spdGearPct').textContent = '裝備 +'+(Math.round(gp*10)/10)+'%';
+    if($('spdRate')) $('spdRate').textContent = ((rp>0 && isFinite(rp)) ? ('+'+xxFmtNum(rp)+' 修為/小時') : '--');
+    if($('spdEta')) $('spdEta').textContent = xxSafeTxt(ST.estText, '暫無法預計');
+    if($('spdToday')) $('spdToday').textContent = '+'+xxFmtNum(dayE)+' / '+xxFmtNum(dcap);
+    if($('spdEnergy')) $('spdEnergy').textContent = Math.min(5, Math.floor(Number(ST.xp||0)/20))+' 點（每 20 修為 = 1）';
+    var srcTxt = '基礎 '+xxFmtNum(base||3600)+'/小時';
+    if(gp>0) srcTxt += ' × 裝備加成 '+(Math.round((1+gp/100)*1000)/1000)+' = '+xxFmtNum(rp)+'/小時';
+    var applied = (ST.gearItems||[]).filter(function(i){return i && i.applied;});
+    if(applied.length){
+      $('spdGear').textContent = '+'+gp+'%（'+applied.length+' 件）';
+      $('spdSrc').innerHTML = srcTxt + '<br>來源：' + applied.map(function(i){
+        return esc2(i.name||i.key)+'（'+esc2(i.slot||'')+' +'+i.pct+'%）'; }).join('、');
+    } else {
+      $('spdGear').textContent = '未應用（+0%）';
+      $('spdSrc').textContent = '未應用修行裝備 · 純等待亦可正常修行（點下方按鈕應用礦場裝備提速）';
+    }
+  }catch(e){}
+}
+function xxGet(path){
+  var tk=''; try{ tk=localStorage.getItem('yx_tk')||''; }catch(e){}
+  return fetch(path,{headers:{'X-Token':tk}}).then(function(r){return r.json();})
+    .catch(function(){ return {ok:false,msg:'網絡異常'}; });
+}
+function xxGearClose(){ var b=$('xxGearBox'); if(b) b.classList.remove('show'); }
+function xxGearOpen(){
+  if(xxDisabled()){ toastMsg(hasLogin()?'本地離線模式不可用':'請先登錄'); return; }
+  var box=$('xxGearBox'), list=$('xxGearList');
+  if(box) box.classList.add('show');
+  list.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:14px">載入中…</div>';
+  xxGet('/api/xiuxing/gear').then(function(d){
+    if(!d || d.ok===false){
+      list.innerHTML='<div style="font-size:12px;color:#c1432f;text-align:center;padding:14px">'
+        + esc2((d&&d.msg)||'載入失敗')+'</div>'; return;
+    }
+    if(d.items && d.items.length!==undefined) ST.gearItems=d.items;
+    var tot=Number(d.gear_bonus_pct||0);
+    if($('xxGearTip')){
+      $('xxGearTip').innerHTML='從礦場已穿戴的裝備中，選 1 件/部位應用到修行。<br>'
+        +'當前總加成 <b style="color:#ffd777">+'+tot+'%</b> · 修行提速 '
+        +'<b style="color:#ffd777">'+Math.round((Number(d.rate_mult||1))*1000)/1000+'×</b> · '
+        +'每日上限 <b style="color:#ffd777">'+xxFmtNum(d.day_cap)+'</b><br>'
+        +'單件上限 +'+d.gear_one_cap_pct+'%，總上限 +'+d.gear_total_cap_pct+'%。<br>'
+        +'<span style="color:#8d7f66">所有屬性（戰鬥力/財運/定力等）每 1 點均計修行加成，'
+        +'並同步放寬每日上限；未應用的裝備不影響修行。</span>';
+    }
+    if(!d.items || !d.items.length){
+      list.innerHTML='<div style="font-size:12px;color:var(--sub);text-align:center;padding:14px;line-height:1.8">'
+        +'礦場尚無已穿戴裝備。<br>請先到「⛏ 礦場」穿戴裝備，再回來應用。</div>';
+      return;
+    }
+    var h='';
+    d.items.forEach(function(it){
+      h+='<div class="gearItem'+(it.applied?' on':'')+'">'
+        +'<div class="gi-n"><div class="nm">'+esc2(it.name||it.key||'')+'</div>'
+        +'<div class="sub2">'+esc2(it.slot||'')+' · Lv'+it.level+' · '
+        +(it.applied?'<span style="color:#ffd777">修行中</span>':'礦場已穿戴')+'</div></div>'
+        +'<div class="gi-p">+'+it.pct+'%</div>'
+        +(it.applied
+          ? '<button class="off" onclick="xxGearRemove('+it.gear_id+')">取消</button>'
+          : '<button onclick="xxGearApply('+it.gear_id+')">應用</button>')
+        +'</div>';
+    });
+    list.innerHTML=h;
+  });
+}
+function xxGearApply(gid){
+  if(xxDisabled()){ toastMsg('請先登錄'); return; }
+  xxPost('/api/xiuxing/gear/apply',{gear_id:gid}).then(function(d){
+    if(!d || d.ok===false){ toastMsg((d&&d.msg)||'應用失敗'); return; }
+    var before=Number(d.before_pct||0), now=Number(d.gear_bonus_pct||0);
+    var nm=(d.applied_gear&&d.applied_gear.name)||'裝備';
+    // 立即刷新進度 / 預計突破 / 能量值
+    xxState().then(function(s){
+      if(s && s.ok!==false) applyServer(s);
+      xxPaintSpeed();
+      xxGearOpen();
+      var delta=now-before;
+      if(delta>0.05){
+        toastMsg('✅ '+nm+' 生效：裝備加成 +'+now+'%，修行提速 '+(Math.round((1+now/100)*100)/100)+'× · 預計突破 '+(xxSafeTxt(ST.estText,'暫無法預計')));
+      } else if(delta<-0.05){
+        toastMsg('已更換 '+nm+'：裝備加成 '+now+'%（原 +'+before+'%）· 預計突破 '+(xxSafeTxt(ST.estText,'暫無法預計')));
+      } else {
+        toastMsg('✅ '+nm+' 已應用到修行（總加成 +'+now+'%）');
+      }
+    });
+  });
+}
+function xxGearRemove(gid){
+  if(xxDisabled()){ toastMsg('請先登錄'); return; }
+  xxPost('/api/xiuxing/gear/remove',{gear_id:gid}).then(function(d){
+    if(!d || d.ok===false){ toastMsg((d&&d.msg)||'取消失敗'); return; }
+    var now=Number(d.gear_bonus_pct||0);
+    xxState().then(function(s){
+      if(s && s.ok!==false) applyServer(s);
+      xxPaintSpeed();
+      xxGearOpen();
+      toastMsg('已取消應用 · 目前裝備加成 +'+now+'%');
+    });
+  });
+}
+
+/* ============ 服务端权威：修为/丹药 API 桥接 ============ */
+/* ⚠️ file:// 硬闸（iOS App 内置副本，苹果过审要求不得联网）：file:// 或 未登录 → 一切修为服务端调用 no-op */
+function isFileProtocol(){ try{ return location.protocol==='file:'; }catch(e){ return false; } }
+function xxDisabled(){ return isFileProtocol() || !hasLogin(); }
+function xxPost(path, body){
+  if(xxDisabled()) return Promise.resolve({ok:false,noop:true});
+  var tk=''; try{ tk=localStorage.getItem('yx_tk')||''; if(!tk){var m=document.cookie.match(/(?:^|;\s*)yx_tk=([^;]+)/); if(m){tk=m[1]; localStorage.setItem('yx_tk',tk);}} }catch(e){}
+  return fetch(path,{method:'POST',headers:{'Content-Type':'application/json','X-Token':tk},
+    body:JSON.stringify(body||{})}).then(function(r){ return r.json(); }).catch(function(){ return {ok:false,msg:'網絡異常'}; });
+}
+function xxState(){
+  if(xxDisabled()) return Promise.resolve({ok:false,noop:true});
+  var tk=''; try{ tk=localStorage.getItem('yx_tk')||''; if(!tk){var m=document.cookie.match(/(?:^|;\s*)yx_tk=([^;]+)/); if(m){tk=m[1]; localStorage.setItem('yx_tk',tk);}} }catch(e){}
+  return fetch('/api/xiuxing/state',{headers:{'X-Token':tk}}).then(function(r){return r.json();}).catch(function(){ return {ok:false}; });
+}
+/* ===== 2026-10-29 第5项：进入修行时展示本次修为增长 + 距离突破进度 =====
+ * 后期境界所需修为指数增长，绝对增量虽大、占比却越来越小，
+ * 玩家容易「每天登录但感觉没变化」。故每次进入弹一次具象反馈。 */
+function xxGrowthPop(d){
+  try{
+    var pr=(d&&d.progress)||{};
+    var gain=(d&&typeof d.off_gain==='number')?Math.round(d.off_gain):0;
+    var todayXp=(d&&typeof d.day_earned==='number')?Math.round(d.day_earned):0;
+    var days=(d&&typeof d.est_days==='number')?d.est_days:0;
+    var etaTxt=xxSafeTxt(d&&d.est_text,'');
+    var gp=(d&&typeof d.gear_bonus_pct==='number')?d.gear_bonus_pct:0;
+    if(pr.maxed && !gain) return;
+    var key='xx_growth_'+(new Date().toDateString());
+    var shown=''; try{ shown=localStorage.getItem(key)||''; }catch(e){}
+    if(shown==='1') return;               // 当天只弹一次，避免反复打扰
+    try{ localStorage.setItem(key,'1'); }catch(e){}
+
+    var old=document.getElementById('xxGrowMask');
+    if(old&&old.parentNode)old.parentNode.removeChild(old);
+    var m=document.createElement('div');
+    m.id='xxGrowMask';
+    m.style.cssText='position:fixed;inset:0;z-index:9500;background:rgba(8,6,10,.72);'
+      +'display:flex;align-items:center;justify-content:center;padding:22px';
+    var lines='';
+    if(gain>0){
+      lines+='<div style="font-size:26px;font-weight:900;color:#ffd777;margin:6px 0 2px">修為 +'+gain+'</div>';
+    }
+    lines+='<div style="font-size:13.5px;color:#e8dcc8;line-height:1.9;margin-top:10px">'
+      + (pr.maxed
+          ? '已至 <b style="color:#ffd777">大乘</b>，諸劫不動。'
+          : (pr.remain===0
+             ? '⚡ 修為已滿，可以 <b style="color:#ffd777">渡劫</b> 突破了！'
+             : ('距離 <b style="color:#ffd777">'+esc2(pr.next_name||'下一境界')+'</b> 還差 '
+             + '<b style="color:#ffd777">'+pr.remain+'</b> 修為')))
+      + '</div>';
+    if(!pr.maxed && pr.need){
+      lines+='<div style="height:9px;border-radius:6px;background:rgba(0,0,0,.5);overflow:hidden;'
+        +'margin-top:11px;border:1px solid rgba(212,175,55,.25)">'
+        +'<i style="display:block;height:100%;width:'+(pr.pct||0)+'%;'
+        +'background:linear-gradient(90deg,#f5d06f,#ffb03a);border-radius:6px"></i></div>'
+        +'<div style="font-size:11px;color:#9a8a6a;margin-top:6px">本境進度 '+(pr.pct||0)+'%（'
+        +Math.round(pr.need-(pr.remain||0))+' / '+pr.need+'）</div>';
+    }
+    if(etaTxt && !pr.maxed){
+      lines+='<div style="font-size:12px;color:#9a8a6a;margin-top:8px">按近期修行速率'
+        +'，預計 <b style="color:#ffd777">'+esc2(etaTxt)+'</b> 突破</div>';
+    }
+    if(gp>0){
+      lines+='<div style="font-size:12px;color:#7ddf9c;margin-top:6px">修行裝備加成 '
+        +'<b>+'+gp+'%</b>，修行提速</div>';
+    }
+    if(pr.remain>0){
+      lines+='<div style="font-size:12px;color:#9a8a6a;margin-top:6px">距離下一重突破還需 <b style="color:#ffd777">'+pr.remain+'</b> 修為</div>';
+    }
+    if(todayXp>0){
+      lines+='<div style="font-size:12px;color:#9a8a6a;margin-top:6px">今日已得修為 +'+todayXp+'</div>';
+    }
+    m.innerHTML='<div style="max-width:330px;width:100%;background:linear-gradient(180deg,#241c14,#17110b);'
+      +'border:1px solid rgba(212,175,55,.4);border-radius:16px;padding:22px 20px;text-align:center">'
+      +'<div style="font-size:30px;line-height:1">🧘</div>'
+      +'<div style="font-size:15px;color:#ffd777;font-weight:900;letter-spacing:2px;margin-top:8px">本次修煉收穫</div>'
+      + lines
+      +'<button id="xxGrowOk" style="margin-top:18px;width:100%;padding:11px;border:none;border-radius:10px;'
+      +'background:linear-gradient(135deg,#f5d06f,#c9a227);color:#2a1206;font-weight:900;font-size:14.5px">繼 續 修 行</button>'
+      +'</div>';
+    document.body.appendChild(m);
+    var ok=document.getElementById('xxGrowOk');
+    if(ok)ok.onclick=function(){ if(m.parentNode)m.parentNode.removeChild(m); };
+    m.onclick=function(e){ if(e.target===m && m.parentNode)m.parentNode.removeChild(m); };
+  }catch(e){}
+}
+function esc2(v){ return String(v==null?'':v).replace(/[&<>"]/g,function(c){
+  return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+/* 用服务端返回值覆盖本地镜像（xp/realm/meds/coin/zhi/dlcnt） */
+function applyServer(d){
+  if(!d || d.ok===false) return false;
+  if(typeof d.xp==='number') ST.xp=d.xp;
+  if(typeof d.realm==='number') ST.realm=d.realm;
+  if(typeof d.coin==='number') ST.coin=d.coin;
+  if(typeof d.zhi==='number') ST.zhi=d.zhi;
+  if(typeof d.dlcnt==='number') ST.dlcnt=d.dlcnt;
+  if(d.meds && typeof d.meds==='object'){ ST.meds=d.meds; }
+  ST.lvl=Math.max(ST.lvl||1,(ST.realm||0)+1);
+  ST.dayEarned=(typeof d.day_earned==='number')?d.day_earned:(ST.dayEarned||0);
+  ST.dayCap=(typeof d.day_cap==='number')?d.day_cap:(ST.dayCap||3000);
+  ST.serverOk=1;
+  // 2026-11-05 修行效率/裝備加成（服務端直算，前端只鏡像）
+  if(typeof d.base_rate==='number') ST.baseRate=d.base_rate;
+  if(typeof d.rate_per_hour==='number') ST.ratePerHour=d.rate_per_hour;
+  if(typeof d.gear_bonus_pct==='number') ST.gearPct=d.gear_bonus_pct;
+  if(typeof d.rate_mult==='number') ST.rateMult=d.rate_mult;
+  // 2026-11-11：est 一律以本次服務端返回值為準（含 null），避免沿用上一次的舊值
+  if('est_days' in d) ST.estDays=(typeof d.est_days==='number' && isFinite(d.est_days))?d.est_days:null;
+  if('est_text' in d) ST.estText=xxSafeTxt(d.est_text,'暫無法預計');
+  if(typeof d.daily_rate==='number') ST.dailyRate=d.daily_rate;
+  if(d.gear_items && d.gear_items.length!==undefined) ST.gearItems=d.gear_items;
+  try{ persist(); }catch(e){}
+  try{ render(); }catch(e){}
+  return true;
+}
+
+/* 未登錄/本地(file://)時：禁用修為相關按鈕並提示（沿用全站登錄門禁風格） */
+function xxLockUI(){
+  ['btnMed','btnLiandan','btnCondense','btnTdj'].forEach(function(id){
+    var b=$(id); if(b){ b.disabled=true; }
+  });
+  var host=document.querySelector('.actions');
+  if(host && !$('xxLoginHint')){
+    var el=document.createElement('div'); el.id='xxLoginHint';
+    el.style.cssText='font-size:12px;color:#c1432f;text-align:center;margin-top:6px;font-weight:700';
+    el.textContent = isFileProtocol() ? '本地離線模式（不聯網，僅供瀏覽）' : '請先登錄後再修行（修為由服務端權威記錄）';
+    host.appendChild(el);
+  }
+}
+function xxPaintHint(){
+  var el=$('xpDayHint');
+  if(!el){
+    el=document.createElement('div'); el.id='xpDayHint';
+    el.style.cssText='font-size:11px;color:#b08d3a;margin-top:8px;text-align:center;letter-spacing:.5px';
+    var foot=document.querySelector('.foot'); var host=document.querySelector('.actions')||document.body;
+    if(foot && foot.parentNode) foot.parentNode.insertBefore(el, foot); else host.appendChild(el);
+  }
+  if(isFileProtocol()){ el.textContent='☯ 本地離線模式 · 不聯網'; return; }
+  if(!hasLogin()){ el.textContent='☯ 請先登錄 · 修為由服務端記錄'; return; }
+  el.textContent='☯ 在線修行中 · 今日修為 '+(ST.dayEarned||0)+'/'+(ST.dayCap||3000);
+}
+var _xxAutoTimer=null;
+function xxAutoLoop(){
+  if(_xxAutoTimer) return;
+  _xxAutoTimer=setInterval(function(){
+    try{
+      if(document.hidden) return;
+      if(xxDisabled()) return;   // file:// 或 未登錄 → 不發請求
+      if(ST._busy) return;      // 有按鈕請求在飛，跳過本輪自動，避免競態
+      xxPost('/api/xiuxing/accrue',{kind:'auto'}).then(function(r){
+        if(r && r.ok!==false){ applyServer(r); }
+        xxPaintHint();
+      });
+    }catch(e){}
+  }, 3000);
+}
+function xxStart(){
+  xxPaintHint();
+  if(xxDisabled()){ xxLockUI(); return; }   // file:// 或 未登錄 → 不請求，僅本地靜態渲染
+  xxState().then(function(d){
+    if(d && d.ok!==false){ applyServer(d); xxGrowthPop(d); }
+    xxAutoLoop();
+    xxPaintHint();
+  }).catch(function(){ xxAutoLoop(); });
+}
+
+/* ============ 操作（全部走服务端裁定）============ */
+var _medTick=0, _medEarnCd=0;
 function doMeditate(){
-  // 每秒 +1，每 200ms 一次按键 +0.2
-  ST.xp += 1; ST.mana += 0.5; persist(); render();
-  // 自动进度条动画
+  ST.mana += 0.5;    // 灵力仍为本地表现资源
+  if(window.SFX)SFX.tap();
+  var busy=ST._busy; ST._busy=1;
+  xxPost('/api/xiuxing/accrue',{kind:'click'}).then(function(r){
+    ST._busy=0;
+    if(r && r.ok!==false){
+      var g=r.gained||0;
+      applyServer(r);
+      if(g>0){ toastMsg('打坐吐納 +'+g+' 修為 · 今日 '+(r.day_earned||0)+'/'+(r.day_cap||ST.dayCap)); }
+      else if(r.at_cap){ toastMsg('今日修為已達上限（'+(r.day_cap||ST.dayCap)+'），明日再修'); }
+      else { toastMsg('調息中…（保持節奏更有效）'); }
+    }
+    _medTick++;
+    if(_medTick%20===0 && Date.now()-_medEarnCd>60000){ _medEarnCd=Date.now(); earnYibi(1,'打坐吐納',{silent:true}); }
+  });
   pulseXp();
 }
 function doLiandan(){
   if(ST.mana<10){ toastMsg('靈力不足'); return; }
-  ST.mana -= 10;
-  ST.xp += 5;
-  ST.coin += 5;
-  ST.dlcnt++; ST.zhi++;
-  if(Math.random()<0.5) ST.meds['聚靈丹']=(ST.meds['聚靈丹']||0)+1;
-  if(Math.random()<0.2) ST.meds['破境丹']=(ST.meds['破境丹']||0)+1;
-  persist(); render(); toastMsg('煉丹成功 +5 修為 +5 靈石');
+  if(ST.yibi<10){ toastMsg('易幣不足（煉丹材料 10）'); return; }
+  spendYibi(10,'煉丹·材料').then(function(r){
+    if(!r||r.ok===false) return;
+    ST.mana -= 10;
+    xxPost('/api/xiuxing/liandan',{}).then(function(d){
+      if(!d || d.ok===false){ toastMsg((d&&d.msg)||'煉丹失敗'); return; }
+      applyServer(d);
+      if(d.succ){
+        if(window.SFX)SFX.draw();
+        toastMsg('🔥 煉丹成功 +'+(d.gained||0)+' 修為 +5 靈石');
+        earnYibi(20,'煉丹成功');
+      } else {
+        if(window.SFX)SFX.lose();
+        toastMsg('💥 煉丹失敗，材料損失 10 易幣');
+        renderYibiBadge();
+      }
+    });
+  });
 }
 function useMed(name){
-  if(name==='回氣丹'){ ST.xp+=5; persist(); render(); toastMsg('服用回氣丹 +5 修為'); return; }
-  var n=ST.meds[name]||0;
-  if(n<=0){ toastMsg('丹藥不足'); return; }
-  ST.meds[name]--;
-  if(name==='聚靈丹') ST.xp+=30;
-  else if(name==='破境丹') ST.xp+=200;
-  persist(); render();
-  toastMsg('服用'+name+' +'+(name==='聚靈丹'?30:200)+' 修為');
+  xxPost('/api/xiuxing/pill',{name:name}).then(function(d){
+    if(!d || d.ok===false){
+      toastMsg((d&&d.msg)||'丹藥不足');
+      if(d && d.meds) applyServer(d);
+      return;
+    }
+    applyServer(d);
+    toastMsg('服用'+name+' +'+(d.gained||0)+' 修為');
+  });
+}
+
+/* ============ 凝氣為力：修為 → 消消樂體力（服務端扣減）============ */
+var ENERGY_XP_PER = 20;   // 每 20 修為 = 1 體力
+function doCondense(){
+  xxPost('/api/xiuxing/consume',{n:5}).then(function(d){
+    if(!d || d.ok===false){ toastMsg((d&&d.msg)||'修為不足'); return; }
+    applyServer(d);
+    var n=d.energy||0;
+    var cur = 0;
+    try{ cur = Number(localStorage.getItem('wx_energy_pack')||0)||0; }catch(e){ cur=0; }
+    try{ localStorage.setItem('wx_energy_pack', String(cur + n)); }catch(e){}
+    render();
+    if(window.SFX)SFX.levelup();
+    toastMsg('⚡ 凝得 '+n+' 點體力 · 進入消消樂自動補入');
+  });
 }
 function doTribulation(){
   if(ST.realm>=REALMS.length){ toastMsg('已大乘'); return; }
   var r=REALMS[ST.realm];
   if(ST.xp<r.need){ toastMsg('修為未滿'); return; }
-  ST.xp -= r.need;
-  ST.realm++;
-  ST.lvl = (ST.lvl||1)+1;
-  ST.tdk++;
-  var rw=r.reward;
-  ST.xp += rw.xp; ST.coin += rw.coin;
-  if(rw.med) ST.meds['破境丹']=(ST.meds['破境丹']||0)+rw.med;
-  persist(); render();
-  toastMsg('⚡ 渡劫成功 · 進入'+(ST.realm<REALMS.length?REALMS[ST.realm].name:'大乘之境'));
+  // 门票：普通会员每日首玩免费，超出按当前币种收费（每次进入页面只收一次）
+  if(window.Yibi&&Yibi.gateOnce){
+    Yibi.gateOnce('xiuxing',15).then(function(ok){
+      if(!ok){toastMsg('⚠️ 易幣/易幣不足，無法渡劫');return;}
+      _doTribulation(r);
+    });
+    return;
+  }
+  _doTribulation(r);
+}
+function _doTribulation(r){
+  xxPost('/api/xiuxing/realm',{}).then(function(d){
+    if(!d || d.ok===false){
+      toastMsg((d&&d.msg)||'渡劫未成');
+      if(d && typeof d.xp==='number') applyServer(d);
+      return;
+    }
+    applyServer(d);
+    if(d.succ){
+      if(window.SFX)SFX.levelup();
+      toastMsg('⚡ 渡劫成功 · 進入'+(ST.realm<REALMS.length?REALMS[ST.realm].name:'大乘之境'));
+      earnYibi(50,'渡劫成功·'+(ST.realm<REALMS.length?REALMS[ST.realm].name:'大乘'));
+    } else {
+      if(window.SFX)SFX.lose();
+      var lost = (d.lost!=null?d.lost:Math.floor(r.need*0.2));
+      var loss = Math.min(200, Math.floor(20 + ((r.reward&&r.reward.coin)||0)*0.02));
+      if(hasLogin() && ST.yibi>0){
+        spendYibi(loss,'渡劫失敗·反噬',{silent:true}).then(function(rr){
+          if(rr&&rr.ok!==false){ toastMsg('💥 渡劫失敗！損失 '+lost+' 修為 · '+loss+' 易幣'); }
+          else { toastMsg('💥 渡劫失敗！損失 '+lost+' 修為'); }
+        });
+      } else { toastMsg('💥 渡劫失敗！損失 '+lost+' 修為'); }
+    }
+  });
 }
 function pulseXp(){ var el=$('cExp'); el.style.transition='all .2s'; var old=el.style.width; el.style.width=old; }
 
-/* ============ 计时器：每秒 +1 修为 +0.5 灵石 ============ */
+/* ============ 計時器：本地表現（靈石/靈力）============ */
+/* ⚠️ 修為(xp) 已改服務端權威：本地不再每秒 +1（此為歷史刷分 bug）。修為產出走 /api/xiuxing/accrue。 */
 setInterval(function(){
-  ST.xp += 1;
   ST.coin += 0.2;
   ST.mana = Math.min(100, ST.mana + 0.5);
+  ST.onlineTs = Date.now();
+  // 在线挂机易币（每 6 分钟 +5，每日封顶；防刷）
+  if(ST.onDate!==todayKey()){ ST.onDate=todayKey(); ST.onSecToday=0; }
+  ST.onSecToday = (ST.onSecToday||0)+1;
+  var cap=Math.min(800, 200+(ST.realm||0)*50);
+  if(ST.onSecToday%360===0 && ST.onSecToday<=cap && Date.now()-(ST.lastOnlineEarn||0)>300000){
+    ST.lastOnlineEarn=Date.now();
+    earnYibi(5,'修行掛機·在線',{silent:true});
+  }
   persist();
   render();
 }, 1000);
 
 /* ============ 启动 ============ */
-var g=offlineGain();
-if(g && g.xp>0) showOffline(g); else render();
+var _offG=offlineGain();
+var _offYb=0;
+if(_offG && _offG.xp>0) _offYb=offlineYibiGain(_offG.sec);
+refreshYibi().then(function(){ coldStartAward(); });
+initCloudSave();
+xxStart();
+if(_offG && _offG.xp>0) showOffline(_offG, _offYb); else render();
 try{
   if(window.ToolIntro && ToolIntro.mount){
     ToolIntro.mount({
@@ -358,16 +935,36 @@ try{
       slogan:'放置修仙養成 · 離線也長修為，<br>十二境界逐一渡劫 · 長期養成。',
       steps:[
         '進入即開始<b>打坐吐納</b>，每秒自動累積修為；',
-        '點「🧘 打坐」即時 +修為；點「🔥 煉丹」消耗靈力煉丹（可能出聚靈丹/破境丹）；',
+        '點「🧘 打坐」即時 +修為；點「🔥 煉丹」消耗<b>易幣</b>材料煉丹（<b>有幾率失敗虧料</b>）；',
         '使用<b>回氣丹</b>/<b>聚靈丹</b>/<b>破境丹</b>加速修為（聚靈/破境需煉出）；',
-        '修為滿足條件後點「⚡ 渡劫」晉升境界（煉氣→筑基→金丹→元嬰→大乘），獎勵破境丹與靈石；',
-        '離線也長修為，回來可一鍵收下<b>離線收益</b>。'
+        '修為滿足條件後點「⚡ 渡劫」晉升境界（煉氣→筑基→金丹→元嬰→大乘）：<b>約五成成功</b>，成功得易幣獎勵，失敗損失修為與易幣；',
+        '掛機與離線均產出<b>易幣</b>（每日封頂），可直接用於遊戲和商城。'
       ],
-      note:'⚠️ 本遊戲為休閒放置養成娛樂，所有資源（修為/靈石/靈力/丹藥）均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。',
+      note:'⚠️ 本遊戲為休閒放置養成娛樂，易幣為站內遊戲虛擬貨幣，不涉及任何真實賭博或金錢兌換。',
       onEnter:function(){}
     });
   }
 }catch(e){}
+</script>
+<!-- [服务端权威 2026-10-09] 原 [B+C] 本地令牌桶脚本已删除：修为/丹药/炼丹/渡劫/凝气全部改走 /api/xiuxing/*（服务端裁定）。 -->
+<script>
+TIPatch({"天機修行": {"en": "Tianji Cultivation", "zhTW": "天機修行", "zhHK": "天機修行", "ja": "天池の練習", "ko": "천지연습", "es": "práctica de tianji", "fr": "Pratique du Tianji", "de": "Tianji-Praxis", "pt": "Prática de Tianji", "ar": "ممارسة تيانجي"}, "放置修仙養成 · 離線也長修為，<br>十二境界逐一渡劫 · 長期養成。": {"en": "Idle cultivation: gain Qi even offline,<br>break through twelve realms over the long run.", "zhTW": "放置修仙養成 · 離線也長修為，<br>十二境界逐一渡劫 · 長期養成。", "zhHK": "放置修仙養成 · 離線也長修為，<br>十二境界逐一渡劫 · 長期養成。", "ja": "不死の修煉 ・オフラインでも修煉を成長させます<br>十二界を一つずつ通過します ・長期修煉。", "ko": "불멸의 수련 · 오프라인에서도 수련을 성장시키고,<br>12계를 하나씩 통과 · 장기 수련.", "es": "Cultivo de la inmortalidad · Haga crecer su cultivo incluso sin conexión,<br>Recorra los doce reinos uno por uno · Cultivo a largo plazo.", "fr": "Culture de l'immortalité · Développez votre culture même hors ligne,<br>Parcourez les douze royaumes un par un · Culture à long terme.", "de": "Kultivierung der Unsterblichkeit · Steigern Sie Ihre Kultivierung auch offline.<br>Gehen Sie nacheinander durch die zwölf Bereiche. · Langfristige Kultivierung.", "pt": "Cultivo da Imortalidade · Aumente seu cultivo mesmo offline,<br>Percorra os doze reinos um por um · Cultivo de longo prazo.", "ar": "زراعة الخلود · قم بتنمية زراعتك حتى دون اتصال بالإنترنت،<br>انتقل عبر العوالم الاثني عشر واحدًا تلو الآخر · زراعة طويلة المدى."}, "進入即開始<b>打坐吐納</b>，每秒自動累積修為；": {"en": "On entry you begin <b>meditation</b>, accumulating cultivation every second;", "zhTW": "進入即開始<b>打坐吐納</b>，每秒自動累積修為；", "zhHK": "進入即開始<b>打坐吐納</b>，每秒自動累積修為；", "ja": "入ったらすぐに<b>瞑想</b> を開始すると、修煉が毎秒自動的に蓄積されます。", "ko": "입장하자마자 <b>명상</b>을 시작하면 매초 자동으로 수련이 누적됩니다.", "es": "Inicie la <b>Meditación</b> tan pronto como ingrese, y su cultivo se acumulará automáticamente cada segundo;", "fr": "Commencez la <b>Méditation</b> dès que vous entrez, et votre cultivation s'accumulera automatiquement chaque seconde ;", "de": "Beginnen Sie mit der <b>Meditation</b>, sobald Sie eintreten, und Ihre Kultivierung wird jede Sekunde automatisch akkumuliert;", "pt": "Comece a <b>Meditação</b> assim que entrar, e seu cultivo será acumulado automaticamente a cada segundo;", "ar": "ابدأ <b>التأمل</b> بمجرد دخولك، وسيتم تجميع زراعتك تلقائيًا كل ثانية؛"}, "點「🧘 打坐」即時 +修為；點「🔥 煉丹」消耗<b>易幣</b>材料煉丹（<b>有幾率失敗虧料</b>）；": {"en": "Tap 🧘 Meditate for instant cultivation; tap 🔥 Alchemy to spend <b>Yibi</b> on pills (<b>a failed attempt wastes materials</b>);", "zhTW": "點「🧘 打坐」即時 +修為；點「🔥 煉丹」消耗<b>易幣</b>材料煉丹（<b>有機率失敗虧料</b>）；", "zhHK": "點「🧘 打坐」即時 +修為；點「🔥 煉丹」消耗<b>易幣</b>材料煉丹（<b>有幾率失敗虧料</b>）；", "ja": "インスタント + 栽培するには、「🧘 瞑想」をクリックします。 「🔥 錬金術」 をクリックして<b>イージーコイン</b> 素材を消費して錬金術を行います（<b>失敗して素材が失われる可能性</b> があります）。", "ko": "즉시 + 재배를 하려면 \"🧘 명상\"을 클릭하세요. 연금술을 만들기 위해 <b>쉬운 코인</b> 재료를 소모하려면 \"🔥 연금술\"을 클릭하세요(<b>실패 및 재료 손실 가능성이 있습니다</b>).", "es": "Haga clic en \"🧘 Meditar\" para un cultivo + instantáneo; haga clic en \"🔥 Alquimia\" para consumir materiales <b>Easy Coins</b> para hacer alquimia (<b>Existe la posibilidad de fallar y perder materiales</b>);", "fr": "Cliquez sur « 🧘 Méditer » pour une culture instantanée + ; cliquez sur \"🔥 Alchimie\" pour consommer des matériaux <b>Easy Coins</b> pour faire de l'alchimie (<b>Il y a un risque d'échec et de perte de matériaux</b>) ;", "de": "Klicken Sie auf „🧘 Meditieren“ für sofortige + Kultivierung; Klicken Sie auf „🔥 Alchemie“, um <b>Easy Coins</b>-Materialien zur Herstellung von Alchemie zu verbrauchen (<b>Es besteht die Möglichkeit eines Misserfolgs und eines Materialverlusts</b>);", "pt": "Clique em \"🧘 Meditar\" para cultivo + instantâneo; clique em \"🔥 Alquimia\" para consumir materiais de <b>Moedas Fáceis</b> para fazer alquimia (<b>Há chance de falha e perda de materiais</b>);", "ar": "انقر على \"🧘 تأمل\" للزراعة الفورية؛ انقر على \"🔥 Alchemy\" لاستهلاك مواد <b>Easy Coins</b> لصنع الكيمياء (<b>هناك احتمالية للفشل وفقدان المواد</b>)؛"}, "使用<b>回氣丹</b>/<b>聚靈丹</b>/<b>破境丹</b>加速修為（聚靈/破境需煉出）；": {"en": "Use <b>Energy Pills</b>/<b>Spirit Pills</b>/<b>Breakthrough Pills</b> to speed up (the latter two must be crafted);", "zhTW": "使用<b>回氣丹</b>/<b>聚靈丹</b>/<b>破境丹</b>加速修為（聚靈/破境需煉出）；", "zhHK": "使用<b>回氣丹</b>/<b>聚靈丹</b>/<b>破境丹</b>加速修為（聚靈/破境需煉出）；", "ja": "<b>気の若返りの丸薬</b>/<b>精霊集めの丸薬</b>/<b>領域破壊の丸薬</b>を使用して修煉をスピードアップします（精霊収集/領域破壊は精製する必要があります）。", "ko": "<b>기 회복 약</b>/<b>영혼 수집 약</b>/<b>파괴 영역 약</b>을 사용하여 재배 속도를 높이세요(영혼 수집/파괴 영역을 개선해야 함).", "es": "Utilice la <b>Píldora de Rejuvenecimiento de Qi</b>/<b>Píldora de Recolección de Espíritus</b>/<b>Píldora de Breaking Realm</b> para acelerar su cultivo (Spirit Gathering/Breaking Realm necesita ser refinado);", "fr": "Utilisez la <b>Pilule de rajeunissement du Qi</b>/<b>Pilule de collecte d'esprit</b>/<b>Pilule de rupture du royaume</b> pour accélérer votre cultivation (la collecte des esprits/le royaume de rupture doit être affiné) ;", "de": "Verwenden Sie <b>Qi-Verjüngungspille</b>/<b>Spirit Gathering-Pille</b>/<b>Breaking Realm-Pille</b>, um Ihre Kultivierung zu beschleunigen (Spirit Gathering/Breaking Realm muss verfeinert werden);", "pt": "Use <b>Pílula de Rejuvenescimento de Qi</b>/<b>Pílula de Coleta de Espíritos</b>/<b>Pílula de Quebra do Reino</b> para acelerar seu cultivo (Coleta de Espíritos/Quebra do Reino precisa ser refinado);", "ar": "استخدم <b>حبة تجديد تشي</b>/<b>حبة جمع الروح</b>/<b>حبة كسر العالم</b> لتسريع عملية تدريبك (تجميع الروح/كسر العالم يحتاج إلى تحسين)؛"}, "修為滿足條件後點「⚡ 渡劫」晉升境界（煉氣→筑基→金丹→元嬰→大乘）：<b>約五成成功</b>，成功得易幣獎勵，失敗損失修為與易幣；": {"en": "Once ready, tap ⚡ Tribulation to advance realms (Qi Refining → Foundation → Golden Core → Nascent Soul → Mahayana): <b>~50% success</b>, win Yibi on success, lose cultivation & Yibi on failure;", "zhTW": "修為滿足條件後點「⚡ 渡劫」晉升境界（煉氣→築基→金丹→元嬰→大乘）：<b>約五成成功</b>，成功得易幣獎勵，失敗損失修為與易幣；", "zhHK": "修為滿足條件後點「⚡ 渡劫」晉升境界（煉氣→築基→金丹→元嬰→大乘）：<b>約五成成功</b>，成功得易幣獎勵，失敗損失修為與易幣；", "ja": "修煉レベルが条件を満たしたら、「⚡ 艱難の克服」をクリックして領域に進みます (気の精製 → 基礎の構築 → 金の丸薬 → 初期の魂 → 大乗): <b>約 50% 成功</b> 、成功するとイー コインが報酬として与えられ、失敗すると修煉とイー コインが失われます。", "ko": "재배 수준이 조건을 충족한 후 \"⚡ 환란 극복\"을 클릭하여 영역으로 진출합니다(기 정제 → 기초 건물 → 황금 알약 → 초기 영혼 → 대승): <b>약 50% 성공</b>, 성공하면 이화로 보상을 받고, 실패하면 재배와 이화를 잃습니다.", "es": "Después de que el nivel de cultivo cumpla con las condiciones, haga clic en \"⚡ Superar la tribulación\" para avanzar al reino (Refinamiento de Qi → Construcción de cimientos → Píldora dorada → Alma naciente → Mahayana): <b>Alrededor del 50% de éxito</b>, el éxito será recompensado con monedas Yi, el fracaso resultará en la pérdida de cultivo y monedas Yi;", "fr": "Une fois que le niveau de cultivation remplit les conditions, cliquez sur \"⚡ Surmonter la tribulation\" pour avancer vers le royaume (Raffinage du Qi → Construction de fondations → Pilule d'or → Âme naissante → Mahayana) : <b>Environ 50 % de réussite</b>, le succès sera récompensé par des pièces Yi, l'échec entraînera une perte de culture et des pièces Yi ;", "de": "Nachdem die Kultivierungsstufe die Bedingungen erfüllt, klicken Sie auf „⚡ Trübsal überwinden“, um in das Reich vorzudringen (Qi-Verfeinerung → Grundlagenaufbau → Goldene Pille → Werdende Seele → Mahayana): <b>Etwa 50 % Erfolg</b>, Erfolg wird mit Yi-Münzen belohnt, Misserfolg führt zum Verlust der Kultivierung und Yi-Münzen;", "pt": "Depois que o nível de cultivo atender às condições, clique em \"⚡ Superando a Tribulação\" para avançar para o reino (Refinamento de Qi → Construção da Fundação → Pílula Dourada → Alma Nascente → Mahayana): <b>Cerca de 50% de sucesso</b>, o sucesso será recompensado com moedas Yi, o fracasso resultará na perda de cultivo e moedas Yi;", "ar": "بعد استيفاء مستوى الزراعة للشروط، انقر فوق \"⚡ التغلب على المحنة\" للتقدم إلى المجال (تنقية تشي → بناء الأساس → الحبة الذهبية → الروح الوليدة → ماهايانا): <b>نجاح بنسبة 50% تقريبًا</b>، سيتم مكافأة النجاح بعملات Yi، وسيؤدي الفشل إلى خسارة الزراعة وعملات Yi؛"}, "掛機與離線均產出<b>易幣</b>（每日封頂），可直接用於遊戲和商城。": {"en": "Idle and offline play both yield <b>Yibi</b> (daily cap), directly usable across the platform Games Hall.", "zhTW": "掛機與離線均產出<b>易幣</b>（每日封頂），可直接用於遊戲和商城。", "zhHK": "掛機與離線均產出<b>易幣</b>（每日封頂），可於「遊戲大廳」直接使用。", "ja": "オンフックでもオフラインでも<b>イージー コイン</b> が生成され（毎日上限あり）、「交換ショップ」でネットワーク全体のポイントと引き換えることができます。", "ko": "온훅과 오프라인 모두에서 <b>이지코인</b>이 생성되며(일일 한도), \"교환소\"에서 네트워크 전체 포인트로 교환할 수 있습니다.", "es": "Tanto colgado como fuera de línea, se generan <b>Easy Coins</b> (con un límite diario), que se pueden canjear por puntos de toda la red en la \"Tienda de cambio\".", "fr": "Que ce soit en mode raccroché ou hors ligne, des <b>Easy Coins</b> sont générés (plafonnés quotidiennement) qui peuvent être échangés contre des points à l'échelle du réseau dans la « boutique d'échange ».", "de": "Sowohl bei aufgelegtem Hörer als auch offline werden <b>Easy Coins</b> generiert (täglich begrenzt), die im „Games Hall“ gegen netzwerkweite Punkte eingelöst werden können.", "pt": "Tanto no gancho quanto offline, são geradas <b>Easy Coins</b> (limite diário), que podem ser trocadas por pontos para toda a rede na \"Games Hall\".", "ar": "يتم إنشاء <b>Easy Coins</b> سواء أثناء الاتصال أو دون الاتصال بالإنترنت (بحد أقصى يوميًا)، والتي يمكن استبدالها بنقاط على مستوى الشبكة في \"متجر التبادل\"."}, "⚠️ 本遊戲為休閒放置養成娛樂，易幣為站內遊戲虛擬貨幣，不涉及任何真實賭博或金錢兌換。": {"en": "⚠️ This game is a casual idle-cultivation diversion; Yibi is an in-site virtual currency that involves no real gambling or money exchange.", "zhTW": "⚠️ 本遊戲為休閒放置養成娛樂，易幣為站內遊戲虛擬貨幣，不涉及任何真實賭博或金錢兌換。", "zhHK": "⚠️ 本遊戲為休閒放置養成娛樂，易幣為站內遊戲虛擬貨幣，不涉及任何真實賭博或金錢兑換。", "ja": "⚠️ このゲームは、カジュアルな配置と開発エンターテイメントを目的としています。 Yibi はサイト上のゲームの仮想通貨であり、実際のギャンブルや金銭のやり取りは一切含まれません。", "ko": "⚠️ 이 게임은 캐주얼한 배치 및 개발 엔터테인먼트를 위한 것입니다. Yibi는 사이트에 있는 게임의 가상 통화이며 실제 도박이나 돈 교환을 포함하지 않습니다.", "es": "⚠️ Este juego es para entretenimiento informal de colocación y desarrollo. Yibi es la moneda virtual del juego en el sitio y no implica ningún juego de azar ni intercambio de dinero real.", "fr": "⚠️ Ce jeu est destiné au placement occasionnel et au divertissement de développement. Yibi est la monnaie virtuelle du jeu sur le site et n'implique aucun jeu réel ni échange d'argent.", "de": "⚠️ Dieses Spiel dient der gelegentlichen Platzierungs- und Entwicklungsunterhaltung. Yibi ist die virtuelle Währung des Spiels auf der Website und beinhaltet kein echtes Glücksspiel oder Geldwechsel.", "pt": "⚠️ Este jogo é para colocação casual e entretenimento de desenvolvimento. Yibi é a moeda virtual do jogo no site e não envolve nenhum jogo real ou troca de dinheiro.", "ar": "⚠️ هذه اللعبة مخصصة للتنسيب غير الرسمي والترفيه التنموي. Yibi هي العملة الافتراضية للعبة الموجودة على الموقع ولا تتضمن أي مقامرة حقيقية أو صرف أموال."}},
+{"‹ 天机": {"en": "‹ Tianji", "zhTW": "‹ 天機", "zhHK": "‹ 天機", "ja": "‹ 天吉", "ko": "‹ 천지", "es": "‹Tianji", "fr": "‹ Tianji", "de": "‹ Tianji", "pt": "‹Tianji", "ar": "‹ تيانجي"}});
+</script>
+<script>
+TIPatch({"天機修行": {"en": "Tianji Cultivation", "zhTW": "天機修行", "zhHK": "天機修行", "ja": "天池の練習", "ko": "천지연습", "es": "práctica de tianji", "fr": "Pratique du Tianji", "de": "Tianji-Praxis", "pt": "Prática de Tianji", "ar": "ممارسة تيانجي"}, "打坐吐納 · 修煉渡劫 · 收集法寶": {"en": "Meditate · break through realms · collect treasures", "zhTW": "打坐吐納 · 修煉渡劫 · 收集法寶", "zhHK": "打坐吐納 · 修煉渡劫 · 收集法寶", "ja": "瞑想して息を吐き出す · 苦難を乗り越える練習をする · 魔法の武器を集める", "ko": "명상하고 숨을 내쉬세요 · 고난을 극복하는 연습 · 마법 무기 수집", "es": "Medita y exhala · Practica para superar tribulaciones · Recoge armas mágicas", "fr": "Méditez et expirez · Entraînez-vous pour surmonter les tribulations · Récupérez des armes magiques", "de": "Meditiere und atme aus · Übe, um Schwierigkeiten zu überwinden · Sammle magische Waffen", "pt": "Medite e expire · Pratique para superar as tribulações · Colete armas mágicas", "ar": "التأمل والتنفس · التدرب على التغلب على المحن · جمع الأسلحة السحرية"}, "打坐中": {"en": "Meditating", "zhTW": "打坐中", "zhHK": "打坐中", "ja": "瞑想する", "ko": "명상", "es": "Meditando", "fr": "Méditer", "de": "Meditieren", "pt": "Meditando", "ar": "التأمل"}, "修行者": {"en": "Cultivator", "zhTW": "修行者", "zhHK": "修行者", "ja": "実践者", "ko": "개업의", "es": "facultativo", "fr": "praticien", "de": "Praktiker", "pt": "praticante", "ar": "ممارس"}, "煉氣初期": {"en": "Qi Refining (early)", "zhTW": "煉氣初期", "zhHK": "煉氣初期", "ja": "気の精製の初期段階", "ko": "Qi 정제의 초기 단계", "es": "Etapa temprana del refinamiento de Qi", "fr": "Première étape du raffinage du Qi", "de": "Frühes Stadium der Qi-Verfeinerung", "pt": "Estágio inicial do refinamento do Qi", "ar": "المرحلة المبكرة من تكرير تشي"}, "🌟 修為": {"en": "🌟 Cultivation", "zhTW": "🌟 修為", "zhHK": "🌟 修為", "ja": "🌟栽培", "ko": "🌟 재배", "es": "🌟 Cultivo", "fr": "🌟 Culture", "de": "🌟 Anbau", "pt": "🌟 Cultivo", "ar": "🌟 زراعة"}, "💰 靈石": {"en": "💰 Spirit Stones", "zhTW": "💰 靈石", "zhHK": "💰 靈石", "ja": "💰 精霊石", "ko": "💰 영혼의 돌", "es": "💰 Piedra espiritual", "fr": "💰 Pierre d'Esprit", "de": "💰 Geisterstein", "pt": "💰 Pedra Espiritual", "ar": "💰حجر الروح"}, "⚡ 靈力": {"en": "⚡ Power", "zhTW": "⚡ 靈力", "zhHK": "⚡ 靈力", "ja": "⚡ サイキックパワー", "ko": "⚡ 심령력", "es": "⚡ Poder psíquico", "fr": "⚡ Pouvoir psychique", "de": "⚡ Psychische Kraft", "pt": "⚡ Poder psíquico", "ar": "⚡القوة النفسية"}, "🧘 打坐吐納（+修為）": {"en": "🧘 Meditate (+cultivation)", "zhTW": "🧘 打坐吐納（+修為）", "zhHK": "🧘 打坐吐納（+修為）", "ja": "🧘 瞑想して息を吐き出す (+ 修煉)", "ko": "🧘 명상하고 숨을 내쉬세요(+수양)", "es": "🧘 Medita y exhala (+cultivo)", "fr": "🧘 Méditez et expirez (+ cultivation)", "de": "🧘 Meditieren und ausatmen (+Kultivierung)", "pt": "🧘 Medite e expire (+cultivo)", "ar": "🧘 التأمل والتنفس (+ زراعة)"}, "🔥 煉丹（+修為 +靈石）": {"en": "🔥 Alchemy (+cultivation +spirit stones)", "zhTW": "🔥 煉丹（+修為 +靈石）", "zhHK": "🔥 煉丹（+修為 +靈石）", "ja": "🔥 錬金術（+栽培+精霊石）", "ko": "🔥 연금술 (+재배 +영석)", "es": "🔥 Alquimia (+cultivo +piedra espiritual)", "fr": "🔥 Alchimie (+ culture + pierre spirituelle)", "de": "🔥 Alchemie (+Kultivierung +spiritueller Stein)", "pt": "🔥 Alquimia (+cultivo +pedra espiritual)", "ar": "🔥 الكيمياء (+زراعة +حجر روحي)"}, "💊 回氣丹": {"en": "💊 Energy Pill", "zhTW": "💊 回氣丹", "zhHK": "💊 回氣丹", "ja": "💊若返りの薬", "ko": "💊 젊어지는 약", "es": "💊 Pastilla rejuvenecedora", "fr": "💊 Pilule de rajeunissement", "de": "💊 Verjüngungspille", "pt": "💊 Pílula de Rejuvenescimento", "ar": "💊حبوب التجديد"}, "+5 修為 · 剩 ∞": {"en": "+5 cultivation · ∞ left", "zhTW": "+5 修為 · 剩 ∞", "zhHK": "+5 修為 · 剩 ∞", "ja": "+5 育成・残り ∞", "ko": "+5 재배 · 남은", "es": "+5 Cultivo · Restante ∞", "fr": "+5 Culture · Restant ∞", "de": "+5 Kultivierung · Verbleibendes ∞", "pt": "+5 Cultivo · Restante ∞", "ar": "+5 زراعة · المتبقي ∞"}, "💠 聚靈丹": {"en": "💠 Spirit Pill", "zhTW": "💠 聚靈丹", "zhHK": "💠 聚靈丹", "ja": "💠 集合薬", "ko": "💠 채집약", "es": "💠 Pastilla recolectora", "fr": "💠 Pilule de collecte", "de": "💠 Sammelpille", "pt": "💠 Pílula de coleta", "ar": "💠 حبة التجمع"}, "+30 修為 · 剩 0": {"en": "+30 cultivation · 0 left", "zhTW": "+30 修為 · 剩 0", "zhHK": "+30 修為 · 剩 0", "ja": "+30 栽培 · 残り 0", "ko": "+30 재배 · 0 남음", "es": "+30 Cultivo · Quedan 0", "fr": "+30 Culture · 0 restant", "de": "+30 Kultivierung · 0 übrig", "pt": "+30 Cultivo · 0 restantes", "ar": "+30 زراعة · 0 اليسار"}, "✨ 破境丹": {"en": "✨ Breakthrough Pill", "zhTW": "✨ 破境丹", "zhHK": "✨ 破境丹", "ja": "✨画期的な薬", "ko": "✨ 획기적인 알약", "es": "✨Píldora innovadora", "fr": "✨ Pilule révolutionnaire", "de": "✨ Durchbruchspille", "pt": "✨ Pílula Inovadora", "ar": "✨ حبوب منع الحمل الاختراق"}, "+200 修為 · 剩 0": {"en": "+200 cultivation · 0 left", "zhTW": "+200 修為 · 剩 0", "zhHK": "+200 修為 · 剩 0", "ja": "+200 栽培 · 残り 0", "ko": "+200 재배 · 0 남음", "es": "+200 Cultivo · Quedan 0", "fr": "+200 Culture · 0 restant", "de": "+200 Kultivierung · 0 übrig", "pt": "+200 Cultivo · 0 restantes", "ar": "+200 زراعة · 0 متبقي"}, "⚡ 凝氣為力": {"en": "⚡ Condense Power", "zhTW": "⚡ 凝氣為力", "zhHK": "⚡ 凝氣為力", "ja": "⚡ 気を力に凝縮", "ko": "⚡ 기를 힘으로 응축", "es": "⚡ Condensar Qi en Fuerza", "fr": "⚡ Condenser le Qi en force", "de": "⚡ Qi in Stärke verdichten", "pt": "⚡ Condensando Qi em Força", "ar": "⚡ تكثيف تشى إلى قوة"}, "目的：補充消消樂體力": {"en": "Purpose: refill Match-3 energy", "zhTW": "目的：補充消消樂體力", "zhHK": "目的：補充消消樂體力", "ja": "目的：Xiaoxiaoleの体力を補充する", "ko": "목적 : Xiaoxiaole 체력 보충", "es": "Propósito: reponer la fuerza física de Xiaoxiaole.", "fr": "Objectif : reconstituer la force physique de Xiaoxiaole", "de": "Zweck: die körperliche Stärke von Xiaoxiaole wieder aufzufüllen", "pt": "Objetivo: reabastecer a força física de Xiaoxiaole", "ar": "الغرض: تجديد القوة البدنية لـ Xiaoxiaole"}, "⚡ 凝聚體力（消耗修為）": {"en": "⚡ Condense energy (uses cultivation)", "zhTW": "⚡ 凝聚體力（消耗修為）", "zhHK": "⚡ 凝聚體力（消耗修為）", "ja": "⚡ 体力を集める（育成を消費）", "ko": "⚡ 체력을 모으다(재배를 소모)", "es": "⚡ Reunir fuerza física (consumiendo cultivo)", "fr": "⚡ Rassembler de la force physique (consommation de culture)", "de": "⚡ Körperliche Stärke sammeln (aufwändige Kultivierung)", "pt": "⚡ Reúna força física (consumindo cultivo)", "ar": "⚡ جمع القوة البدنية (الزراعة المستهلكة)"}, "以修為凝聚消消樂": {"en": "Convert cultivation into Match-3", "zhTW": "以修為凝聚消消樂", "zhHK": "以修為凝聚消消樂", "ja": "栽培を利用して幸福を凝縮し排除する", "ko": "수련을 통해 행복을 응축하고 제거한다", "es": "Usa la cultivación para condensar y eliminar la felicidad.", "fr": "Utiliser la cultivation pour condenser et éliminer le bonheur", "de": "Nutzen Sie die Kultivierung, um das Glück zu verdichten und zu beseitigen", "pt": "Use o cultivo para condensar e eliminar a felicidade", "ar": "استخدم الزراعة لتكثيف السعادة والقضاء عليها"}, "體力": {"en": "energy", "zhTW": "體力", "zhHK": "體力", "ja": "体力", "ko": "체력", "es": "fuerza fisica", "fr": "force physique", "de": "körperliche Stärke", "pt": "força física", "ar": "القوة البدنية"}, "，每次最多凝 5 點。": {"en": ", max 5 per use.", "zhTW": "，每次最多凝 5 點。", "zhHK": "，每次最多凝 5 點。", "ja": "、1回につき最大5ポイントが凝縮されます。", "ko": ", 1회 최대 5점까지 응축 가능합니다.", "es": ", se podrá condensar un máximo de 5 puntos cada vez.", "fr": ", un maximum de 5 points peuvent être condensés à chaque fois.", "de": "Es können jeweils maximal 5 Punkte verdichtet werden.", "pt": ", um máximo de 5 pontos podem ser condensados ​​de cada vez.", "ar": "، يمكن تكثيف 5 نقاط كحد أقصى في كل مرة."}, "凝得體力將在下次進入「五行消消樂」時自動補入（上限 5）。": {"en": "Condensed energy is auto-added next time you enter Five Elements Match-3 (max 5).", "zhTW": "凝得體力將在下次進入「五行消消樂」時自動補入（上限 5）。", "zhHK": "凝得體力將在下次進入「五行消消樂」時自動補入（上限 5）。", "ja": "溜まった体力は次回「五行消し」に突入した際に自動で回復します（最大5個）。", "ko": "축적된 체력은 다음 번 '오행탈멸' 입장 시 자동으로 보충됩니다. (최대 5개)", "es": "La fuerza física acumulada se repondrá automáticamente la próxima vez que ingreses a \"Eliminación de los Cinco Elementos\" (máximo 5).", "fr": "La force physique accumulée sera automatiquement reconstituée la prochaine fois que vous entrerez dans « Élimination des cinq éléments » (maximum 5).", "de": "Die angesammelte körperliche Stärke wird automatisch wieder aufgefüllt, wenn Sie das nächste Mal „Five Elements Elimination“ betreten (maximal 5).", "pt": "A força física acumulada será automaticamente reabastecida na próxima vez que você entrar em “Eliminação dos Cinco Elementos” (máximo 5).", "ar": "سيتم تجديد القوة البدنية المتراكمة تلقائيًا في المرة التالية التي تدخل فيها \"القضاء على العناصر الخمسة\" (الحد الأقصى 5)."}, "⚡ 渡劫": {"en": "⚡ Tribulation", "zhTW": "⚡ 渡劫", "zhHK": "⚡ 渡劫", "ja": "⚡ 艱難を乗り越える", "ko": "⚡ 환난을 극복함", "es": "⚡ Venciendo la Tribulación", "fr": "⚡ Surmonter la Tribulation", "de": "⚡ Die Trübsal überwinden", "pt": "⚡ Superando a Tribulação", "ar": "⚡التغلب على المحنة"}, "要求": {"en": "Requires", "zhTW": "要求", "zhHK": "要求", "ja": "必要とする", "ko": "필요하다", "es": "Requerir", "fr": "Exiger", "de": "Erfordern", "pt": "Exigir", "ar": "يتطلب"}, "獎勵": {"en": "Reward", "zhTW": "獎勵", "zhHK": "獎勵", "ja": "褒美", "ko": "보상", "es": "premio", "fr": "récompense", "de": "belohnen", "pt": "recompensa", "ar": "جائزة"}, "+50修為 +20靈石": {"en": "+50 cultivation +20 spirit stones", "zhTW": "+50修為 +20靈石", "zhHK": "+50修為 +20靈石", "ja": "栽培+50+精霊石20", "ko": "+50 재배 +20 정령석", "es": "+50 cultivo +20 piedra espiritual", "fr": "+50 culture +20 pierre spirituelle", "de": "+50 Kultivierung +20 Geisterstein", "pt": "+50 de cultivo +20 de pedra espiritual", "ar": "+50 زراعة +20 حجر روح"}, "成功率約": {"en": "Success rate approx.", "zhTW": "成功率約", "zhHK": "成功率約", "ja": "成功率は約 1 です。", "ko": "성공률은 대략", "es": "La tasa de éxito es de aprox.", "fr": "Le taux de réussite est d'env.", "de": "Die Erfolgsquote liegt bei ca.", "pt": "A taxa de sucesso é de aprox.", "ar": "نسبة النجاح تقريبية"}, "：失敗損失部分修為與": {"en": ": failure loses some cultivation and", "zhTW": "：失敗損失部分修為與", "zhHK": "：失敗損失部分修為與", "ja": "：失敗すると栽培基盤の一部を失い、", "ko": ": 실패 시 재배 기반의 일부를 잃게 되며,", "es": ": El fracaso pierde parte de la base de cultivo y", "fr": ": L'échec perd une partie de la base de culture et", "de": ": Durch Misserfolg geht ein Teil der Kultivierungsbasis verloren und", "pt": ": A falha perde parte da base de cultivo e", "ar": ": الفشل يفقد جزءًا من قاعدة الزراعة و"}, "（修為不足亦可能反噬）；成功另有易幣獎勵。": {"en": " (insufficient cultivation may backfire); success also grants Yibi.", "zhTW": "（修為不足亦可能反噬）；成功另有易幣獎勵。", "zhHK": "（修為不足亦可能反噬）；成功另有易幣獎勵。", "ja": "（栽培が不十​​分な場合もバックラッシュが発生する可能性があります）。成功するとYiコインが報酬として与えられます。", "ko": "(불충분한 재배는 반발을 일으킬 수도 있습니다.) 성공하면 Yi 코인으로 보상을 받습니다.", "es": "(El cultivo insuficiente también puede provocar reacciones negativas); el éxito será recompensado con monedas Yi.", "fr": "(Une culture insuffisante peut également provoquer des réactions négatives) ; le succès sera récompensé par des pièces Yi.", "de": "(Eine unzureichende Kultivierung kann ebenfalls zu Rückschlägen führen.) Erfolg wird mit Yi-Münzen belohnt.", "pt": "(O cultivo insuficiente também pode causar reações adversas); o sucesso será recompensado com moedas Yi.", "ar": "(قد تؤدي الزراعة غير الكافية أيضًا إلى رد فعل عنيف)؛ سيتم مكافأة النجاح بعملات Yi."}, "🪄 境界進度": {"en": "🪄 Realm progress", "zhTW": "🪄 境界進度", "zhHK": "🪄 境界進度", "ja": "🪄 レルムの進行状況", "ko": "🪄 영역 진행", "es": "🪄 Progreso del reino", "fr": "🪄 Progression du royaume", "de": "🪄 Reichsfortschritt", "pt": "🪄 Progresso do reino", "ar": "🪄 تقدم العالم"}, "依次渡過十二境界方為「大乘」。": {"en": "Pass the twelve realms in order to reach \"Mahayana\".", "zhTW": "依次渡過十二境界方為「大乘」。", "zhHK": "依次渡過十二境界方為「大乘」。", "ja": "十二界を順番に通過するのが「大乗」です。", "ko": "열두 영역을 순차적으로 통과하는 것이 \"대승\"입니다.", "es": "El paso a través de los doce reinos en secuencia es el \"Mahayana\".", "fr": "Le « Mahayana » traverse successivement les douze royaumes.", "de": "Das „Mahayana“ besteht darin, die zwölf Bereiche nacheinander zu durchlaufen.", "pt": "Passando pelos doze reinos em sequência está o “Mahayana”.", "ar": "المرور عبر العوالم الاثني عشر بالتسلسل هو \"الماهايانا\"."}, "📦 法寶收藏": {"en": "📦 Treasure collection", "zhTW": "📦 法寶收藏", "zhHK": "📦 法寶收藏", "ja": "📦 魔法の武器コレクション", "ko": "📦 마법 무기 컬렉션", "es": "📦 Colección de armas mágicas", "fr": "📦 Collection d'armes magiques", "de": "📦 Magische Waffensammlung", "pt": "📦 Coleção de armas mágicas", "ar": "📦 مجموعة الأسلحة السحرية"}, "丹藥煉製": {"en": "Pill crafting", "zhTW": "丹藥煉製", "zhHK": "丹藥煉製", "ja": "エリクサーの精製", "ko": "정제된 비약", "es": "elixir refinador", "fr": "Élixir de raffinage", "de": "Verfeinerndes Elixier", "pt": "Refinando elixir", "ar": "إكسير التكرير"}, "靈植種植": {"en": "Herb planting", "zhTW": "靈植種植", "zhHK": "靈植種植", "ja": "精神的な植栽", "ko": "영적 심기", "es": "Plantación espiritual", "fr": "Plantation spirituelle", "de": "Spirituelles Pflanzen", "pt": "Plantio Espiritual", "ar": "الزرع الروحاني"}, "渡劫成功": {"en": "Successful tribulations", "zhTW": "渡劫成功", "zhHK": "渡劫成功", "ja": "艱難を無事に乗り越える", "ko": "환난을 성공적으로 극복하다", "es": "Superando la tribulación con éxito", "fr": "Surmonter la tribulation avec succès", "de": "Die Trübsal erfolgreich überwinden", "pt": "Superando a tribulação com sucesso", "ar": "التغلب على المحنة بنجاح"}, "修煉日數": {"en": "Cultivation days", "zhTW": "修煉日數", "zhHK": "修煉日數", "ja": "練習日数", "ko": "연습 일수", "es": "Número de días de práctica.", "fr": "Nombre de jours de pratique", "de": "Anzahl der Übungstage", "pt": "Número de dias de prática", "ar": "عدد أيام التدريب"}, "☯ 在線修行中 · 今日修為 17/3000": {"en": "☯ Cultivating online · today's cultivation 17/3000", "zhTW": "☯ 線上修行中 · 今日修為 17/3000", "zhHK": "☯ 在線修行中 · 今日修為 17/3000", "ja": "☯ オンラインで練習・今日の育成レベル 17/3000", "ko": "☯ 온라인 연습 중 · 오늘의 재배 레벨 17/3000", "es": "☯ Practicando en línea · Nivel de cultivo actual 17/3000", "fr": "☯ Pratiquer en ligne · Niveau de cultivation actuel 17/3000", "de": "☯ Online üben · Heutiges Kultivierungsniveau 17/3000", "pt": "☯ Praticando online · Nível de cultivo atual 17/3000", "ar": "☯ التدرب عبر الإنترنت · مستوى الزراعة اليوم 17/3000"}, "本遊戲為休閒放置養成娛樂，所有資源均為虛擬娛樂，": {"en": "This game is a casual idle-cultivation diversion; all resources are virtual entertainment,", "zhTW": "本遊戲為休閒放置養成娛樂，所有資源均為虛擬娛樂，", "zhHK": "本遊戲為休閒放置養成娛樂，所有資源均為虛擬娛樂，", "ja": "このゲームは余暇の配置と開発エンターテイメントを目的としており、すべてのリソースは仮想エンターテイメントです。", "ko": "이 게임은 여가 배치 및 개발 엔터테인먼트를 위한 것이며 모든 리소스는 가상 엔터테인먼트입니다.", "es": "Este juego es para entretenimiento de ocio y desarrollo, y todos los recursos son entretenimiento virtual.", "fr": "Ce jeu est destiné au placement de loisirs et au divertissement de développement, et toutes les ressources sont un divertissement virtuel.", "de": "Dieses Spiel dient der Freizeitgestaltung und Entwicklungsunterhaltung, und alle Ressourcen sind virtuelle Unterhaltung.", "pt": "Este jogo é para colocação de lazer e entretenimento de desenvolvimento, e todos os recursos são entretenimento virtual.", "ar": "هذه اللعبة مخصصة للترفيه والتطوير، وجميع الموارد هي ترفيه افتراضي."}, "不涉及任何真實賭博或金錢兌換。": {"en": "involving no real gambling or money exchange.", "zhTW": "不涉及任何真實賭博或金錢兌換。", "zhHK": "不涉及任何真實賭博或金錢兑換。", "ja": "実際のギャンブルや金銭のやり取りは含まれません。", "ko": "실제 도박이나 돈 교환은 없습니다.", "es": "No se trata de juegos de azar ni de cambio de dinero reales.", "fr": "Il n’y a pas de véritable jeu de hasard ni d’échange d’argent.", "de": "Es gibt kein echtes Glücksspiel oder Geldwechsel.", "pt": "Não há jogos de azar reais ou troca de dinheiro envolvidos.", "ar": "لا يوجد مقامرة حقيقية أو تبادل أموال."}, "☯ 歡迎回來": {"en": "☯ Welcome back", "zhTW": "☯ 歡迎回來", "zhHK": "☯ 歡迎回來", "ja": "☯ おかえりなさい", "ko": "☯ 다시 오신 것을 환영합니다", "es": "☯ Bienvenido de nuevo", "fr": "☯ Bienvenue à nouveau", "de": "☯ Willkommen zurück", "pt": "☯ Bem-vindo de volta", "ar": "☯ مرحبًا بعودتك"}, "你在塵世中打坐，": {"en": "You meditated in the mortal world,", "zhTW": "你在塵世中打坐，", "zhHK": "你在塵世中打坐，", "ja": "あなたはこの世界で瞑想し、", "ko": "당신은 이 세상에서 명상을 합니다.", "es": "Meditas en este mundo,", "fr": "Vous méditez dans ce monde,", "de": "Du meditierst in dieser Welt,", "pt": "Você medita neste mundo,", "ar": "أنت تتأمل في هذا العالم،"}, "一日之內又進修了些許功夫。": {"en": "and gained a little more skill in a day.", "zhTW": "一日之內又進修了些許功夫。", "zhHK": "一日之內又進修了些許功夫。", "ja": "一日でもう少し学びました。", "ko": "나는 하루 만에 조금 더 배웠습니다.", "es": "Aprendí un poco más en un día.", "fr": "J'ai appris un peu plus en une journée.", "de": "Ich habe an einem Tag etwas mehr gelernt.", "pt": "Aprendi um pouco mais em um dia.", "ar": "لقد تعلمت المزيد في يوم واحد."}, "收下回歸": {"en": "Claim return bonus", "zhTW": "收下回歸", "zhHK": "收下回歸", "ja": "返品を受け入れる", "ko": "반품을 수락하세요", "es": "Aceptar la devolución", "fr": "Accepter le retour", "de": "Akzeptieren Sie die Rücksendung", "pt": "Aceite a devolução", "ar": "قبول العودة"}, "+60 易幣 · 新手保底": {"en": "+60 Yibi · beginner guarantee", "zhTW": "+60 易幣 · 新手保底", "zhHK": "+60 易幣 · 新手保底", "ja": "+60 YiCoin · 初心者向け保証", "ko": "+60 YiCoin·초보자 보장", "es": "+60 YiCoin·Garantizado para novatos", "fr": "+60 YiCoin·Garanti pour les débutants", "de": "+60 YiCoin·Garantiert für Neulinge", "pt": "+60 YiCoin·Garantido para iniciantes", "ar": "+60 YiCoin · مضمون للمبتدئين"}, "打坐吐納": {"en": "Meditation", "zhTW": "打坐吐納", "zhHK": "打坐吐納", "ja": "瞑想して息を吐き出す", "ko": "명상하고 숨을 내쉬세요", "es": "Medita y exhala", "fr": "Méditez et expirez", "de": "Meditiere und atme aus", "pt": "Medite e expire", "ar": "التأمل والتنفس"}, "每 20 修為 = 1 體力": {"en": "every 20 cultivation = 1 energy", "zhTW": "每 20 修為 = 1 體力", "zhHK": "每 20 修為 = 1 體力", "ja": "栽培20回ごとに体力1", "ko": "20재배 = 체력 1", "es": "Cada 20 de cultivo = 1 de fuerza física", "fr": "Toutes les 20 cultivations = 1 force physique", "de": "Alle 20 Kultivierungen = 1 Körperkraft", "pt": "Cada 20 cultivos = 1 força física", "ar": "كل 20 زراعة = 1 قوة بدنية"}, "20 修為 = 1 體力": {"en": "20 cultivation = 1 energy", "zhTW": "20 修為 = 1 體力", "zhHK": "20 修為 = 1 體力", "ja": "栽培20＝体力1", "ko": "재배 20 = 체력 1", "es": "20 cultivo = 1 fuerza física", "fr": "20 culture = 1 force physique", "de": "20 Kultivierung = 1 körperliche Stärke", "pt": "20 cultivo = 1 força física", "ar": "20 زراعة = 1 قوة بدنية"}},
+{"退出游戏": {"en": "Exit game", "zhTW": "退出遊戲", "zhHK": "退出遊戲", "ja": "ゲームを終了する", "ko": "게임 종료", "es": "Salir del juego", "fr": "Quitter le jeu", "de": "Spiel beenden", "pt": "Sair do jogo", "ar": "الخروج من اللعبة"}, "免费使用": {"en": "Free to use", "zhTW": "免費使用", "zhHK": "免費使用", "ja": "自由に使用できます", "ko": "무료로 사용", "es": "libre de usar", "fr": "utilisation gratuite", "de": "kostenlos zu nutzen", "pt": "livre para usar", "ar": "مجاني للاستخدام"}});
+</script>
+<script>
+window.TIRules=(window.TIRules||[]).concat([{"re":/^裝備 \+([\d.]+)%$/,"out":function(m){return {en:"Gear +"+m[1]+"%",ja:"装備 +"+m[1]+"%",ko:"장비 +"+m[1]+"%",es:"Equipo +"+m[1]+"%",fr:"Équipement +"+m[1]+"%",de:"Ausrüstung +"+m[1]+"%",pt:"Equipamento +"+m[1]+"%",ar:"معدات +"+m[1]+"%",zhTW:"裝備 +"+m[1]+"%",zhHK:"裝備 +"+m[1]+"%"};}},{"re":/^裝備 \+(\d+)%（(\d+) 件）$/,"out":function(m){return {en:"+"+m[1]+"% ("+m[2]+" items)",ja:"+"+m[1]+"% ("+m[2]+" 個)",ko:"+"+m[1]+"% ("+m[2]+"개)",es:"+"+m[1]+"% ("+m[2]+" piezas)",fr:"+"+m[1]+"% ("+m[2]+" pièces)",de:"+"+m[1]+"% ("+m[2]+" Teile)",pt:"+"+m[1]+"% ("+m[2]+" itens)",ar:"+"+m[1]+"% ("+m[2]+" قطع)",zhTW:"裝備 +"+m[1]+"%",zhHK:"裝備 +"+m[1]+"%"};}},{"re":/^每 20 修為 = 1 體力 · 修為 (\d+)$/,"out":function(m){return {en:"every 20 cultivation = 1 energy · cultivation "+m[1],ja:"栽培20ごとに体力1 · 栽培"+m[1],ko:"재배 20 = 체력 1 · 재배 "+m[1],es:"cada 20 de cultivo = 1 de energía · cultivo "+m[1],fr:"20 culture = 1 énergie · culture "+m[1],de:"20 Kultivierung = 1 Energie · Kultivierung "+m[1],pt:"cada 20 de cultivo = 1 energia · cultivo "+m[1],ar:"كل 20 زراعة = 1 طاقة · زراعة "+m[1],zhTW:"每 20 修為 = 1 體力 · 修為 "+m[1],zhHK:"每 20 修為 = 1 體力 · 修為 "+m[1]};}},{"re":/^(\d+) \/ (\d+) 修為$/,"out":function(m){return {en:m[1]+" / "+m[2]+" cultivation",ja:m[1]+" / "+m[2]+" 栽培",ko:m[1]+" / "+m[2]+" 재배",es:m[1]+" / "+m[2]+" cultivo",fr:m[1]+" / "+m[2]+" culture",de:m[1]+" / "+m[2]+" Kultivierung",pt:m[1]+" / "+m[2]+" cultivo",ar:m[1]+" / "+m[2]+" زراعة",zhTW:m[1]+" / "+m[2]+" 修為",zhHK:m[1]+" / "+m[2]+" 修為"};}},{"re":/^☯ 在線修行中 · 今日修為 \d+\/\d+$/,"out":function(){return {en:"☯ Cultivating online · see todays cultivation",ja:"☯ オンライン修行中 · 今日の栽培",ko:"☯ 온라인 수련 중 · 오늘의 재배",es:"☯ Cultivando en línea · cultivo de hoy",fr:"☯ Cultivation en ligne · culture du jour",de:"☯ Online-Kultivierung · heutige Kultivierung",pt:"☯ Cultivando online · cultivo de hoje",ar:"☯ الزراعة عبر الإنترنت · زراعة اليوم",zhTW:"☯ 線上修行中 · 今日修為",zhHK:"☯ 在線修行中 · 今日修為"};}}]);
+</script>
+<script>
+TIPatch({"☯ 天機修行": {"en": "☯ Tianji Cultivation", "ja": "☯ 天機修行", "ko": "☯ 천기 수행", "es": "☯ Cultivo Tianji", "fr": "☯ Cultivation Tianji", "de": "☯ Tianji-Kultivierung", "pt": "☯ Cultivo Tianji", "ar": "☯ تنمية تيانجي", "zhTW": "☯ 天機修行", "zhHK": "☯ 天機修行"}, "：每": {"en": ": every", "ja": "：毎", "ko": ": 매", "es": ": cada", "fr": ": chaque", "de": ": alle", "pt": ": cada", "ar": ": كل", "zhTW": "：每", "zhHK": "：每"}, "（修為不足亦可能反噬）；成功另有": {"en": " (insufficient cultivation may backfire); success grants", "ja": "（栽培不足でも反動の可能性）；成功時は", "ko": "(수련 부족 시 반동 가능); 성공 시", "es": " (cultivo insuficiente puede causar reacción); el éxito otorga", "fr": " (culture insuffisante peut se retourner) ; le succès accorde", "de": " (zu wenig Kultivierung kann zurückschlagen); Erfolg gibt", "pt": " (cultivo insuficiente pode reverter); o sucesso concede", "ar": " (قد يؤدي نقص الزراعة إلى ارتداد)؛ النجاح يمنح", "zhTW": "（修為不足亦可能反噬）；成功另有", "zhHK": "（修為不足亦可能反噬）；成功另有"}, "獎勵。": {"en": " as a reward.", "ja": "の報酬。", "ko": " 보상.", "es": " como recompensa.", "fr": " en récompense.", "de": " als Belohnung.", "pt": " como recompensa.", "ar": " كمكافأة.", "zhTW": "獎勵。", "zhHK": "獎勵。"}, "易幣": {"en": "Yibi", "ja": "易コイン", "ko": "이코인", "es": "Yibi", "fr": "Yibi", "de": "Yibi", "pt": "Yibi", "ar": "ييبي", "zhTW": "易幣", "zhHK": "易幣"}},
+{});
+</script>
+<script>
+TIPatch({"🪙 易币": {"en": "🪙 Yibi", "ja": "🪙 易コイン", "ko": "🪙 이코인", "es": "🪙 Yibi", "fr": "🪙 Yibi", "de": "🪙 Yibi", "pt": "🪙 Yibi", "ar": "🪙 ييبي", "zhTW": "🪙 易幣", "zhHK": "🪙 易幣"}, "· 💠 易币": {"en": "· 💠 Points", "ja": "· 💠 ポイント", "ko": "· 💠 포인트", "es": "· 💠 Puntos", "fr": "· 💠 Points", "de": "· 💠 Punkte", "pt": "· 💠 Pontos", "ar": "· 💠 نقاط", "zhTW": "· 💠 易幣", "zhHK": "· 💠 易幣"}},
+{});
 </script>
 </body>
 </html>

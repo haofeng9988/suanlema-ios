@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#1a1612">
-<title>天機卦卡 · 算了吗·易游</title>
-<script src="tool-intro.js?v=20261005"></script>
+<title>天機卦卡 · 算了吗.易游</title>
+<script>window.TI_BOOT=1;</script>
+<script src="tool-intro.js?v=20261114d"></script>
 <style>
 :root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a;
  --jin:#cfd6dd;--mu:#4caf7d;--shui:#4a90d9;--huo:#e0563f;--tu:#c9a34e}
@@ -18,10 +19,12 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
 button{font-family:inherit;cursor:pointer}
 .screen{display:none;flex-direction:column;flex:1}
 .screen.active{display:flex}
-header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:11px 16px 9px;text-align:center;border-bottom:2px solid var(--gold);position:relative}
+header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:11px 120px 9px;text-align:center;border-bottom:2px solid var(--gold);position:relative}
 header h1{font-size:17px;color:var(--gold);letter-spacing:2px;margin:0}
 header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
 .topleft{position:absolute;left:10px;top:11px;font-size:19px;color:var(--gold);background:none;border:none;padding:4px 8px}
+header .ybadge{position:absolute;left:8px;top:13px;font-size:11px;color:#7ea6d8;background:rgba(126,166,216,.12);border:1px solid rgba(126,166,216,.45);border-radius:9px;padding:2px 7px;white-space:nowrap;font-weight:700}
+header .ybadge b{color:#a9c7ee}
 
 /* 资源条 */
 .res{display:flex;gap:8px;margin:10px 12px 6px}
@@ -98,6 +101,8 @@ header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
 .log{background:var(--c1);border:1px solid var(--c2);border-radius:12px;padding:12px;font-size:12.5px;line-height:1.9;min-height:70px;color:var(--text);margin-top:10px}
 .log .win{color:var(--gold);font-weight:800}
 .log .lose{color:var(--red);font-weight:800}
+.betbtn{flex:1;padding:9px 4px;border-radius:10px;border:1px solid var(--c2);background:var(--c1);color:var(--sub);font-size:12.5px;font-weight:700}
+.betbtn.sel{background:var(--gold);color:#1a1612;border-color:var(--gold)}
 
 /* 通用 */
 .sec{margin:14px 12px}
@@ -110,30 +115,39 @@ header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
 .toast.show{opacity:1}
 .foot{font-size:10px;color:var(--sub);text-align:center;padding:10px 14px 16px;line-height:1.7}
 </style>
+<script src="yibi.js?v=20261104c"></script>
+<script src="game-exit.js?v=2026100601" defer></script>
+<script src="game-recent.js?v=20261030p" defer></script>
+<script src="sfx.js?v=20261006b"></script>
+<script src="dialog.js?v=20261030a"></script>
 </head>
-<body>
+<body data-sfx-toggle="0">
 <div id="wrap">
 
   <!-- ===== 图鉴 ===== -->
   <div class="screen active" id="s-dex">
     <header>
+      <div class="ybadge" id="yibiBadge">🪙 —</div>
       <h1>🃏 天機卦卡</h1>
       <div class="sub" id="dexSub">收集六十四卦 · 五行相剋對戰</div>
     </header>
     <div class="res">
-      <div class="r">靈晶<b id="resCrystal">0</b></div>
+      <div class="r">易幣<b id="resYb">0</b></div>
       <div class="r">圖鑑<b id="resDex">0/64</b></div>
       <div class="r">體力<b id="resSta">5/5</b></div>
     </div>
     <div class="grid" id="dexGrid"></div>
-    <div class="foot">本遊戲為休閒益智娛樂，所有卦卡與靈晶均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。</div>
+    <div class="foot">本遊戲為休閒益智娛樂，遊戲內「易幣」僅限遊戲大厅虛擬流通，不涉及任何真實賭博或金錢兌換。</div>
   </div>
 
   <!-- ===== 抽卡 ===== -->
   <div class="screen" id="s-pull">
-    <header><h1>🔮 卦象推演</h1><div class="sub">消耗靈晶推演新卦（純虛擬）</div></header>
+    <header>
+      <div class="ybadge" id="yibiBadge2">🪙 —</div>
+      <h1>🔮 卦象推演</h1><div class="sub">消耗易幣推演新卦（有賺有虧）</div>
+    </header>
     <div class="res">
-      <div class="r">靈晶<b id="resCrystal2">0</b></div>
+      <div class="r">易幣<b id="resYb2">0</b></div>
       <div class="r">圖鑑<b id="resDex2">0/64</b></div>
       <div class="r">體力<b id="resSta2">5/5</b></div>
     </div>
@@ -141,19 +155,22 @@ header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
       <div class="pullBox">
         <div class="em">☯</div>
         <div class="t">天機卦象推演</div>
-        <div class="s">每次推演隨機得一卦卡（1-5★）<br>重複卦卡自動轉化為「卦氣」用於升級</div>
+        <div class="s">每次推演隨機得一卦卡（1-5★）<br>重複卦卡自動轉化為「卦氣」用於升級<br>消耗<b style="color:#7ea6d8">易幣</b>（遊戲大厅货币），抽到重複即為小虧</div>
       </div>
-      <button class="pullBtn" id="btnPull1" onclick="doPull(1)">推演一次 · 30 靈晶</button>
-      <button class="pullBtn alt" id="btnPull10" onclick="doPull(10)">推演十次 · 270 靈晶</button>
+      <button class="pullBtn" id="btnPull1" onclick="doPull(1)">推演一次 · 40 易幣</button>
+      <button class="pullBtn alt" id="btnPull10" onclick="doPull(10)">推演十次 · 360 易幣</button>
       <div style="font-size:11px;color:var(--sub);margin-top:10px;line-height:1.8">
-        靈晶獲取：每日任務 · 過關獎勵 · 連續簽到<br>本遊戲靈晶純虛擬，不可充值、不可兌換現金。
+        易幣獲取：每日任務 · 連續簽到 · 對戰勝利 · 收集成就<br>易幣為全網統一貨幣，可直接使用。
       </div>
     </div>
   </div>
 
   <!-- ===== 對戰 ===== -->
   <div class="screen" id="s-battle">
-    <header><h1>⚔️ 五行對決</h1><div class="sub">選 3 張卦卡 · 相剋制勝</div></header>
+    <header>
+      <div class="ybadge" id="yibiBadge3">🪙 —</div>
+      <h1>⚔️ 五行對決</h1><div class="sub">選 3 張卦卡 · 相剋制勝 · 押注有賺有虧</div>
+    </header>
     <div class="battle">
       <div class="sec" style="margin-top:0"><h3>我方出戰（點選替換）</h3>
         <div class="field" id="myField"></div>
@@ -161,33 +178,48 @@ header .sub{font-size:10px;color:var(--sub);margin-top:3px;letter-spacing:.5px}
       <div class="sec"><h3>對手</h3>
         <div class="field oppfield" id="oppField"></div>
       </div>
+      <div class="sec">
+        <h3>押注（贏雙倍 · 輸扣注）</h3>
+        <div id="betRow" style="display:flex;gap:8px">
+          <button type="button" class="betbtn" data-bet="0">不押注</button>
+          <button type="button" class="betbtn" data-bet="20">20</button>
+          <button type="button" class="betbtn" data-bet="50">50</button>
+          <button type="button" class="betbtn" data-bet="100">100</button>
+        </div>
+        <div id="betTip" style="font-size:11px;color:var(--sub);margin-top:7px;line-height:1.7">押注需先花費易幣；胜则赢得等額易幣，败则押注损失。今日對決 <b id="battleCnt">0</b>/10 次。</div>
+      </div>
       <button class="pullBtn" onclick="doBattle()" id="btnBattle">⚔️ 開始對決</button>
+      <!-- 2026-10-29 第15项：对局卡死时无路可退，补退出入口 -->
+      <button class="pullBtn alt" onclick="quitBattle()" id="btnQuitBattle" style="margin-top:8px">← 退出對決</button>
       <div class="log" id="battleLog">選擇 3 張卦卡後開始對決。</div>
     </div>
   </div>
 
   <!-- ===== 任务/商店 ===== -->
   <div class="screen" id="s-task">
-    <header><h1>📋 每日修行</h1><div class="sub">完成任務 · 領取靈晶</div></header>
+    <header>
+      <div class="ybadge" id="yibiBadge4">🪙 —</div>
+      <h1>📋 每日修行</h1><div class="sub">完成任務 · 領取易幣</div>
+    </header>
     <div class="res">
-      <div class="r">靈晶<b id="resCrystal3">0</b></div>
+      <div class="r">易幣<b id="resYb3">0</b></div>
       <div class="r">簽到<b id="resSign">-</b></div>
       <div class="r">體力<b id="resSta3">5/5</b></div>
     </div>
     <div class="sec">
       <h3>🎁 每日簽到</h3>
       <div class="taskrow"><span>連續簽到 <b id="signStreak">0</b> 天</span>
-        <button id="btnSign" onclick="doSign()">簽到 +20 靈晶</button></div>
+        <button id="btnSign" onclick="doSign()">簽到 +20 易幣</button></div>
     </div>
     <div class="sec">
       <h3>📋 今日任務</h3>
       <div id="taskList"></div>
     </div>
     <div class="sec">
-      <h3>🛒 卦氣商店（純虛擬）</h3>
+      <h3>🛒 卦氣商店（消耗易幣）</h3>
       <div id="shopList"></div>
     </div>
-    <div class="foot">所有道具以虛擬靈晶獲取，不可充值、不可兌換現金、不涉及賭博。</div>
+    <div class="foot">所有道具以遊戲內易幣獲取，不可充值、不可兌換現金、不涉及賭博。</div>
   </div>
 
   <!-- 底部导航 -->
@@ -257,11 +289,66 @@ var ST = {
   taskDate: load('taskDate',''),
   taskDone: load('taskDone',{}),
   gua: load('gua',0),           // 卦气（升级材料）
+  yibi:0,                        // 易币余额（服务端）
+  points:0,                      // 易币余额（服务端，徽章统一显示）
+  earnedToday:0,                 // 今日已赚易币（服务端统计）
+  earnCap:3000,                  // 每日赚币上限
+  bet:0,                         // 本局押注
+  battleDate: load('battleDate',''),   // 对战计数日期
+  battleCnt: load('battleCnt',0),      // 今日对战次数（限 10）
+  onlineSec: load('onlineSec',0),      // 本日在线时长（秒）
+  onlineTs: load('onlineTs',Date.now()),
+  onlineDate: load('onlineDate',''),   // 在线计时归属日期
+  awarded: load('awarded',{}),         // 成就/首推已发币标记
+  lastEarnTs: load('lastEarnTs',0),    // 挂机发币节流
+  lastBattleTs: load('lastBattleTs',0) // 对战分钟级冷却
 };
-function persist(){
+function persist(quiet){
   save('owned',ST.owned); save('crystal',ST.crystal); save('sta',ST.sta); save('staTs',ST.staTs);
   save('sign',ST.sign); save('streak',ST.streak); save('pullCount',ST.pullCount);
   save('taskDate',ST.taskDate); save('taskDone',ST.taskDone); save('gua',ST.gua);
+  save('battleDate',ST.battleDate); save('battleCnt',ST.battleCnt);
+  save('onlineSec',ST.onlineSec); save('onlineTs',ST.onlineTs); save('onlineDate',ST.onlineDate);
+  save('awarded',ST.awarded); save('lastEarnTs',ST.lastEarnTs); save('lastBattleTs',ST.lastBattleTs);
+  if(!quiet) markDirty();   // 状态变更 → 触发云同步（未登录时空转）
+}
+
+/* ============ 云存档双保险（GameSave 公共层 · 契约B/C3） ============ */
+// 本地优先：先按本地渲染；再异步拉云合并。未登录时不发任何请求（由 GameSave 保证）。
+var _cloudBound=false, _cloudMerged=false;
+function gsRead(){
+  return {
+    owned: ST.owned, crystal: ST.crystal, sta: ST.sta, staTs: ST.staTs,
+    sign: ST.sign, streak: ST.streak, pullCount: ST.pullCount,
+    taskDate: ST.taskDate, taskDone: ST.taskDone, gua: ST.gua,
+    battleDate: ST.battleDate, battleCnt: ST.battleCnt,
+    onlineSec: ST.onlineSec, onlineTs: ST.onlineTs, onlineDate: ST.onlineDate,
+    awarded: ST.awarded, lastEarnTs: ST.lastEarnTs, lastBattleTs: ST.lastBattleTs
+  };
+}
+function gsWrite(obj){
+  if(!obj || typeof obj!=='object') return;
+  ['crystal','sta','staTs','sign','streak','pullCount','taskDate','taskDone','gua',
+   'battleDate','battleCnt','onlineSec','onlineTs','onlineDate','awarded','lastEarnTs','lastBattleTs']
+  .forEach(function(k){ if(obj[k]!==undefined) ST[k]=obj[k]; });
+  // owned：防御式合并（同卡取最高等级），确保图鉴进度绝不倒退
+  if(obj.owned && typeof obj.owned==='object'){
+    Object.keys(obj.owned).forEach(function(id){
+      var lv = +obj.owned[id] || 0;
+      if(lv > (ST.owned[id]||0)) ST.owned[id]=lv;
+    });
+  }
+  persist(true);   // 写回本地（静默，避免合并过程反复触发上传）
+}
+function markDirty(){ try{ if(window.GameSave && GameSave.markDirty) GameSave.markDirty(); }catch(e){} }
+function initCloudSave(){
+  try{
+    if(_cloudBound || !(window.GameSave && GameSave.bind)) return;
+    _cloudBound=true;
+    GameSave.bind('guacard', { read: gsRead, write: gsWrite });
+    // bind 内部会异步拉云合并；完成后刷新 UI
+    setTimeout(function(){ _cloudMerged=true; try{ renderRes(); renderDex(); renderTasks(); }catch(e){} }, 0);
+  }catch(e){}
 }
 
 /* ============ 体力恢复（每 30 分钟 1 点，上限 5） ============ */
@@ -271,7 +358,7 @@ function refreshSta(){
     var mins=Math.floor((now-ST.staTs)/1800000);
     if(mins>0){ ST.sta=Math.min(5, ST.sta+mins); ST.staTs = ST.sta>=5? now : (ST.staTs+mins*1800000); }
   } else { ST.staTs=now; }
-  persist();
+  persist(true);   // 体力自然恢复：静默写本地，不触发云同步
 }
 
 /* ============ 每日任务 ============ */
@@ -294,17 +381,106 @@ function toastMsg(t){ var el=$('toast'); el.textContent=t; el.classList.add('sho
 function ownedCount(){ return Object.keys(ST.owned).length; }
 function rndStar(){ var r=Math.random(); return r<0.55?3: r<0.85?4: 5; }
 
+/* ============ 易币桥接（仅游戏大厅货币） ============ */
+function hasLogin(){ try{ return !!localStorage.getItem('yx_tk'); }catch(e){ return false; } }
+// 刷新余额
+function refreshYibi(){
+  if(!hasLogin()){ renderYibiBadges(); return Promise.resolve(null); }
+  if(!window.Yibi){ renderYibiBadges(); return Promise.resolve(null); }
+  return Yibi.wallet().then(function(d){
+    if(d && d.ok!==false){
+      ST.yibi = Number(d.yibi||0);
+      ST.points = Number(d.points||0);
+      ST.earnedToday = Number(d.earned_today||0);
+      ST.earnUnlimited = (d.earn_cap_unlimited===true) || (d.earn_daily_cap===0);
+      if(d.earn_daily_cap!=null && !ST.earnUnlimited) ST.earnCap = Number(d.earn_daily_cap);
+    }
+    renderYibiBadges(); renderRes();
+    return d;
+  }).catch(function(){ renderYibiBadges(); return null; });
+}
+function renderYibiBadges(){
+  var txt = hasLogin() ? (window.Yibi?Yibi.badgeHTML(ST.yibi, ST.points):('🪙 易币 <b>'+ST.yibi+'</b>')) : '🪙 未登錄';
+  ['yibiBadge','yibiBadge2','yibiBadge3','yibiBadge4'].forEach(function(id){
+    var el=$(id); if(el) el.innerHTML = txt;
+  });
+  ['resYb','resYb2','resYb3'].forEach(function(id){ var el=$(id); if(el) el.textContent = ST.yibi; });
+}
+// 本地记账（乐观更新，便于按钮即时反应）
+function addYibi(n){ ST.yibi=Math.max(0,ST.yibi+ (n||0)); renderYibiBadges(); }
+// 产出：调用后端，成功才落账
+function earnYibi(amount, reason, opt){
+  opt = opt || {};
+  amount = Math.floor(amount);
+  if(amount<=0) return Promise.resolve({ok:false,skipped:true});
+  if(!hasLogin()){ if(!opt.silent) toastMsg('登錄後方可獲得易幣'); return Promise.resolve({ok:false,need_login:true}); }
+  if(amount>500) amount=500; // 单次上限（服务端亦校验）
+  if(!ST.earnUnlimited && ST.earnedToday+amount > ST.earnCap){ amount = ST.earnCap-ST.earnedToday; }
+  if(amount<=0){ if(!opt.silent) toastMsg('🪙 今日易幣已滿（上限 '+ST.earnCap+'），明天 0 點重置，明天再來～'); return Promise.resolve({ok:false,cap:true}); }
+  return Yibi.earn(amount,'guacard',reason).then(function(r){
+    if(r && r.ok!==false){
+      ST.earnedToday += (r.added||amount);
+      ST.yibi = Number(r.yibi!=null?r.yibi:(ST.yibi+amount));
+      renderYibiBadges(); if(!opt.silent) toastMsg('+'+amount+' 易幣 · '+reason);
+    } else if(!opt.silent){
+      toastMsg((r&&r.msg)||'易幣發放失敗');
+    }
+    return r;
+  }).catch(function(){ return {ok:false,msg:'網絡錯誤'}; });
+}
+// 消耗：余额不足则拒绝
+function spendYibi(amount, reason, opt){
+  opt = opt || {};
+  amount = Math.floor(amount);
+  if(amount<=0) return Promise.resolve({ok:true,spent:0});
+  if(!hasLogin()){ if(!opt.silent) toastMsg('登錄後方可消耗易幣'); return Promise.resolve({ok:false,need_login:true}); }
+  if(ST.yibi < amount){ if(!opt.silent) toastMsg('易幣不足！需要 '+amount+'.當前 '+ST.yibi); return Promise.resolve({ok:false,insufficient:true}); }
+  return Yibi.spend(amount,'guacard',reason).then(function(r){
+    if(r && r.ok!==false){
+      ST.yibi = Number(r.yibi!=null?r.yibi:(ST.yibi-amount));
+      renderYibiBadges();
+    } else if(!opt.silent){
+      toastMsg((r&&r.msg)||'易幣扣除失敗');
+    }
+    return r;
+  }).catch(function(){ return {ok:false,msg:'網絡錯誤'}; });
+}
+// 一次性成就奖励（每人仅一次）
+function awardOnce(key, amount, reason){
+  if(ST.awarded[key]) return Promise.resolve({ok:false,already:true});
+  ST.awarded[key]=1; persist();   // 乐观占位，防重复发放
+  return earnYibi(amount, reason).then(function(r){
+    if(!r||r.ok===false){ ST.awarded[key]=0; persist(); }
+    return r;
+  });
+}
+// 收集里程碑成就
+function checkCollectAwards(){
+  var n=ownedCount();
+  [["dex5",5,"圖鑑收集 5 卦"],["dex15",15,"圖鑑收集 15 卦"],["dex30",30,"圖鑑收集 30 卦"],["dex64",64,"集齊六十四卦"]]
+  .forEach(function(t){ if(n>=t[1]) awardOnce(t[0], 30, t[2]+' 成就'); });
+}
+// 冷启动保底（首次进入游戏，发少量易币）
+function coldStartAward(){
+  if(ST.awarded['cold1']) return Promise.resolve(false);
+  return earnYibi(60,'新手保底').then(function(r){
+    if(r&&r.ok!==false){ ST.awarded['cold1']=1; persist(); return true; }
+    return false;
+  });
+}
+
 /* ============ 渲染 ============ */
 function renderRes(){
   refreshSta(); ensureTasks();
-  $('resCrystal').textContent=ST.crystal; $('resCrystal2').textContent=ST.crystal; $('resCrystal3').textContent=ST.crystal;
+   $('resYb').textContent=ST.yibi; $('resYb2').textContent=ST.yibi; $('resYb3').textContent=ST.yibi;
   $('resDex').textContent=ownedCount()+'/64'; $('resDex2').textContent=ownedCount()+'/64';
   var sta=ST.sta+'/5'; $('resSta').textContent=sta; $('resSta2').textContent=sta; $('resSta3').textContent=sta;
   $('resSign').textContent=ST.streak+'天';
-  $('btnPull1').disabled = ST.crystal<30;
-  $('btnPull10').disabled = ST.crystal<270;
+  $('btnPull1').disabled = ST.yibi<40;
+  $('btnPull10').disabled = ST.yibi<360;
   $('signStreak').textContent=ST.streak;
   $('btnSign').disabled = (ST.sign===today());
+  var bc=$('battleCnt'); if(bc) bc.textContent=ST.battleCnt;
   $('dexSub').textContent = '已收集 '+ownedCount()+'/64 卦 · 五行相剋對戰';
 }
 function renderDex(){
@@ -334,21 +510,28 @@ function renderTasks(){
     var d=document.createElement('div'); d.className='taskrow';
     d.innerHTML='<span>'+t.txt+' <span class="p">('+Math.min(prog,need)+'/'+need+')</span></span>';
     var b=document.createElement('button');
-    b.textContent = claimed?'已領取':(done?('領 +'+t.rew):'未完成');
+    b.textContent = claimed?'已領取':(done?('領 +'+t.rew+' 易幣'):'未完成');
     b.disabled = claimed||!done;
-    if(done&&!claimed){ b.addEventListener('click', function(){ ST.crystal+=t.rew; ST.taskDone[t.id]=1; persist(); toastMsg('+'+t.rew+' 靈晶'); renderTasks(); renderRes(); }); }
+    if(done&&!claimed){ b.addEventListener('click', function(){ b.disabled=true; earnYibi(t.rew, '每日任務·'+t.txt).then(function(r){ if(r&&r.ok!==false){ ST.taskDone[t.id]=1; persist(); } renderTasks(); renderRes(); }); }); }
     d.appendChild(b);
     tl.appendChild(d);
   });
-  // 商店
+  // 商店（消耗易币）
   var sl=$('shopList'); sl.innerHTML='';
   var items=[{n:'小卦氣包 · +50 卦氣',c:60,g:50},{n:'大卦氣包 · +150 卦氣',c:150,g:150}];
   items.forEach(function(it){
     var d=document.createElement('div'); d.className='taskrow';
     d.innerHTML='<span>'+it.n+'</span>';
-    var b=document.createElement('button'); b.textContent=it.c+' 靈晶';
-    b.disabled = ST.crystal<it.c;
-    b.addEventListener('click', function(){ if(ST.crystal<it.c)return; ST.crystal-=it.c; ST.gua+=it.g; persist(); toastMsg('+'+it.g+' 卦氣'); renderTasks(); renderRes(); });
+    var b=document.createElement('button'); b.textContent=it.c+' 易幣';
+    b.disabled = ST.yibi<it.c;
+    b.addEventListener('click', function(){
+      if(ST.yibi<it.c){ toastMsg('易幣不足'); return; }
+      b.disabled=true;
+      spendYibi(it.c,'卦氣商店·'+it.n).then(function(r){
+        if(r&&r.ok!==false){ ST.gua+=it.g; persist(); toastMsg('+'+it.g+' 卦氣'); }
+        renderTasks(); renderRes();
+      });
+    });
     d.appendChild(b); sl.appendChild(d);
   });
 }
@@ -371,17 +554,24 @@ function openCard(c, lv){
     (lv?('當前等級 Lv'+lv):'尚未擁有');
   var act=$('csActions'); act.innerHTML='';
   if(lv){
-    // 升级：消耗卦气 = lv*30
-    var cost = lv*30;
+    // 升级：消耗易币 = 50 + lv*30
+    var cost = 50 + lv*30;
     var b=document.createElement('button'); b.className='b-gold';
-    b.textContent = '升級 Lv'+(lv+1)+'（'+cost+' 卦氣，現有 '+ST.gua+'）';
+    b.textContent = '升級 Lv'+(lv+1)+'（'+cost+' 易幣）';
     b.style.cssText='width:100%;padding:11px;border-radius:11px;border:none;font-weight:800;font-size:14px';
-    b.disabled = ST.gua<cost;
+    b.disabled = ST.yibi<cost;
     b.addEventListener('click', function(){
-      if(ST.gua<cost) return;
-      ST.gua-=cost; ST.owned[c.id]=lv+1; save('gua',ST.gua); save('owned',ST.owned);
-      save('upCnt', load('upCnt',0)+1);
-      toastMsg('升級至 Lv'+(lv+1)); openCard(c, lv+1); renderRes(); persist();
+      if(ST.yibi<cost){ toastMsg('易幣不足（需 '+cost+'）'); return; }
+      b.disabled=true;
+      spendYibi(cost,'卦卡升級·'+c.name).then(function(r){
+        if(!r||r.ok===false){ b.disabled=false; return; }
+        ST.owned[c.id]=lv+1; save('owned',ST.owned);
+        save('upCnt', load('upCnt',0)+1);
+        if(window.SFX)SFX.levelup();
+        earnYibi(15,'升級獎勵 Lv'+(lv+1),{silent:true});   // 升级小额奖励
+        toastMsg('升級至 Lv'+(lv+1));
+        openCard(c, lv+1); renderRes(); persist();
+      });
     });
     act.appendChild(b);
   }
@@ -392,13 +582,17 @@ function closeSheet(){ $('cardSheet').classList.remove('show'); }
 /* ============ 抽卡 ============ */
 var _pullResults=[], _pullIdx=0, _pullMode=0;
 function doPull(n){
-  var cost = n===1?30:270;
-  if(ST.crystal<cost){ toastMsg('靈晶不足'); return; }
-  ST.crystal-=cost; _tap.pull+=n; persist();
-  _pullResults=[]; _pullMode=n;
-  for(var i=0;i<n;i++){ _pullResults.push(pullOne()); }
-  _pullIdx=0; showPullResult();
-  renderRes(); renderTasks();
+  var cost = n===1?40:360;
+  if(ST.yibi<cost){ toastMsg('易幣不足（需 '+cost+'）'); return; }
+  spendYibi(cost, n===1?'推演一次':'推演十次').then(function(r){
+    if(!r||r.ok===false) return;
+    _tap.pull+=n; persist();
+    _pullResults=[]; _pullMode=n;
+    for(var i=0;i<n;i++){ _pullResults.push(pullOne()); }
+    _pullIdx=0; showPullResult();
+    checkCollectAwards();
+    renderRes(); renderTasks();
+  });
 }
 function pullOne(){
   var star = rndStar();
@@ -413,6 +607,7 @@ function pullOne(){
 function showPullResult(){
   var r=_pullResults[_pullIdx];
   if(!r) { closePull(); return; }
+  if(window.SFX){ r.isNew ? SFX.levelup() : SFX.draw(); }
   $('prTitle').textContent = _pullMode>1? ('推演結果 '+(  _pullIdx+1)+'/'+_pullMode) : '推演結果';
   var pc=$('prCard'); pc.className='prCard'+(r.isNew?' new':'');
   pc.innerHTML='<div class="nm">'+r.c.name+'</div><div class="el el-'+r.c.el+'">'+r.c.el+'</div><div class="st">'+'★'.repeat(r.c.star)+'</div>';
@@ -425,6 +620,8 @@ function closePull(){
 
 /* ============ 对战 ============ */
 var myTeam=[null,null,null];
+var BET_OPTS=[0,20,50,100];
+function battleRollover(){ if(ST.battleDate!==today()){ ST.battleDate=today(); ST.battleCnt=0; persist(); } }
 function myOwned(){ return Object.keys(ST.owned).map(function(id){ return {c:CARDS[+id-1], lv:ST.owned[id]}; }); }
 function renderBattle(){
   var mf=$('myField'); mf.innerHTML='';
@@ -436,45 +633,142 @@ function renderBattle(){
     mf.appendChild(d);
   }
   $('oppField').innerHTML='';
+  var br=$('betRow');
+  if(br){ [].forEach.call(br.querySelectorAll('.betbtn'), function(b){ b.classList.toggle('sel', Number(b.dataset.bet)===ST.bet); }); }
+  var bc=$('battleCnt'); if(bc) bc.textContent=ST.battleCnt;
 }
+function setBet(v){ ST.bet=Number(v)||0; renderBattle(); }
 function pickForSlot(i){
   var own=myOwned();
   if(own.length===0){ toastMsg('先去推演獲得卦卡'); return; }
-  // 简单：从已拥有循环选下一张
+  // 2026-10-29 第3项复查：原邏輯每個槽都從第 0 張開始輪，三槽點一次會全落同一張，
+  // 再加上「不可重複」校驗 → 正常操作直接被擋，看起來就是點開始沒反應。
+  // 現改為：自動跳過其他槽已佔用的卦卡。
+  var used={};
+  for(var k=0;k<myTeam.length;k++){
+    if(k!==i && myTeam[k]) used[myTeam[k].c.id]=1;
+  }
+  var avail=own.filter(function(x){ return !used[x.c.id]; });
+  if(avail.length===0){
+    toastMsg('沒有其他卦卡可選，先去推演獲得更多卦卡');
+    return;
+  }
   var cur=myTeam[i];
-  var idx=cur?own.findIndex(function(x){return x.c.id===cur.c.id;}):-1;
-  idx=(idx+1)%own.length;
-  myTeam[i]=own[idx];
+  var idx=cur?avail.findIndex(function(x){return x.c.id===cur.c.id;}):-1;
+  idx=(idx+1)%avail.length;
+  myTeam[i]=avail[idx];
   renderBattle();
 }
-async function doBattle(){
-  if(myTeam.filter(function(x){return x;}).length===0){ toastMsg('至少選 1 張卦卡'); return; }
+/* 2026-10-29 第15项：
+ * 原「開始對決」在前置條件不满足时只 toast 一下就 return，且按钮无节流、
+ * 一旦 gateOnce/spendYibi 的 promise 不落地，界面既进不了对局也退不出去 → 看起来「卡死」。
+ * 现在：①前置校验统一出口 ②按钮锁定防连点 ③任何异常都自动解锁并提示 ④提供退出入口。
+ */
+var _battleBusy=false;
+function _battleUnlock(){ _battleBusy=false; var b=$('btnBattle'); if(b){b.disabled=false;b.textContent='⚔️ 開始對決';} }
+function _battleFail(msg){
+  _battleUnlock();
+  var lg=$('battleLog'); if(lg){ lg.innerHTML='<span class="lose">'+msg+'</span>'; }
+  toastMsg(msg);
+}
+function quitBattle(){
+  _battleUnlock();
+  var lg=$('battleLog'); if(lg)lg.innerHTML='已退出本次對決，可重新選擇卦卡。';
+  try{ nav('dex'); }catch(e){ try{ nav('pull'); }catch(e2){} }
+}
+function doBattle(){
+  if(_battleBusy){ return; }              // 防连点
+  // 2026-10-29 第3项复查：前置校驗。原只檢查「至少1張」，且不查重複/合法性，
+  // 資料不完整就進對局，會在半途炸掉又沒有退出路徑。
+  var _slots=myTeam.filter(function(x){return !!x;});
+  if(_slots.length===0){ toastMsg('請先選擇 3 張卦卡（目前 0 張）'); return; }
+  if(_slots.length<3){ toastMsg('卦卡不足：需選滿 3 張，目前 '+_slots.length+' 張'); return; }
+  var _seen={}, _dup=false, _bad=false;
+  _slots.forEach(function(x){
+    var k=(x.c&&x.c.id!=null)?String(x.c.id):'';
+    if(!k){ _bad=true; return; }
+    if(_seen[k]){ _dup=true; } else { _seen[k]=1; }
+  });
+  if(_bad){ toastMsg('出戰卦卡資料異常，請重新選擇'); return; }
+  if(_dup){ toastMsg('同一張卦卡不可重複出戰，請重新選擇'); return; }
+  battleRollover();
   if(ST.sta<1){ toastMsg('體力不足，30 分鐘恢復 1 點'); return; }
-  ST.sta--; ST.staTs=ST.staTs||Date.now(); persist();
-  _tap.battle++;
-  // 对手：随机3张
-  var opp=[]; for(var i=0;i<3;i++){ opp.push({c:CARDS[Math.floor(Math.random()*64)], lv:1+Math.floor(Math.random()*3)}); }
-  var my=myTeam.filter(function(x){return x;});
-  var log=[];
-  // 简化战斗：逐位比较，五行相克加成
-  var myScore=0, oppScore=0;
-  for(var k=0;k<Math.max(my.length,3);k++){
-    var a=my[k]||null, b=opp[k]||null;
-    if(!a||!b) continue;
-    var av=a.c.star*10+a.lv*3, bv=b.c.star*10+b.lv*3;
-    var tag='';
-    if(KE[a.c.el]===b.c.el){ av+=15; tag='（'+a.c.el+'剋'+b.c.el+' 剋制！）'; }
-    else if(KE[b.c.el]===a.c.el){ bv+=15; tag='（'+b.c.el+'剋'+a.c.el+' 被剋）'; }
-    else if(SHENG[a.c.el]===b.c.el){ av+=8; tag='（相生 +8）'; }
-    myScore+=av; oppScore+=bv;
-    log.push('<b>'+a.c.name+'（'+a.c.el+'）</b> vs <b>'+b.c.name+'（'+b.c.el+'）</b> '+tag);
+  if(ST.battleCnt>=10){ toastMsg('今日對決次數已達上限（10 次）'); return; }
+  if(Date.now()-(ST.lastBattleTs||0) < 10000){ toastMsg('對決冷卻中，請稍候 10 秒'); return; }
+  var bet = ST.bet||0;
+  if(bet>0 && ST.yibi<bet){ toastMsg('易幣不足以押注 '+bet); return; }
+  // 門票：普通會員每日首玩免費，超出按當前幣種收費
+  // 2026-10-29 修（第3项复查未过）：原寫法在 gateOnce 成功後再次調用 doBattle()，
+  // 而 gateOnce 命中緩存會立刻 resolve → 又進 doBattle → 無限微任務遞歸 → 真死循環卡死。
+  // 現改為「校驗門票」與「真正開局」兩個獨立函數，doBattle 只在最外層決策。
+  if(window.Yibi&&Yibi.gateOnce){
+    _battleBusy=true;
+    var _b=$('btnBattle'); if(_b){_b.disabled=true;_b.textContent='⏳ 準備中…';}
+    var _done=false;
+    var _guard=setTimeout(function(){
+      if(_done)return; _done=true;
+      _battleFail('對決初始化逾時，請重試或按「退出對決」');
+    },12000);
+    Yibi.gateOnce('guacard',20).then(function(ok){
+      if(_done)return; _done=true;
+      clearTimeout(_guard);
+      _battleUnlock();
+      if(!ok){ _battleFail('⚠️ 易幣/易幣不足，無法開始'); return; }
+      _battleStartNow();
+    }).catch(function(){
+      if(_done)return; _done=true;
+      clearTimeout(_guard);
+      _battleFail('門票校驗失敗，請稍後重試');
+    });
+    return;
   }
-  var win = myScore>=oppScore;
-  log.push('<span class="'+(win?'win':'lose')+'">'+(win?'🏆 我方勝出！':'💧 略遜一籌')+'</span> 我方 '+myScore+' : 對手 '+oppScore);
-  if(win){ var rew=20+my.length*5; ST.crystal+=rew; log.push('獎勵 +'+rew+' 靈晶'); }
-  persist();
-  $('battleLog').innerHTML=log.join('<br>');
-  renderRes(); renderTasks();
+  _battleStartNow();
+}
+
+/* 真正開局（不碰門票，避免遞歸） */
+function _battleStartNow(){
+  var bet = ST.bet||0;   // 2026-10-29：拆分函數後 bet 作用域丟失會直接 ReferenceError → 點擊無反應
+  function resolve(){
+    ST.sta--; ST.lastBattleTs=Date.now(); ST.battleCnt++; _tap.battle++;
+    // 对手：随机3张
+    var opp=[]; for(var i=0;i<3;i++){ opp.push({c:CARDS[Math.floor(Math.random()*64)], lv:1+Math.floor(Math.random()*3)}); }
+    var my=myTeam.filter(function(x){return x;});
+    var log=[];
+    var myScore=0, oppScore=0;
+    for(var k=0;k<Math.max(my.length,3);k++){
+      var a=my[k]||null, b=opp[k]||null;
+      if(!a||!b) continue;
+      var av=a.c.star*10+a.lv*3, bv=b.c.star*10+b.lv*3;
+      var tag='';
+      if(KE[a.c.el]===b.c.el){ av+=15; tag='（'+a.c.el+'剋'+b.c.el+' 剋制！）'; }
+      else if(KE[b.c.el]===a.c.el){ bv+=15; tag='（'+b.c.el+'剋'+a.c.el+' 被剋）'; }
+      else if(SHENG[a.c.el]===b.c.el){ av+=8; tag='（相生 +8）'; }
+      myScore+=av; oppScore+=bv;
+      log.push('<b>'+a.c.name+'（'+a.c.el+'）</b> vs <b>'+b.c.name+'（'+b.c.el+'）</b> '+tag);
+    }
+    var win = myScore>=oppScore;
+    if(window.SFX){ win?SFX.win():SFX.lose(); }
+    log.push('<span class="'+(win?'win':'lose')+'">'+(win?'🏆 我方勝出！':'💧 略遜一籌')+'</span> 我方 '+myScore+' : 對手 '+oppScore);
+    if(win){
+      var rew=Math.min(250, 12+my.length*6);
+      earnYibi(rew,'對決勝利').then(function(){ renderRes(); });
+      log.push('獎勵 +'+rew+' 易幣');
+      if(bet>0){ earnYibi(bet*2,'對決押注·贏 '+bet); log.push('<span class="win">押注 +'+(bet*2)+' 易幣（含本金 '+bet+'）</span>'); }
+      if(window.SFX)SFX.coin();
+    } else {
+      if(bet>0){ log.push('<span class="lose">押注損失 -'+bet+' 易幣</span>'); }
+      else { log.push('<span class="lose">無押注，僅損失體力</span>'); }
+    }
+    persist();
+    $('battleLog').innerHTML=log.join('<br>');
+    renderRes(); renderTasks(); renderBattle();
+    _battleUnlock();
+  }
+  if(bet>0){
+    spendYibi(bet,'對決押注').then(function(r){
+      if(r&&r.ok!==false){ resolve(); } else { _battleFail('押注扣費失敗，本次對決已取消'); renderBattle(); }
+    }).catch(function(){ _battleFail('押注扣費異常，本次對決已取消'); });
+  } else { resolve(); }
 }
 
 /* ============ 签到 ============ */
@@ -485,9 +779,11 @@ function doSign(){
   if(ST.sign===ys) ST.streak++; else ST.streak=1;
   ST.sign=today();
   var rew=20+Math.min(ST.streak,7)*5;
-  ST.crystal+=rew; persist();
-  toastMsg('簽到成功 +'+rew+' 靈晶');
-  renderRes(); renderTasks();
+  earnYibi(rew,'每日簽到·連續'+ST.streak+'天').then(function(r){
+    if(r&&r.ok!==false){ if(window.SFX)SFX.coin(); renderRes(); renderTasks(); }
+    else { ST.sign=''; persist(); renderRes(); renderTasks(); }
+  });
+  persist();
 }
 
 /* ============ 导航 ============ */
@@ -500,25 +796,48 @@ function nav(t){
   if(t==='battle') renderBattle();
   if(t==='task') renderTasks();
   renderRes();
+  refreshYibi();
   window.scrollTo({top:0,behavior:'instant'});
 }
 
 /* ============ 启动 ============ */
 refreshSta(); ensureTasks(); renderRes(); renderDex(); renderTasks();
+// 云存档：本地先渲染（上方已完成），再异步拉云合并并刷新（契约C3）
+initCloudSave();
+// 易币：加载余额 + 挂机小额产出 + 冷启动保底 + 收集成就
+refreshYibi().then(function(){
+  coldStartAward();
+  checkCollectAwards();
+  if(!ST.awarded['first']){ awardOnce('first',10,'首次進入天機卦卡').then(function(r){ if(r&&r.ok!==false) ST.awarded['first']=1; }); }
+});
+// 每 3 分钟小额挂机易币（在线）
+setInterval(function(){
+  if(ST.onlineDate!==today()){ ST.onlineDate=today(); ST.onlineSec=0; }
+  ST.onlineSec += 180;
+  var cap = Math.min(600, 40+ownedCount()*20);  // 每日挂机封顶
+  if(ST.onlineSec<=cap) earnYibi(5,'卦卡掛機·在線',{silent:true});
+  persist();
+}, 180000);
+// 押注按钮绑定
+(function(){
+  var br=$('betRow'); if(!br) return;
+  [].forEach.call(br.querySelectorAll('.betbtn'), function(b){
+    b.addEventListener('click', function(){ setBet(b.dataset.bet); });
+  });
+})();
 try{
   if(window.ToolIntro && ToolIntro.mount){
     ToolIntro.mount({
       tool:'guacard', icon:'🃏', title:'天機卦卡',
       slogan:'收集六十四卦卡牌，五行相剋組隊對決，<br>推演、養成、對戰，長期收集樂趣。',
       steps:[
-        '「🔮 推演」消耗<b>靈晶</b>獲得隨機卦卡（1-5★），重複卡自動轉化為<b>卦氣</b>；',
-        '「🃏 圖鑑」查看 64 卦收集進度，點擊卡片可用卦氣<b>升級</b>；',
-        '「⚔️ 對決」選 3 張卦卡出戰，<b>五行相剋</b>（木剋土、土剋水、水剋火、火剋金、金剋木）大幅加成；',
-        '「📋 修行」完成每日任務、連續簽到獲取靈晶，兌換卦氣；',
-        '所有卦卡、靈晶、卦氣均為<b>虛擬娛樂</b>，不可充值、不可兌換現金。'
+        '「🔮 推演」消耗<b>易幣</b>獲得隨機卦卡（1-5★），重複卡自動轉化為<b>卦氣</b>；',
+        '「🃏 圖鑑」查看 64 卦收集進度，點擊卡片可用<b>易幣</b>升級（升級另有小額易幣獎勵）；',
+        '「⚔️ 對決」選 3 張卦卡出戰，<b>五行相剋</b>（木剋土、土剋水、水剋火、火剋金、金剋木）大幅加成；可押注，<b>贏則雙倍、輸則虧注</b>；',
+        '「📋 修行」完成每日任務、連續簽到獲取<b>易幣</b>；易幣可直接用於遊戲和商城；',
+        '所有產出均為遊戲大厅<b>易幣</b>（有賺有虧），不可充值、不可兌換現金。'
       ],
-      note:'⚠️ 本遊戲為休閒益智娛樂，不涉及任何真實賭博或金錢兌換。',
-      onEnter:function(){ nav('dex'); }
+      note:'⚠️ 本遊戲為休閒益智娛樂，易幣為站內遊戲虛擬貨幣，不涉及任何真實賭博或金錢兌換。'
     });
   }
 }catch(e){}

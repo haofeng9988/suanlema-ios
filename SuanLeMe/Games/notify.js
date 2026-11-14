@@ -1,7 +1,7 @@
 /* 算了吗 · 扣费通知组件 notify.js
- * 昊峯大师要求：会员每次使用工具「成功扣费」后，要弹出扣费通知。
+ * 算了吗大师要求：会员每次使用工具「成功扣费」后，要弹出扣费通知。
  * 实现：后端在扣费成功时通过响应头 X-Tool-Charge（base64 JSON）下发；
- *       本脚本统一包裹 fetch，读取该头并弹出通知（积分/金币/黑卡次数）。
+ *       本脚本统一包裹 fetch，读取该头并弹出通知（易币/黑卡次数）。
  * 与 ShareInvite/tool-gate 无耦合，任何工具页只要引入本文件即生效。
  */
 (function (global) {
@@ -51,9 +51,9 @@
     var tool = payload.name || payload.tool || '工具';
     var ic = '✅', title = '';
     if (type === 'points') {
-      ic = '🪙'; title = '已成功扣费 <b>' + amount + ' 积分</b>';
+      ic = '🪙'; title = '已成功扣费 <b>' + amount + ' 易币</b>';
     } else if (type === 'coins') {
-      ic = '💰'; title = '已成功扣费 <b>' + amount + ' 金币</b>';
+      ic = '💰'; title = '已成功扣费 <b>' + amount + ' 易币</b>';
     } else if (type === 'black') {
       ic = '🖤'; title = '已使用黑卡免费次数 <b>' + amount + ' 次</b>';
     } else {
@@ -73,7 +73,7 @@
 
   global.ChargeNotify = { show: show };
 
-  // ===== 登录门禁：昊峯大师要求「所有工具都需登录才能使用」 =====
+  // ===== 登录门禁：算了吗大师要求「所有工具都需登录才能使用」 =====
   // 未登录时弹出一个「登录界面」弹层（不依赖 alert，App 内也能看到），
   // 可直接输入账号密码登录，成功后自动重载当前页继续使用。
   var _realAlert = global.alert;
@@ -118,7 +118,7 @@
     w.id = 'lgGate';
     w.innerHTML =
       '<div class="lg-box">' +
-        '<div class="lg-head"><span class="lg-ic">🔮</span><b>昊峯天机</b>' +
+        '<div class="lg-head"><span class="lg-ic">🔮</span><b>算了吗</b>' +
           '<button class="lg-x" id="lgX" aria-label="关闭">✕</button></div>' +
         '<div class="lg-title">请先登录</div>' +
         '<div class="lg-msg">' + (msg || '请先登录后再使用') + '</div>' +
@@ -134,7 +134,7 @@
     w.addEventListener('click', function (e) { if (e.target === w) close(); });
     document.getElementById('lgRegBtn').onclick = function () {
       try { sessionStorage.setItem('__reg', '1'); } catch (e) {}
-      location.href = 'https://tianji.matetechhk.com/xuetang#login';
+      location.href = '/xuetang#login';
     };
     function doLogin() {
       var acct = (document.getElementById('lgAcct').value || '').trim();
@@ -143,7 +143,7 @@
       if (!acct || !pw) { err.textContent = '请输入账号和密码'; return; }
       var btn = document.getElementById('lgLoginBtn');
       btn.disabled = true; btn.textContent = '登录中…'; err.textContent = '';
-      _fetch('https://tianji.matetechhk.com/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      _fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ account: acct, password: pw }) })
         .then(function (r) { return r.json(); })
         .then(function (d) {

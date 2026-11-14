@@ -4,10 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#1a1612">
-<title>天機八卦解謎 · 算了吗·易游</title>
-<!-- Yibi 不存在时不引用（避免 404 卡死 WKWebView） -->
+<title>天機八卦解謎 · 算了吗.易游</title>
+<script>window.TI_BOOT=1;</script>
+<script src="tool-intro.js?v=20261114d"></script>
 <style>
-:root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a;--green:#4a8}
+:root{--bg:#1a1612;--c1:#2a2218;--c2:#3a2e1e;--gold:#d4af37;--red:#c1432f;--text:#e8dcc8;--sub:#9a8a6a;--green:#4a8;--blue:#5b8fd6}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;height:100%}
 body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);
@@ -17,101 +18,205 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
 button{font-family:inherit;cursor:pointer}
 .screen{display:none;flex-direction:column;flex:1}
 .screen.active{display:flex}
-header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:12px 16px 10px;text-align:center;border-bottom:2px solid var(--gold)}
+header{background:linear-gradient(180deg,#2a2218,#1a1612);padding:12px 118px 10px;text-align:center;border-bottom:2px solid var(--gold);position:relative}
 header h1{font-size:17px;color:var(--gold);letter-spacing:2px;margin:0}
 header .sub{font-size:10.5px;color:var(--sub);margin-top:3px;letter-spacing:1px}
 .back{position:absolute;left:10px;top:12px;font-size:20px;color:var(--gold);text-decoration:none;background:none;border:none;padding:4px 8px}
+#yibiBadge,#yibiBadge2{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:11.5px;font-weight:800;color:var(--gold);
+  background:rgba(212,175,55,.12);border:1px solid rgba(212,175,55,.5);border-radius:20px;padding:3px 10px;line-height:1}
+#yibiBadge b,#yibiBadge2 b{color:#f5d06f}
+
+/* ===== 收益条 ===== */
+.earnbar{margin:8px 12px 0;display:flex;gap:6px;align-items:center;justify-content:center;
+  font-size:10.5px;color:var(--sub);background:var(--c1);border:1px solid var(--c2);border-radius:10px;padding:6px 8px;flex-wrap:wrap}
+.earnbar b{color:var(--gold)}
+.earnbar .dot{opacity:.4}
+
+/* ===== 关卡 tab ===== */
+.tabs{display:flex;gap:8px;padding:10px 12px 0}
+.tabs button{flex:1;padding:10px;border-radius:11px;border:1px solid var(--c2);background:var(--c1);
+  color:var(--sub);font-size:13px;font-weight:800;letter-spacing:1px}
+.tabs button.on{color:#1a1612;background:linear-gradient(135deg,#d4af37,#b8912a);border-color:var(--gold)}
+
+.introwrap{padding:10px 14px 4px}
+.introwrap .title{font-size:13px;color:var(--gold);margin:4px 0;text-align:center;letter-spacing:1px}
+.introwrap .txt{font-size:12px;color:var(--sub);line-height:1.85}
+.introwrap .txt b{color:var(--text)}
+
+/* ===== 关卡网格 ===== */
+.levels{padding:12px 14px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;overflow-y:auto}
+.lv{position:relative;aspect-ratio:1;border-radius:14px;border:1px solid var(--c2);background:var(--c1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;overflow:hidden}
+.lv .n{font-size:16px;font-weight:800;color:var(--gold);line-height:1.1}
+.lv .g{font-size:9px;color:var(--sub);letter-spacing:.3px}
+.lv.locked{opacity:.42}
+.lv.done{border-color:var(--gold);background:linear-gradient(160deg,#3a2e1e,#2a2218)}
+.lv .stars{font-size:9px;letter-spacing:-1px;color:var(--gold);line-height:1}
+.lv.daily{border-color:#e0b84a;background:linear-gradient(160deg,#4a3a1e,#2a2218);box-shadow:0 0 12px rgba(212,175,55,.35)}
+.lv.daily .n{font-size:20px}
+.lv.daily .tag{position:absolute;top:3px;right:5px;font-size:8px;color:#f5d06f}
+
+.chapter{margin:6px 14px 0;font-size:12px;color:var(--gold);letter-spacing:2px;border-left:3px solid var(--gold);padding-left:8px}
 
 /* ===== HUD ===== */
 .hud{display:flex;align-items:stretch;gap:8px;margin:10px 12px 6px}
-.hud .box{flex:1;background:var(--c1);border:1px solid var(--c2);border-radius:12px;padding:8px 10px;text-align:center}
+.hud .box{flex:1;background:var(--c1);border:1px solid var(--c2);border-radius:12px;padding:8px 6px;text-align:center}
 .hud .box .k{font-size:10px;color:var(--sub);letter-spacing:1px}
 .hud .box .v{font-size:18px;font-weight:800;color:var(--gold);line-height:1.3}
 .hud .box.goal .v{font-size:15px;color:var(--text)}
 .hud .box.goal .v b{color:var(--gold);font-size:18px}
+.hud .box .v.warn{color:var(--red)}
 
 /* ===== 目标卦 ===== */
-.targetArea{margin:6px 12px;background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:14px 12px;text-align:center;position:relative}
+.targetArea{margin:6px 12px;background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:12px;text-align:center;position:relative}
 .targetArea .lab{font-size:11px;color:var(--sub);letter-spacing:1px}
 .targetArea .name{font-size:24px;color:var(--gold);font-weight:900;letter-spacing:3px;margin:2px 0 4px}
 .targetArea .meaning{font-size:11.5px;color:var(--sub);line-height:1.7}
+.targetArea .hint{font-size:11px;color:var(--green);margin-top:5px;line-height:1.6}
+.tgtYao{display:flex;justify-content:center;align-items:center;gap:3px;flex-wrap:wrap}
+.tgtYao .yao{width:30px;height:22px;padding:3px 5px;background:var(--c2)}
 
-/* ===== 爻的可视化 ===== */
+/* ===== 爻可视化 ===== */
 .yao{display:flex;align-items:center;justify-content:center;gap:3px;padding:6px 4px;border-radius:10px;background:var(--c2);border:1px solid var(--c2);cursor:pointer;transition:all .12s;user-select:none}
 .yao:active{transform:scale(.96)}
 .yao .gap{width:8px;height:12px;background:transparent}
 .yao.yang .line{flex:1;height:7px;background:#d4af37;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.4)}
 .yao.yin .line{flex:1;height:7px;background:#cfd6dd;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.4)}
 .yao.flipping{animation:flip .35s ease}
+.yao.hl{outline:2px solid var(--green);outline-offset:1px}
 @keyframes flip{0%{transform:rotateY(0)}50%{transform:rotateY(90deg);background:var(--gold)}100%{transform:rotateY(0)}}
 
 /* ===== 卦构造区 ===== */
-.workArea{margin:6px 12px 10px;background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:14px 10px;position:relative}
+.workArea{margin:6px 12px 10px;background:var(--c1);border:1px solid var(--c2);border-radius:14px;padding:12px 10px;position:relative}
 .workArea .lab{font-size:11px;color:var(--sub);letter-spacing:1px;text-align:center;margin-bottom:8px}
 .upperRow,.lowerRow{display:flex;flex-direction:column;gap:6px;max-width:200px;margin:0 auto}
 .upperRow .yao,.lowerRow .yao{width:160px;height:24px;padding:3px 8px}
 .upperLabel,.lowerLabel{font-size:10px;color:var(--sub);text-align:center;margin:6px 0 2px}
-.upperLabel b{color:var(--gold);font-size:12px;margin:0 4px}
-
-/* 上下分隔线 */
+.upperLabel b,.lowerLabel b{color:var(--gold);font-size:12px;margin:0 4px}
 .split{margin:8px auto;width:160px;height:1px;background:var(--c2);border-top:1px dashed var(--sub);opacity:.5}
+.flash{animation:flashGold .5s ease}
+@keyframes flashGold{0%{background:var(--gold)}100%{background:var(--c1)}}
 
-/* 操作按钮 */
+/* ===== 倒计时条 ===== */
+.timer{height:6px;margin:0 12px 2px;background:var(--c2);border-radius:4px;overflow:hidden;display:none}
+.timer.show{display:block}
+.timer i{display:block;height:100%;width:0%;background:linear-gradient(90deg,#4a8,#d4af37);transition:width .3s linear}
+.timer.low i{background:linear-gradient(90deg,#c1432f,#e0a03a)}
+
+/* ===== 选项（猜卦） ===== */
+.choices{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:4px 12px 2px}
+.choice{padding:16px 8px;border-radius:14px;border:1px solid var(--c2);background:var(--c1);color:var(--text);
+  font-size:19px;font-weight:800;letter-spacing:2px;font-family:inherit}
+.choice:active{transform:scale(.97)}
+.choice.correct{border-color:var(--green);background:linear-gradient(160deg,#1e3a2a,#22301f);color:#bfe9cf}
+.choice.wrong{border-color:var(--red);background:linear-gradient(160deg,#3a1e1e,#2a1a18);color:#f0bcb4}
+.choice:disabled{opacity:.7}
+
+/* ===== 序卦连线 ===== */
+.seqWrap{padding:6px 12px}
+.seqHead{font-size:11.5px;color:var(--sub);text-align:center;margin-bottom:8px;line-height:1.6}
+.seqGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.seqBtn{padding:12px 6px;border-radius:12px;border:1px solid var(--c2);background:var(--c1);color:var(--text);
+  font-size:15px;font-weight:800;font-family:inherit;letter-spacing:1px;transition:.12s}
+.seqBtn:active{transform:scale(.96)}
+.seqBtn.picked{border-color:var(--gold);color:var(--gold);box-shadow:0 0 10px rgba(212,175,55,.4)}
+.seqBtn.done{border-color:var(--green);color:var(--green);opacity:.85}
+.seqBtn.err{border-color:var(--red);color:var(--red)}
+
+/* ===== 卦象配对 ===== */
+.matchWrap{padding:6px 12px}
+.matchGrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.card{aspect-ratio:3/4;border-radius:10px;border:1px solid var(--c2);background:var(--c2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;color:var(--text);overflow:hidden}
+.card .cv{font-size:15px;font-weight:900;color:var(--gold);letter-spacing:0}
+.card.back{background:linear-gradient(150deg,#2a2218,#1a1612);color:transparent}
+.card.back::after{content:'☯';color:var(--sub);font-size:15px}
+.card.sel{border-color:var(--gold);box-shadow:0 0 10px rgba(212,175,55,.5)}
+.card.done{border-color:var(--green);opacity:.55}
+.card.err{animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.matchGrid .card .mn{font-size:9px}
+
+/* ===== 操作按钮 ===== */
 .actions{display:flex;gap:8px;padding:8px 12px 0}
 .actions button{flex:1;padding:11px;border-radius:12px;border:none;font-size:14px;font-weight:800}
 .btn-gold{background:var(--gold);color:#1a1612}
 .btn-outline{background:transparent;color:var(--gold);border:1px solid var(--gold)!important}
-.btn-disabled{opacity:.4}
-
-/* 提示与反馈 */
+.btn-outline.disabled{opacity:.4;pointer-events:none}
 .feedback{min-height:32px;text-align:center;font-size:13px;color:var(--gold);margin:6px 0 2px;padding:0 12px;line-height:1.6}
 .feedback.err{color:var(--red)}
 
-/* 关卡选择 */
-.levels{padding:14px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px;overflow-y:auto}
-.lv{aspect-ratio:1;border-radius:14px;border:1px solid var(--c2);background:var(--c1);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer}
-.lv .n{font-size:18px;font-weight:800;color:var(--gold)}
-.lv .g{font-size:9.5px;color:var(--sub);letter-spacing:.5px}
-.lv.locked{opacity:.4}
-.lv.done{border-color:var(--gold);background:linear-gradient(160deg,#3a2e1e,#2a2218)}
-.introwrap{padding:0 14px 16px}
-.introwrap .title{font-size:14px;color:var(--gold);margin:6px 0;text-align:center}
-.introwrap .txt{font-size:12px;color:var(--sub);line-height:1.9}
-
-/* 结算 */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:100;padding:24px}
+/* ===== 结算 ===== */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;z-index:100;padding:18px;overflow-y:auto}
 .overlay.show{display:flex}
-.panel{background:linear-gradient(180deg,#2a2218,#1f1912);border:2px solid var(--gold);border-radius:18px;padding:22px 20px;max-width:340px;width:100%;text-align:center}
+.panel{background:linear-gradient(180deg,#2a2218,#1f1912);border:2px solid var(--gold);border-radius:18px;padding:20px 18px;max-width:350px;width:100%;text-align:center;margin:auto}
 .panel h2{margin:0 0 6px;font-size:20px;color:var(--gold);letter-spacing:1px}
-.panel .big{font-size:38px;font-weight:900;color:#fff;margin:6px 0;text-shadow:0 3px 10px rgba(212,175,55,.4)}
-.panel .row{display:flex;justify-content:space-between;padding:7px 2px;font-size:13px;color:var(--sub);border-bottom:1px dashed var(--c2)}
+.panel .big{font-size:34px;font-weight:900;color:#fff;margin:4px 0;text-shadow:0 3px 10px rgba(212,175,55,.4)}
+.panel .row{display:flex;justify-content:space-between;padding:6px 2px;font-size:13px;color:var(--sub);border-bottom:1px dashed var(--c2)}
 .panel .row b{color:var(--text)}
-.panel .btns{display:flex;gap:10px;margin-top:16px}
+.panel .row b.reward{color:var(--green)}
+.panel .btns{display:flex;gap:10px;margin-top:14px}
 .panel button{flex:1;padding:12px;border-radius:12px;border:none;font-size:15px;font-weight:800}
-.starline{font-size:26px;letter-spacing:6px;margin:2px 0 8px}
+.starline{font-size:26px;letter-spacing:6px;margin:2px 0 8px;color:var(--gold)}
+.panel .wencard{background:var(--c1);border:1px solid var(--c2);border-radius:12px;padding:10px 12px;margin-top:12px;text-align:left}
+.panel .wencard .t{font-size:12px;color:var(--gold);font-weight:800;letter-spacing:1px;margin-bottom:4px}
+.panel .wencard .d{font-size:11.5px;color:var(--sub);line-height:1.75}
+.panel .wencard .d b{color:var(--text)}
+.panel .disclaim{font-size:10.5px;color:var(--sub);margin-top:10px;line-height:1.6}
 
 /* 底部合规 */
 .foot{font-size:10.5px;color:var(--sub);text-align:center;padding:6px 12px 18px;line-height:1.7}
 </style>
+<script src="game-exit.js?v=2026100601" defer></script>
+<script src="game-recent.js?v=20261030p" defer></script>
+<script src="sfx.js?v=20261006b"></script>
+<script src="yibi.js?v=20261104c"></script>
+<script src="dialog.js?v=20261030a"></script>
+<script src="i18n-toolintro.js?v=20261010g"></script>
 </head>
-<body>
+<body data-sfx-toggle="0">
 <div id="wrap">
 
   <!-- ===== 关卡选择 ===== -->
   <div class="screen active" id="s-levels">
     <header>
+      <button class="back" onclick="location.href='/games'" style="font-size:16px">🏠</button>
       <h1>🔮 天機八卦解謎</h1>
-      <div class="sub">陰陽爻拼卦 · 有限步內合成目標卦象</div>
+      <div class="sub">陰陽爻拼卦 · 六十四卦關卡</div>
+      <div id="yibiBadge">🪙 易币 —</div>
     </header>
-    <div class="introwrap">
-      <div class="title">🪄 玩法</div>
-      <div class="txt">
-        點擊任一「爻」可切換陰陽；上方 3 爻 = <b>上卦</b>、下方 3 爻 = <b>下卦</b>。<br>
-        目標卦象（頂部）需在 <b>限定步數內</b> 拼出，步數越少星數越高。<br>
-        64 卦含<b>陰陽同卦</b>（如「乾」「坤」）最簡單；異卦難度遞增。
-      </div>
+    <div class="earnbar" id="earnbar">今日已賺 <b>0</b> 易币 · 每日上限 <b>—</b></div>
+    <div class="tabs">
+      <button id="tabStory" class="on" onclick="switchTab('story')">📜 易理連關</button>
+      <button id="tabDaily" onclick="switchTab('daily')">🎯 每日挑戰</button>
     </div>
-    <div class="levels" id="levels"></div>
+
+    <div id="storyView">
+      <div class="introwrap">
+        <div class="txt">
+          點爻切換<b>陰陽</b>：上方 3 爻為<b>上卦</b>、下方 3 爻為<b>下卦</b>。<br>
+          拼出目標卦即通關；關卡分四章，難度遞增 → 拼卦 → 限步 → 猜卦 → 序卦連線 → 卦象配對。
+        </div>
+      </div>
+      <div class="chapter" id="chapTitle">第一章 · 八卦啟蒙</div>
+      <div class="levels" id="levels"></div>
+    </div>
+
+    <div id="dailyView" style="display:none">
+      <div class="introwrap">
+        <div class="title">🎯 每日挑戰 · 限時90秒</div>
+        <div class="txt">
+          每日一題，<b>90 秒內</b>盡可能拼出目標卦。<br>
+          每拼對 1 卦 <b>+4 易币</b>；<b>首通額外 +30 易币</b>（每日一次）。<br>
+          失誤扣 5 秒。今日題目固定，明日刷新。
+        </div>
+        <div class="actions" style="padding-left:0;padding-right:0">
+          <button class="btn-gold" id="dailyBtn" onclick="startDaily()">開始今日挑戰</button>
+        </div>
+        <div class="txt" id="dailyInfo" style="text-align:center;margin-top:8px"></div>
+      </div>
+      <div class="foot">每日 00:00 刷新 · 獎勵每日僅首次領取</div>
+    </div>
+
     <div class="foot">
       本遊戲為休閒益智娛樂，所有分數均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。<br>
       命理僅供文化參考。
@@ -120,29 +225,30 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:3px;letter-spacing:1px}
 
   <!-- ===== 游戏中 ===== -->
   <div class="screen" id="s-game">
-    <header style="padding-left:44px">
+    <header>
       <button class="back" onclick="quitGame()">←</button>
       <h1 id="lvName">乾 · 乾</h1>
       <div class="sub" id="lvSub">第1關 · 5步以内拼出</div>
+      <div id="yibiBadge2">🪙 易币 —</div>
     </header>
     <div class="hud">
       <div class="box goal"><div class="k">目標</div><div class="v" id="hudTarget">-</div></div>
-      <div class="box"><div class="k">剩餘步</div><div class="v" id="hudMoves">5</div></div>
+      <div class="box"><div class="k" id="hudK">剩餘步</div><div class="v" id="hudM">5</div></div>
       <div class="box"><div class="k">最高星</div><div class="v" id="hudBest">-</div></div>
     </div>
+    <div class="timer" id="timerBar"><i id="timerFill"></i></div>
 
     <!-- 目标卦显示 -->
     <div class="targetArea">
-      <div class="lab">目標卦象</div>
-      <div class="yao" id="targetYao" style="cursor:default;background:var(--bg)">
-        <div class="line"></div>
-      </div>
+      <div class="lab" id="tgtLab">目標卦象</div>
+      <div class="tgtYao" id="targetYao"></div>
       <div class="name" id="targetName">乾</div>
       <div class="meaning" id="targetMeaning">乾卦：純陽之象，象徵剛健、創造、領導、進取。</div>
+      <div class="hint" id="targetHint" style="display:none"></div>
     </div>
 
-    <!-- 工作区（玩家拼卦） -->
-    <div class="workArea">
+    <!-- 拼卦工作区（拼卦 / 限步模式） -->
+    <div class="workArea" id="workArea">
       <div class="lab">你的卦象（點爻切換陰陽）</div>
       <div class="upperLabel">上卦 · <b id="upperName">乾</b></div>
       <div class="upperRow" id="upperRow"></div>
@@ -151,9 +257,22 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:3px;letter-spacing:1px}
       <div class="lowerRow" id="lowerRow"></div>
     </div>
 
+    <!-- 猜卦选项区 -->
+    <div class="choices" id="choices" style="display:none"></div>
+    <!-- 序卦连线区 -->
+    <div class="seqWrap" id="seqWrap" style="display:none">
+      <div class="seqHead">依「周易序」依次點選 6 卦：<b id="seqProgress">0/6</b><br><span id="seqNext"></span></div>
+      <div class="seqGrid" id="seqGrid"></div>
+    </div>
+    <!-- 卦象配对区 -->
+    <div class="matchWrap" id="matchWrap" style="display:none">
+      <div class="seqHead">翻開兩張，配對「卦象 ↔ 卦名」：<b id="matchProgress">0/6</b></div>
+      <div class="matchGrid" id="matchGrid"></div>
+    </div>
+
     <div class="feedback" id="feedback">點擊爻切換陰陽</div>
-    <div class="actions">
-      <button class="btn-outline" onclick="autoHint()">💡 提示</button>
+    <div class="actions" id="actions">
+      <button class="btn-outline" id="hintBtn" onclick="useHint()">💡 提示 20</button>
       <button class="btn-outline" onclick="resetWork()">↻ 重置</button>
       <button class="btn-gold" id="submitBtn" onclick="checkWin()">提交</button>
     </div>
@@ -165,8 +284,14 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:3px;letter-spacing:1px}
   <div class="starline" id="rStars">⭐</div>
   <h2 id="rTitle">通關！</h2>
   <div class="big" id="rScore">0</div>
-  <div class="row"><span>使用步數</span><b id="rMoves">0</b></div>
+  <div class="row"><span>易币獎勵</span><b class="reward" id="rReward">+0</b></div>
+  <div class="row"><span id="rSubK">使用步數</span><b id="rMoves">0</b></div>
   <div class="row"><span>歷史最佳</span><b id="rBest">-</b></div>
+  <div class="wencard" id="rWen" style="display:none">
+    <div class="t" id="rWenT">卦義</div>
+    <div class="d" id="rWenD"></div>
+  </div>
+  <div class="disclaim" id="rNote"></div>
   <div class="btns">
     <button class="btn-outline" onclick="quitGame()">選關</button>
     <button class="btn-gold" id="rNextBtn" onclick="nextLevel()">下一關</button>
@@ -174,12 +299,10 @@ header .sub{font-size:10.5px;color:var(--sub);margin-top:3px;letter-spacing:1px}
 </div></div>
 
 <script>
-/* ============ 64 卦数据 ============ */
-// 0=阴爻 ━ ━, 1=阳爻 ━━━
-// 文王八卦（按先天数序）：乾=111 兑=110 离=101 震=100 巽=011 坎=010 艮=001 坤=000
-var UPPER_8 = ['乾','兑','离','震','巽','坎','艮','坤'];
+/* ================= 64 卦数据 ================= */
+// 0=阴爻, 1=阳爻
 var UPPER_YANG = {
-  '乾':[1,1,1], '兑':[1,1,0], '离':[1,0,1], '震':[1,0,0],
+  '乾':[1,1,1], '兌':[1,1,0], '離':[1,0,1], '震':[1,0,0],
   '巽':[0,1,1], '坎':[0,1,0], '艮':[0,0,1], '坤':[0,0,0]
 };
 var GUA_MEAN = {
@@ -188,8 +311,8 @@ var GUA_MEAN = {
   '屯':'屯卦：天地交而難生，萬物始萌，艱難中孕育機會。',
   '蒙':'蒙卦：山下出泉，蒙昧初開，啟蒙教化之時。',
   '需':'需卦：雲上於天，等待時機，以耐心成事。',
-  '讼':'訟卦：天與水背向，爭訟之象，宜止不宜進。',
-  '师':'師卦：地中有水，兵眾之象，需紀律嚴明。',
+  '訟':'訟卦：天與水背向，爭訟之象，宜止不宜進。',
+  '師':'師卦：地中有水，兵眾之象，需紀律嚴明。',
   '比':'比卦：水在地上，親比團結，相親相助。',
   '小畜':'小畜卦：風行天上，小有所畜，蓄勢待發。',
   '履':'履卦：上天下澤，履虎尾而不咥人，慎行禮讓。',
@@ -197,33 +320,33 @@ var GUA_MEAN = {
   '否':'否卦：天地不交而萬物不通也，閉塞之時。',
   '同人':'同人卦：天火同人，和同於人，眾志成城。',
   '大有':'大有卦：火在天上，盛大豐有，宜包容。',
-  '谦':'謙卦：地中有山，外卑內高，大吉。',
+  '謙':'謙卦：地中有山，外卑內高，大吉。',
   '豫':'豫卦：雷出地奮，順勢而動，安樂備豫。',
-  '随':'隨卦：澤中有雷，隨時順勢，順民心。',
-  '蛊':'蠱卦：山下有風，整頓弊亂，革新圖治。',
-  '临':'臨卦：澤上有地，居上臨下，盛大之時。',
-  '观':'觀卦：風行地上，仰觀俯察，昭示典範。',
+  '隨':'隨卦：澤中有雷，隨時順勢，順民心。',
+  '蠱':'蠱卦：山下有風，整頓弊亂，革新圖治。',
+  '臨':'臨卦：澤上有地，居上臨下，盛大之時。',
+  '觀':'觀卦：風行地上，仰觀俯察，昭示典範。',
   '噬嗑':'噬嗑卦：雷電交擊，咬合破阻，明刑弼教。',
-  '贲':'賁卦：山下有火，文飾之美，文明禮儀。',
-  '剥':'剝卦：山附於地，剝落之時，順勢止止。',
-  '复':'復卦：雷在地中，陽氣來復，轉機之始。',
-  '无妄':'無妄卦：天雷無妄，順乎自然，不可妄求。',
+  '賁':'賁卦：山下有火，文飾之美，文明禮儀。',
+  '剝':'剝卦：山附於地，剝落之時，順勢止止。',
+  '復':'復卦：雷在地中，陽氣來復，轉機之始。',
+  '無妄':'無妄卦：天雷無妄，順乎自然，不可妄求。',
   '大畜':'大畜卦：天在山中，大有積蓄，厚積薄發。',
-  '颐':'頤卦：山下有雷，養正頤養，慎養身心。',
-  '大过':'大過卦：澤滅木而大過，非常之時。',
+  '頤':'頤卦：山下有雷，養正頤養，慎養身心。',
+  '大過':'大過卦：澤滅木而大過，非常之時。',
   '坎':'坎卦：水洊至，重險之象，守正以待。',
-  '离':'離卦：明兩作，重明之象，光明磊落。',
+  '離':'離卦：明兩作，重明之象，光明磊落。',
   '咸':'咸卦：山上有澤，感應相和，心心相印。',
-  '恒':'恒卦：雷風恆，恆久之道，持之以恆。',
+  '恆':'恆卦：雷風恆，恆久之道，持之以恆。',
   '遁':'遁卦：天下有山，退避隱遁，知機而退。',
-  '大壮':'大壯卦：雷在天上，陽氣壯盛，勿恃剛強。',
-  '晋':'晉卦：明出地上，進而光明，昇進之時。',
+  '大壯':'大壯卦：雷在天上，陽氣壯盛，勿恃剛強。',
+  '晉':'晉卦：明出地上，進而光明，昇進之時。',
   '明夷':'明夷卦：明入地中，韜光養晦，守正待明。',
   '家人':'家人卦：風火家人，齊家治國，家道正矣。',
   '睽':'睽卦：上火下澤，背向乖離，求同存異。',
   '蹇':'蹇卦：山上有水，外難內止，反身修德。',
   '解':'解卦：雷雨作，解難舒困，鬆綁得解。',
-  '损':'損卦：山下有澤，損下益上，適度取捨。',
+  '損':'損卦：山下有澤，損下益上，適度取捨。',
   '益':'益卦：風雷益，損上益下，進取有為。',
   '夬':'夬卦：澤上有天，決斷果斷，去邪從正。',
   '姤':'姤卦：天風姤，陰生於陽，慎防小人。',
@@ -235,279 +358,1083 @@ var GUA_MEAN = {
   '鼎':'鼎卦：木上有火，鼎新革故，穩定之象。',
   '震':'震卦：震來虩虩，戒懼修省，震驚奮發。',
   '艮':'艮卦：艮其背，不獲其身，止於所當止。',
-  '渐':'漸卦：山上有木，循序漸進，嫁女吉利。',
-  '归妹':'歸妹卦：澤上有雷，女歸之象，宜守貞節。',
-  '丰':'豐卦：雷電皆至，盛大豐滿，盛極轉衰。',
+  '漸':'漸卦：山上有木，循序漸進，嫁女吉利。',
+  '歸妹':'歸妹卦：澤上有雷，女歸之象，宜守貞節。',
+  '豐':'豐卦：雷電皆至，盛大豐滿，盛極轉衰。',
   '旅':'旅卦：火山旅，羈旅在外，守柔不爭。',
   '巽':'巽卦：風行巽，小畜無阻，柔順入微。',
-  '兑':'兑卦：麗澤，悅澤相見，和悅愉悅。',
-  '涣':'渙卦：風行水上，渙散之象，凝聚人心。',
-  '节':'節卦：澤上有水，節制有度，恰到好處。',
+  '兌':'兌卦：麗澤，悅澤相見，和悅愉悅。',
+  '渙':'渙卦：風行水上，渙散之象，凝聚人心。',
+  '節':'節卦：澤上有水，節制有度，恰到好處。',
   '中孚':'中孚卦：澤上有風，中孚感化，誠信立身。',
-  '小过':'小過卦：山上有雷，小有所過，慎行小事。',
-  '既济':'既濟卦：水火既濟，萬事俱備，守成防退。',
-  '未济':'未濟卦：火在水上，未完成之象，繼續前行。'
+  '小過':'小過卦：山上有雷，小有所過，慎行小事。',
+  '既濟':'既濟卦：水火既濟，萬事俱備，守成防退。',
+  '未濟':'未濟卦：火在水上，未完成之象，繼續前行。'
 };
-
-// 64 卦（按周易序）：每个 = [上卦名, 下卦名]
+// 64 卦（周易序）：[上卦, 下卦]  ← 必须是「八卦之一」的三爻名，用于合成六爻目标
 var GUA64 = [
-  ['乾','乾'],['坤','坤'],['坎','屯'],['艮','蒙'],['乾','需'],['坎','讼'],
-  ['坤','师'],['坎','比'],['巽','巽'],['乾','履'],['坤','泰'],['乾','否'],
-  ['乾','同人'],['离','大有'],['坤','谦'],['震','豫'],['兑','随'],['巽','蛊'],
-  ['坤','临'],['巽','观'],['震','噬嗑'],['艮','贲'],['艮','剥'],['震','复'],
-  ['乾','无妄'],['艮','大畜'],['艮','颐'],['兑','大过'],['坎','坎'],['离','离'],
-  ['兑','咸'],['震','恒'],['乾','遁'],['震','大壮'],['离','晋'],['坤','明夷'],
-  ['巽','家人'],['离','睽'],['坎','蹇'],['震','解'],['艮','损'],['巽','益'],
-  ['兑','夬'],['巽','姤'],['兑','萃'],['坤','升'],['兑','困'],['坎','井'],
-  ['兑','革'],['离','鼎'],['震','震'],['艮','艮'],['艮','渐'],['兑','归妹'],
-  ['震','丰'],['离','旅'],['巽','巽'],['兑','兑'],['巽','涣'],['兑','节'],
-  ['巽','中孚'],['艮','小过'],['坎','既济'],['离','未济']
+  ['乾','乾'],['坤','坤'],['坎','震'],['艮','坎'],   // 1乾 2坤 3屯 4蒙
+  ['坎','乾'],['乾','坎'],['坤','坎'],['坎','坤'],   // 5需 6訟 7師 8比
+  ['巽','乾'],['乾','兌'],['坤','乾'],['乾','坤'],   // 9小畜 10履 11泰 12否
+  ['乾','離'],['離','乾'],['坤','艮'],['震','坤'],   // 13同人 14大有 15謙 16豫
+  ['兌','震'],['艮','巽'],['坤','兌'],['巽','坤'],   // 17隨 18蠱 19臨 20觀
+  ['離','震'],['艮','離'],['艮','坤'],['坤','震'],   // 21噬嗑 22賁 23剝 24復
+  ['乾','震'],['艮','乾'],['艮','震'],['兌','巽'],   // 25無妄 26大畜 27頤 28大過
+  ['坎','坎'],['離','離'],['兌','艮'],['震','巽'],   // 29坎 30離 31咸 32恆
+  ['乾','艮'],['震','乾'],['離','坤'],['坤','離'],   // 33遁 34大壯 35晉 36明夷
+  ['巽','離'],['離','兌'],['坎','艮'],['震','坎'],   // 37家人 38睽 39蹇 40解
+  ['艮','兌'],['巽','震'],['兌','乾'],['乾','巽'],   // 41損 42益 43夬 44姤
+  ['兌','坤'],['坤','巽'],['兌','坎'],['坎','巽'],   // 45萃 46升 47困 48井
+  ['兌','離'],['離','巽'],['震','震'],['艮','艮'],   // 49革 50鼎 51震 52艮
+  ['巽','艮'],['震','兌'],['震','離'],['離','艮'],   // 53漸 54歸妹 55豐 56旅
+  ['巽','巽'],['兌','兌'],['巽','坎'],['坎','兌'],   // 57巽 58兌 59渙 60節
+  ['巽','兌'],['震','艮'],['坎','離'],['離','坎']    // 61中孚 62小過 63既濟 64未濟
 ];
 var GUA_NAMES = [
-  '乾','坤','屯','蒙','需','讼','师','比','小畜','履','泰','否',
-  '同人','大有','谦','豫','随','蛊','临','观','噬嗑','贲','剥','复',
-  '无妄','大畜','颐','大过','坎','离','咸','恒','遁','大壮','晋','明夷',
-  '家人','睽','蹇','解','损','益','夬','姤','萃','升','困','井',
-  '革','鼎','震','艮','渐','归妹','丰','旅','巽','兑','涣','节',
-  '中孚','小过','既济','未济'
+  '乾','坤','屯','蒙','需','訟','師','比','小畜','履','泰','否',
+  '同人','大有','謙','豫','隨','蠱','臨','觀','噬嗑','賁','剝','復',
+  '無妄','大畜','頤','大過','坎','離','咸','恆','遁','大壯','晉','明夷',
+  '家人','睽','蹇','解','損','益','夬','姤','萃','升','困','井',
+  '革','鼎','震','艮','漸','歸妹','豐','旅','巽','兌','渙','節',
+  '中孚','小過','既濟','未濟'
 ];
+// 序号 → 简/繁体名（配對卡用）
+var SIMP_MAP = {
+  '乾':'乾','坤':'坤','屯':'屯','蒙':'蒙','需':'需','訟':'讼','師':'师','比':'比',
+  '小畜':'小畜','履':'履','泰':'泰','否':'否','同人':'同人','大有':'大有','謙':'谦','豫':'豫',
+  '隨':'随','蠱':'蛊','臨':'临','觀':'观','噬嗑':'噬嗑','賁':'贲','剝':'剥','復':'复',
+  '無妄':'无妄','大畜':'大畜','頤':'颐','大過':'大过','坎':'坎','離':'离','咸':'咸','恆':'恒',
+  '遁':'遁','大壯':'大壮','晉':'晋','明夷':'明夷','家人':'家人','睽':'睽','蹇':'蹇','解':'解',
+  '損':'损','益':'益','夬':'夬','姤':'姤','萃':'萃','升':'升','困':'困','井':'井',
+  '革':'革','鼎':'鼎','震':'震','艮':'艮','漸':'渐','歸妹':'归妹','豐':'丰','旅':'旅',
+  '巽':'巽','兌':'兑','渙':'涣','節':'节','中孚':'中孚','小過':'小过','既濟':'既济','未濟':'未济'
+};
 
-/* ============ 状态 ============ */
-var S = { cfg:null, work:[1,1,1,1,1,1], moves:0, maxMoves:0, target:[0,0,0,0,0,0], stars:0, screen:'levels' };
+/* ================= 卦象图形工具 ================= */
+function targetOf(i){
+  var p = GUA64[i];
+  return UPPER_YANG[p[0]].concat(UPPER_YANG[p[1]]);
+}
+function diffFromInit(i){
+  var t = targetOf(i), d = 0;
+  for(var k=0;k<6;k++) if(t[k]!==1) d++;   // init 恒为全阳 [1,1,1,1,1,1]
+  return d;
+}
+// 生成一根爻的 DOM
+function makeYao(y, small){
+  var div = document.createElement('div');
+  div.className = 'yao ' + (y?'yang':'yin');
+  var line = document.createElement('div'); line.className='line'; div.appendChild(line);
+  if(y===0){ var g=document.createElement('div'); g.className='gap'; div.appendChild(g); }
+  if(small){ div.style.width='30px'; div.style.height='22px'; div.style.padding='3px 5px'; }
+  return div;
+}
+// 生成整卦 mini 图（小尺寸）
+function miniGua(yangArr, boxPx, tall){
+  var box = document.createElement('div');
+  box.style.cssText = 'display:inline-flex;flex-direction:column;gap:2px;align-items:center';
+  yangArr.forEach(function(y){
+    var d = document.createElement('div');
+    d.className = 'yao ' + (y?'yang':'yin');
+    d.style.cssText = 'width:'+boxPx+'px;height:'+(tall||8)+'px;padding:0 0;cursor:default;background:transparent';
+    var line = document.createElement('div'); line.className='line';
+    line.style.height = (tall? (tall-2):6)+'px';
+    d.appendChild(line);
+    if(y===0){ var g=document.createElement('div'); g.className='gap'; g.style.height=(tall||8)+'px'; d.appendChild(g); }
+    box.appendChild(d);
+  });
+  return box;
+}
+
+/* ================= 关卡体系 ================= */
+// 章节划分
+var CHAPTERS = [
+  {name:'第一章 · 八卦啟蒙', from:0, to:7,   mode:'match',  maxMoves:99, time:0},
+  {name:'第二章 · 限步拼卦', from:8, to:23,  mode:'moves',  time:0},
+  {name:'第三章 · 卦象辨析', from:24, to:39, mode:'guess',  time:60},
+  {name:'第四章 · 序卦連線', from:40, to:47, mode:'seq',    time:0},
+  {name:'第五章 · 卦象配對', from:48, to:63, mode:'matchp', time:0}
+];
+function chapterOf(i){
+  for(var c=0;c<CHAPTERS.length;c++){ if(i>=CHAPTERS[c].from && i<=CHAPTERS[c].to) return CHAPTERS[c]; }
+  return CHAPTERS[CHAPTERS.length-1];
+}
+function modeOf(i){ return chapterOf(i).mode; }
+// 限步（moves 模式）步数
+function maxMovesOf(i){
+  var ch = chapterOf(i);
+  if(ch.mode==='match' || ch.mode==='matchp') return 99;
+  var mv = diffFromInit(i) + 1;
+  if(ch.mode==='guess') return Math.max(8, mv + 3);
+  return Math.max(3, Math.min(8, mv));
+}
+// 简化名（配對）
+function simpName(i){ return SIMP_MAP[GUA_NAMES[i]] || GUA_NAMES[i]; }
+// 每关基础奖励（易币）
+function rewardOf(i){
+  var m = modeOf(i);
+  if(m==='match')  return 8;    // 1-8 关 拼出完整卦（入门）
+  if(m==='moves')  return 16;   // 限步拼卦
+  if(m==='guess')  return 22;   // 猜卦
+  if(m==='seq')    return 50;   // 序卦连線（一次性大额）
+  return 30;                    // 卦象配對
+}
+
+/* ================= 常量：难度系数 / 每日挑战 ================= */
+var RUNE_DAILY = 'bagua_daily_v1';
+var DAILY_MAX_GUA = 30;     // 每日最多拼出卦数（封顶）
+var DAILY_FIRST_BONUS = 30; // 每日首次有效挑战额外奖励
+
+/* ================= 状态 ================= */
+var S = { idx:0, mode:null, work:[1,1,1,1,1,1], moves:0, maxMoves:0, target:[0,0,0,0,0,0],
+  targetName:'', stars:0, screen:'levels', hintUsed:0, solved:false, seqStep:0, seqPool:[],
+  drawn:false, matchSel:null, matchPairs:0, matchCards:[], daily:null, dailyCount:0,
+  timeLeft:0, timer:null, locked:false, chips:0 };
+
 function $(id){return document.getElementById(id);}
+function randint(n){ return Math.floor(Math.random()*n); }
+function sample(arr, n){
+  var a = arr.slice();
+  for(var i=a.length-1;i>0;i--){ var j=randint(i+1); var t=a[i]; a[i]=a[j]; a[j]=t; }
+  return a.slice(0, n);
+}
+function starsStr(n){ return '⭐'.repeat(n) + '☆'.repeat(3-n>0?3-n:0); }
 
-/* ============ 爻渲染 ============ */
-// 直接用 onclick 属性写在 HTML 上，更稳定
-function renderYao(rows, yang){
-  rows.innerHTML = '';
-  for(var i=0;i<3;i++){
-    var y = yang[i];
-    var div = document.createElement('div');
-    div.className = 'yao ' + (y?'yang':'yin');
-    div.dataset.idx = i;
-    var line = document.createElement('div');
-    line.className = 'line';
-    div.appendChild(line);
-    if(y===0){
-      var gap = document.createElement('div');
-      gap.className = 'gap';
-      div.appendChild(gap);
+/* ================= 易币上报（纯前端） ================= */
+// 统一封装；任何异常都不打断游戏
+function YB(fn){ try{ return fn(); }catch(e){ return null; } }
+function refreshBadge(){
+  if(window.Yibi && Yibi.mountBadge){
+    YB(function(){ Yibi.mountBadge($('yibiBadge')); });
+    YB(function(){ if($('yibiBadge2')) Yibi.mountBadge($('yibiBadge2')); });
+  }
+}
+function syncEarnBar(){
+  if(!window.Yibi || !Yibi.wallet) return;
+  YB(function(){
+    Yibi.wallet().then(function(d){
+      if(!d || d.ok===false) return;
+      var et = d.earned_today || 0;
+      var unlimited = (d.earn_cap_unlimited === true) || (d.earn_daily_cap === 0);
+      if(unlimited){
+        $('earnbar').innerHTML = '今日已賺 <b>'+Yibi.fmt(et)+'</b> 易币 · 👑 會員不限額';
+      } else {
+        var cap = d.earn_daily_cap || 3000;
+        $('earnbar').innerHTML = '今日已賺 <b>'+Yibi.fmt(et)+'</b> 易币 · 每日上限 <b>'+Yibi.fmt(cap)+'</b>'
+          + (et>=cap? ' <span style="color:#c1432f">（今日已達上限，明天 0 點重置）</span>':'');
+      }
+    });
+  });
+}
+// 发放奖励（走 /api/yibi/earn）；回调获得实际到账
+function earnYibi(amount, reason, cb){
+  if(amount<=0){ if(cb) cb(0,false); return; }
+  if(!window.Yibi || !Yibi.earn){ if(cb) cb(0,false); return; }
+  YB(function(){
+    Yibi.earn(amount, 'bagua', reason).then(function(d){
+      if(d && d.ok){ if(cb) cb(d.added||amount, true); }
+      else { if(cb) cb(0, false); }
+      refreshBadge(); syncEarnBar();
+    }).catch(function(){ if(cb) cb(0,false); });
+  });
+}
+// 消耗易币（走 /api/yibi/spend）；回调 true=成功
+function spendYibi(amount, reason, cb){
+  if(!window.Yibi || !Yibi.spend){ if(cb) cb(false, '易币暫不可用'); return; }
+  YB(function(){
+    Yibi.spend(amount, 'bagua', reason).then(function(d){
+      if(d && d.ok){ refreshBadge(); syncEarnBar(); if(cb) cb(true, ''); }
+      else { if(cb) cb(false, (d && d.msg) || '易币不足'); }
+    }).catch(function(){ if(cb) cb(false, '網絡錯誤'); });
+  });
+}
+
+/* ================= 进度存取 ================= */
+function bestKey(i){ return 'bg_best_'+i; }
+function getBest(i){ return +(localStorage.getItem(bestKey(i))||0); }
+function setBest(i,s){ if(s>getBest(i)){ localStorage.setItem(bestKey(i), s); markDirty(); } }
+function getUnlock(){ return +(localStorage.getItem('bg_unlock')||1); }
+function setUnlock(i){
+  // i 为 0-based：通关第 i 关后，解锁第 (i+2) 关（1-based 显示号）
+  var unl = Math.max(getUnlock(), i+2);
+  localStorage.setItem('bg_unlock', unl);
+  markDirty();
+}
+
+/* ================= 每日挑战存取 ================= */
+function todayStr(){
+  var d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function loadDaily(){
+  try {
+    var raw = localStorage.getItem(RUNE_DAILY);
+    var o = raw? JSON.parse(raw): null;
+    if(!o || o.date!==todayStr()) o = {date:todayStr(), count:0, best:0, firstDone:false};
+    return o;
+  } catch(e){ return {date:todayStr(), count:0, best:0, firstDone:false}; }
+}
+function saveDaily(o){ try{ localStorage.setItem(RUNE_DAILY, JSON.stringify(o)); }catch(e){} markDirty(); }
+function dailySeed(){
+  var s = todayStr().replace(/-/g,'');
+  return parseInt(s,10) % 1000000007;
+}
+// 简单确定性伪随机（每日固定题）
+function dailyRng(seed){
+  var x = seed;
+  return function(){ x = (x*1103515245 + 12345) & 0x7fffffff; return x / 0x7fffffff; };
+}
+
+/* ================= 云存档双保险（GameSave 公共层 · 契约B/C4） ================= */
+// 本地优先：先按本地渲染；再异步拉云合并。未登录时不发任何请求（由 GameSave 保证）。
+var _cloudBound=false;
+function markDirty(){ try{ if(window.GameSave && GameSave.markDirty) GameSave.markDirty(); }catch(e){} }
+function gsRead(){
+  var bests={};   // 仅记录已通关（>0）的关卡，避免把默认 0 全量写入
+  for(var i=0;i<GUA_NAMES.length;i++){ var s=getBest(i); if(s>0) bests[i]=s; }
+  return { unlock:getUnlock(), bests:bests, daily:loadDaily() };
+}
+function gsWrite(obj){
+  if(!obj || typeof obj!=='object') return;
+  var unl=parseInt(obj.unlock,10);
+  if(unl>0 && unl>getUnlock()) localStorage.setItem('bg_unlock', unl);
+  if(obj.bests && typeof obj.bests==='object'){
+    for(var k in obj.bests){
+      if(!obj.bests.hasOwnProperty(k)) continue;
+      var i=parseInt(k,10), s=parseInt(obj.bests[k],10);
+      if(i>=0 && i<GUA_NAMES.length && s>0 && s>getBest(i)) localStorage.setItem(bestKey(i), s);
     }
+  }
+  var d=obj.daily;
+  if(d && typeof d==='object' && d.date===todayStr()){
+    var cur=loadDaily();
+    var nc=Math.max(cur.count||0, d.count||0), nb=Math.max(cur.best||0, d.best||0);
+    var nf=!!(cur.firstDone||d.firstDone);
+    if(nc!==cur.count || nb!==cur.best || nf!==cur.firstDone){
+      cur.count=nc; cur.best=nb; cur.firstDone=nf; saveDaily(cur);
+    }
+  }
+}
+function initCloudSave(){
+  try{
+    if(_cloudBound || !(window.GameSave && GameSave.bind)) return;
+    _cloudBound=true;
+    GameSave.bind('bagua', { read: gsRead, write: gsWrite });
+    // bind 内部会异步拉云合并；刷新进度 UI
+    setTimeout(function(){ try{ renderLevels(); renderDailyInfo(); }catch(e){} }, 0);
+  }catch(e){}
+}
+
+/* ================= 关卡渲染 ================= */
+function switchTab(t){
+  $('tabStory').className = (t==='story')?'on':'';
+  $('tabDaily').className = (t==='daily')?'on':'';
+  $('storyView').style.display = (t==='story')?'block':'none';
+  $('dailyView').style.display = (t==='daily')?'block':'none';
+  if(t==='daily') renderDailyInfo();
+}
+
+function renderLevels(){
+  var wrap = $('levels'); wrap.innerHTML='';
+  var unlock = getUnlock();
+  var curChapter = null;
+  for(var i=0;i<GUA_NAMES.length;i++){
+    var ch = chapterOf(i);
+    if(ch.name!==curChapter){
+      curChapter = ch.name;
+      var cap = document.createElement('div');
+      cap.className='chapter'; cap.style.gridColumn='1 / -1';
+      cap.textContent = ch.name + '（'+(ch.mode==='seq'?'連線':ch.mode==='guess'?'猜卦':ch.mode==='matchp'?'配對':'拼卦')+'）';
+      wrap.appendChild(cap);
+    }
+    var locked = i+1 > unlock;
+    var done = i+1 < unlock || getBest(i)>0;
+    var d = document.createElement('div');
+    d.className = 'lv' + (locked?' locked':'') + (done?' done':'');
+    var bs = getBest(i);
+    d.innerHTML = '<div class="n">'+GUA_NAMES[i]+'</div>'
+      + '<div class="g">'+(locked?'🔒':'第'+(i+1)+'關')+'</div>'
+      + (bs? '<div class="stars">'+('★'.repeat(bs))+'</div>':'');
+    if(!locked){ (function(i){ d.addEventListener('click', function(){ startLevel(i); }); })(i); }
+    wrap.appendChild(d);
+  }
+}
+
+/* ================= 开局 ================= */
+function bgToast(msg){
+  try{
+    var t=document.getElementById('bgToast');
+    if(!t){t=document.createElement('div');t.id='bgToast';
+      t.style.cssText='position:fixed;left:50%;top:16%;transform:translateX(-50%);z-index:999;background:rgba(20,16,8,.95);border:1px solid rgba(212,175,55,.5);color:#f5d06f;padding:10px 16px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 4px 16px rgba(0,0,0,.5)';
+      document.body.appendChild(t);
+    }
+    t.textContent=msg;t.style.display='block';
+    clearTimeout(t._tm);t._tm=setTimeout(function(){t.style.display='none';},2200);
+  }catch(e){}
+}
+function startLevel(i){
+  // 门票：普通会员每日首玩免费，超出按当前币种收费（每次进入页面只收一次）
+  if(window.Yibi&&Yibi.gateOnce){
+    Yibi.gateOnce('bagua',15).then(function(ok){
+      if(!ok){bgToast('⚠️ 易幣/易幣不足，無法開始');return;}
+      _doStartLevel(i);
+    });
+    return;
+  }
+  _doStartLevel(i);
+}
+function _doStartLevel(i){
+  clearTimer();
+  S.idx = i; S.mode = modeOf(i); S.screen='game'; S.locked=false; S.solved=false; S.hintUsed=0;
+  S.target = targetOf(i); S.targetName = GUA_NAMES[i];
+  var ch = chapterOf(i);
+  $('lvName').textContent = S.targetName;
+  S.maxMoves = maxMovesOf(i);
+  // HUD 文案
+  $('hudTarget').textContent = S.targetName;
+  $('hudBest').textContent = getBest(i)? ('⭐'.repeat(getBest(i))) : '-';
+  $('feedback').classList.remove('err');
+  $('ovResult').classList.remove('show');
+  // 隐藏所有模式区
+  ['workArea','choices','seqWrap','matchWrap'].forEach(function(id){ $(id).style.display='none'; });
+  $('actions').style.display='flex';
+  $('submitBtn').style.display='block';   // 猜卦/序卦/配对模式会各自隐藏
+  $('timerBar').classList.remove('show');
+  // 目标区
+  $('tgtLab').textContent = (S.mode==='guess')? '謎面（猜此卦名）' : '目標卦象';
+  var ty = $('targetYao'); ty.innerHTML='';
+  if(S.mode==='guess'){
+    // 猜卦：显示卦象图形，隐藏名字
+    $('targetName').textContent = '？';
+    $('targetMeaning').textContent = '看卦象，選出正確的卦名。答對「卦義」可減少提示消耗。';
+    ty.appendChild(miniGua(S.target, 30, 22));
+  } else {
+    $('targetName').textContent = S.targetName;
+    $('targetMeaning').textContent = GUA_MEAN[S.targetName] || '';
+    ty.appendChild(miniGua(S.target, 30, 22));
+  }
+  $('targetHint').style.display='none';
+  // 步数/计时 HUD
+  if(S.mode==='moves'){
+    $('hudK').textContent='剩餘步'; $('hudM').textContent = S.maxMoves; $('hudM').classList.remove('warn');
+    $('lvSub').textContent = '第'+(i+1)+'關 · 限步拼卦 · '+S.maxMoves+'步以內';
+  } else if(S.mode==='guess'){
+    $('hudK').textContent='限時'; $('hudM').textContent = ch.time+'s'; $('hudM').classList.remove('warn');
+    $('lvSub').textContent = '第'+(i+1)+'關 · 猜出此卦名（'+ch.time+'秒）';
+  } else if(S.mode==='seq'){
+    $('hudK').textContent='步驟'; $('hudM').textContent = '0/6';
+    $('lvSub').textContent = '第'+(i+1)+'關 · 依周易卦序連線';
+  } else if(S.mode==='matchp'){
+    $('hudK').textContent='配對'; $('hudM').textContent='0/6';
+    $('lvSub').textContent = '第'+(i+1)+'關 · 卦象配對';
+  } else { // match 入门
+    $('hudK').textContent='步數'; $('hudM').textContent = '0';
+    $('lvSub').textContent = '第'+(i+1)+'關 · 拼出 '+S.targetName+' 卦（不限步）';
+  }
+
+  // 依模式初始化
+  if(S.mode==='moves' || S.mode==='match'){
+    initWork();
+  } else if(S.mode==='guess'){
+    initGuess();
+  } else if(S.mode==='seq'){
+    initSeq();
+  } else if(S.mode==='matchp'){
+    initMatch();
+  }
+  show('s-game');
+  updateHintBtn();
+}
+
+/* ---------- 模式A/B：拼卦 ---------- */
+function initWork(){
+  S.work = [1,1,1,1,1,1];
+  S.moves = 0;
+  $('workArea').style.display='block';
+  $('hintBtn').textContent = '💡 提示 20';
+  renderWork();
+  updateUpperLowerName();
+  $('feedback').textContent = '點擊爻切換陰陽，拼出目標卦';
+}
+function renderWork(){
+  renderYaoRow($('upperRow'), S.work.slice(0,3));
+  renderYaoRow($('lowerRow'), S.work.slice(3));
+}
+function renderYaoRow(rows, yang){
+  rows.innerHTML='';
+  for(var i=0;i<3;i++){
+    var div = makeYao(yang[i], false);
+    div.dataset.idx = i;
     rows.appendChild(div);
   }
 }
-// 用事件委托：点 upperRow / lowerRow 时取 idx
 function bindWorkArea(){
-  $('upperRow').onclick = function(e){
-    var t = e.target.closest('.yao'); if(!t) return;
-    var i = +t.dataset.idx;
-    flipYao(i, $('upperRow'));
-  };
-  $('lowerRow').onclick = function(e){
-    var t = e.target.closest('.yao'); if(!t) return;
-    var i = +t.dataset.idx;
-    flipYao(i, $('lowerRow'));
-  };
+  $('upperRow').onclick = function(e){ var t=e.target.closest('.yao'); if(!t) return; flipYao(+t.dataset.idx, $('upperRow')); };
+  $('lowerRow').onclick = function(e){ var t=e.target.closest('.yao'); if(!t) return; flipYao(+t.dataset.idx, $('lowerRow')); };
 }
 function flipYao(localIdx, rows){
-  if(S.screen!=='game') return;
-  // upperRow = 0..2, lowerRow = 3..5
-  var absIdx = (rows.id==='lowerRow') ? (3 + localIdx) : localIdx;
-  S.work[absIdx] = 1 - S.work[absIdx];
-  // 局部更新这一爻 + 重算卦名
-  renderYao(rows, (rows.id==='lowerRow') ? S.work.slice(3) : S.work.slice(0,3));
-  // 给该爻加 .flipping 动画
-  var d = rows.children[localIdx]; if(d){ d.classList.add('flipping'); setTimeout(function(){d.classList.remove('flipping');},360); }
+  if(S.screen!=='game' || S.locked) return;
+  if(S.mode!=='moves' && S.mode!=='match' && S.mode!=='daily') return;
+  var abs = (rows.id==='lowerRow') ? (3+localIdx) : localIdx;
+  S.work[abs] = 1 - S.work[abs];
+  S.moves++;
+  renderYaoRow(rows, (rows.id==='lowerRow')? S.work.slice(3): S.work.slice(0,3));
+  var d = rows.children[localIdx];
+  if(d){ d.classList.add('flipping'); setTimeout(function(){ d.classList.remove('flipping'); },360); }
+  if(window.SFX && SFX.tap) SFX.tap();
   updateUpperLowerName();
-}
-
-/* 根据当前 work 算出上下卦名 */
-function yaoToGuaName(y){
-  // 上 3
-  for(var n in UPPER_YANG){
-    if(UPPER_YANG[n].join(',')===[y[0],y[1],y[2]].join(',')) return n;
+  // 限步模式：步数可视化（超额不直接判负 —— 提交时判）
+  if(S.mode==='moves'){
+    var left = S.maxMoves - S.moves;
+    $('hudM').textContent = left>0? left : 0;
+    $('hudM').classList.toggle('warn', left<=0);
+    if(left<=0){ $('feedback').textContent='步數已用盡，可重試或重置'; $('feedback').classList.add('err'); }
+  } else {
+    $('hudM').textContent = S.moves;
   }
+}
+function yaoToGuaName(y){
+  for(var n in UPPER_YANG){ if(UPPER_YANG[n].join(',')===[y[0],y[1],y[2]].join(',')) return n; }
   return '?';
 }
 function updateUpperLowerName(){
   $('upperName').textContent = yaoToGuaName(S.work.slice(0,3));
   $('lowerName').textContent = yaoToGuaName(S.work.slice(3));
 }
-
-/* ============ 关卡 ============ */
-function levelConfig(i){
-  var pair = GUA64[i];
-  var targetName = GUA_NAMES[i];
-  // 难度评估：上下卦差异越大（爻差越多）→ 步数越多
-  var upperY = UPPER_YANG[pair[0]];
-  var lowerY = UPPER_YANG[pair[1]];
-  var target = upperY.concat(lowerY);
-  // 默认从「乾乾」（111111）开始，统计到 target 需翻转多少爻
-  var init = [1,1,1,1,1,1];
-  var diff = 0;
-  for(var k=0;k<6;k++) if(init[k]!==target[k]) diff++;
-  var maxMoves = diff + 1; // 多给 1 步空间
-  if(maxMoves<3) maxMoves=3;
-  if(maxMoves>8) maxMoves=8;
-  return {idx:i, name:targetName, upper:pair[0], lower:pair[1],
-    target:target, targetName:targetName, maxMoves:maxMoves,
-    init:init.slice()};
-}
-
-function startLevel(i){
-  S.cfg = levelConfig(i);
-  S.target = S.cfg.target.slice();
-  S.work = S.cfg.init.slice();
-  S.moves = 0;
-  S.screen = 'game';
-  $('lvName').textContent = S.cfg.targetName;
-  $('lvSub').textContent = '第'+(i+1)+'關 · '+S.cfg.maxMoves+'步以内';
-  // 渲染目标
-  var targetEl = $('targetYao');
-  targetEl.innerHTML = '';
-  for(var k=0;k<6;k++){
-    var y = S.target[k];
-    var line = document.createElement('div');
-    line.className = 'line';
-    if(y===0){
-      var gap = document.createElement('div');
-      gap.className = 'gap';
-    }
-    var div = document.createElement('div');
-    div.className = 'yao ' + (y?'yang':'yin');
-    div.style.width='32px'; div.style.height='24px'; div.style.padding='3px 6px';
-    div.appendChild(line);
-    if(y===0) div.appendChild(gap);
-    targetEl.appendChild(div);
-  }
-  $('targetName').textContent = S.cfg.targetName;
-  $('targetMeaning').textContent = GUA_MEAN[S.cfg.targetName] || '';
-  // 渲染工作区
-  renderYao($('upperRow'), S.work.slice(0,3));
-  renderYao($('lowerRow'), S.work.slice(3));
-  updateUpperLowerName();
-  $('hudMoves').textContent = S.cfg.maxMoves;
-  $('hudTarget').textContent = S.cfg.targetName;
-  var bestKey = 'bg_best_'+i;
-  var best = +localStorage.getItem(bestKey) || 0;
-  $('hudBest').textContent = best? '⭐'.repeat(best):'-';
-  $('feedback').textContent = '點擊爻切換陰陽'; $('feedback').classList.remove('err');
-  $('ovResult').classList.remove('show');
-  show('s-game');
-}
-
 function resetWork(){
-  S.work = S.cfg.init.slice();
-  S.moves = 0;
-  $('hudMoves').textContent = S.cfg.maxMoves;
-  $('hudTarget').textContent = S.cfg.targetName;
-  renderYao($('upperRow'), S.work.slice(0,3));
-  renderYao($('lowerRow'), S.work.slice(3));
-  updateUpperLowerName();
-  $('feedback').textContent = '已重置'; $('feedback').classList.remove('err');
-}
-
-function autoHint(){
-  // 高亮第一个不一致的爻
-  for(var i=0;i<6;i++){
-    if(S.work[i]!==S.target[i]){
-      var rows = i<3 ? $('upperRow') : $('lowerRow');
-      var idx = i<3?i:i-3;
-      var yao = rows.children[idx];
-      if(yao){ yao.classList.add('flipping'); setTimeout(function(){yao.classList.remove('flipping');}, 500); }
-      $('feedback').textContent = '提示：試著切換第 '+(i+1)+' 爻'; $('feedback').classList.remove('err');
-      return;
-    }
+  if(S.screen!=='game') return;
+  if(S.mode==='moves' || S.mode==='match'){
+    S.work=[1,1,1,1,1,1]; S.moves=0;
+    renderWork(); updateUpperLowerName();
+    $('hudM').textContent = (S.mode==='match')? '∞' : S.maxMoves;
+    $('hudM').classList.remove('warn');
+    $('feedback').textContent='已重置'; $('feedback').classList.remove('err');
+  } else if(S.mode==='guess' || S.mode==='seq' || S.mode==='matchp'){
+    startLevel(S.idx);
   }
-  $('feedback').textContent = '已是目標卦！直接提交'; $('feedback').classList.remove('err');
 }
-
 function checkWin(){
-  var ok = true;
-  for(var i=0;i<6;i++){ if(S.work[i]!==S.target[i]){ ok=false; break; } }
-  if(ok){
-    // 用掉的步数：当前 work 与 init 的差异（注意：玩家可能多次切换抵消）
-    // 简单判定：实际步数 = work 翻转总次数（累计）；为简化按「步数 = maxMoves - 当前剩余」粗估
-    var used = S.cfg.maxMoves - +$('hudMoves').textContent;
-    // 真实步数：work 与 init 差异（玩家可能无效点击，按 diff 计）
-    var realDiff = 0;
-    for(var k=0;k<6;k++) if(S.work[k]!==S.cfg.init[k]) realDiff++;
-    var realUsed = realDiff; // 拼完至少要翻这么多爻
-    var stars = realUsed<=S.cfg.maxMoves-3 ? 3 : realUsed<=S.cfg.maxMoves-1 ? 2 : 1;
-    showResult(true, stars, realUsed);
-  } else {
-    $('feedback').textContent = '✗ 不對！再試試'; $('feedback').classList.add('err');
-    // 扣 1 步
-    var cur = +$('hudMoves').textContent;
-    cur--;
-    $('hudMoves').textContent = cur;
-    if(cur<=0){
-      showResult(false, 0, 0);
+  if(S.locked || S.screen!=='game') return;
+  if(S.mode==='moves' || S.mode==='match'){
+    var ok=true;
+    for(var i=0;i<6;i++){ if(S.work[i]!==S.target[i]){ ok=false; break; } }
+    if(ok){
+      if(S.mode==='moves' && S.moves > S.maxMoves){ loseGame(); return; }
+      computeStarsAndFinish();
+    } else {
+      $('feedback').textContent='✗ 不對！再試試'; $('feedback').classList.add('err');
+      if(window.SFX && SFX.wrong) SFX.wrong();
     }
+  } else if(S.mode==='guess'){
+    // 猜卦模式由选项点击直接判定；提交按钮无效
+  }
+}
+function computeStarsAndFinish(){
+  // 星级：以「达到目标所需最少翻转数」为基准
+  var need = 0;
+  for(var k=0;k<6;k++) if(S.target[k]!==1) need++;   // init 全阳 → target 的差异
+  var stars;
+  if(S.mode==='moves'){
+    var extra = S.moves - need;   // 多余步数（无效点击/绕路）
+    if(extra<=0) stars=3; else if(extra===1) stars=2; else stars=1;
+  } else {
+    stars = (S.moves<=need)? 3 : (S.moves<=need+2? 2 : 1);
+  }
+  finishLevel(true, stars);
+}
+
+/* ---------- 模式C：猜卦 ---------- */
+function initGuess(){
+  $('choices').style.display='grid';
+  $('choices').style.padding='4px 12px 2px';
+  var btn = $('submitBtn'); btn.style.display='none';
+  $('hintBtn').textContent = '💡 提示 15';
+  var ch = chapterOf(S.idx);
+  // 生成干扰项
+  var pool = [];
+  for(var j=0;j<64;j++) if(j!==S.idx && modeOf(j)!=='seq') pool.push(j);
+  var opts = sample(pool, 3);
+  opts.push(S.idx);
+  // 打乱
+  opts = sample(opts, 4);
+  var box = $('choices'); box.innerHTML='';
+  opts.forEach(function(oi){
+    var b = document.createElement('button');
+    b.className='choice'; b.textContent = GUA_NAMES[oi];
+    b.onclick = function(){ answerGuess(oi, b); };
+    box.appendChild(b);
+  });
+  S.guessOpts = opts;
+  $('feedback').textContent = '看卦象，選出正確卦名';
+  // 计时
+  startTimer(ch.time, function(){ finishLevel(false, 0, '時間到！'); });
+}
+function answerGuess(oi, btn){
+  if(S.locked) return;
+  if(oi===S.idx){
+    S.locked=true; clearTimer();
+    btn.classList.add('correct');
+    if(window.SFX && SFX.correct) SFX.correct();
+    $('feedback').textContent = '✔ 正確！';
+    var stars = S.hintUsed===0 ? 3 : (S.hintUsed===1? 2 : 1);
+    setTimeout(function(){ finishLevel(true, stars); }, 420);
+  } else {
+    btn.classList.add('wrong'); btn.disabled=true;
+    if(window.SFX && SFX.wrong) SFX.wrong();
+    // 扣 5 秒
+    S.timeLeft = Math.max(1, S.timeLeft - 5);
+    $('feedback').textContent='✗ 再想想（-5秒）'; $('feedback').classList.add('err');
   }
 }
 
-function showResult(win, stars, used){
-  $('rTitle').textContent = win? '🎉 通關！' : '💧 步數耗盡';
-  $('rStars').textContent = win? ('⭐'.repeat(stars)+'☆'.repeat(3-stars)) : '💧';
-  $('rScore').textContent = win? (stars*50) : 0;
-  $('rMoves').textContent = used;
-  var bestKey = 'bg_best_'+S.cfg.idx;
-  var best = +localStorage.getItem(bestKey) || 0;
-  if(win && stars>best){
-    best=stars; localStorage.setItem(bestKey, best);
+/* ---------- 模式D：序卦连线 ---------- */
+function initSeq(){
+  $('seqWrap').style.display='block';
+  $('submitBtn').style.display='none';
+  $('hintBtn').textContent = '💡 顯示次序 30';
+  S.seqStep = 0;
+  S.seqStart = S.idx;
+  // 从 idx 起取连续 6 卦（周易序）
+  var arr = []; for(var k=0;k<6;k++) arr.push((S.idx+k)%64);
+  S.seqAnswer = arr;
+  S.seqPool = sample(arr, 6);
+  var grid = $('seqGrid'); grid.innerHTML='';
+  $('seqProgress').textContent = '0/6';
+  $('seqNext').textContent = '起點：第 '+(S.idx+1)+' 卦 — '+GUA_NAMES[S.idx];
+  S.seqPool.forEach(function(gi){
+    var b = document.createElement('button');
+    b.className='seqBtn'; b.dataset.gi=gi;
+    b.innerHTML = GUA_NAMES[gi];
+    b.onclick = function(){ seqPick(gi, b); };
+    grid.appendChild(b);
+  });
+  $('feedback').textContent = '依周易卦序，從起點卦開始依序點選';
+}
+function seqPick(gi, btn){
+  if(S.locked) return;
+  if(btn.classList.contains('done')) return;
+  var expect = S.seqAnswer[S.seqStep];
+  if(gi===expect){
+    btn.classList.add('done');
+    if(window.SFX && SFX.correct) SFX.correct();
+    S.seqStep++;
+    $('seqProgress').textContent = S.seqStep+'/6';
+    var nt = S.seqStep<6 ? S.seqAnswer[S.seqStep] : null;
+    $('seqNext').textContent = nt!=null ? ('下一個應為第 '+(nt+1)+' 卦') : '完成！';
+    $('feedback').textContent='✔ 正確';
+    $('feedback').classList.remove('err');
+    if(S.seqStep>=6){
+      S.locked=true;
+      var stars = S.hintUsed===0? 3 : (S.hintUsed===1? 2 : 1);
+      setTimeout(function(){ finishLevel(true, stars); }, 380);
+    }
+  } else {
+    btn.classList.add('err');
+    if(window.SFX && SFX.wrong) SFX.wrong();
+    S.hintUsed += 1;   // 错一次降星
+    setTimeout(function(){ btn.classList.remove('err'); }, 450);
+    $('feedback').textContent='✗ 次序不對'; $('feedback').classList.add('err');
   }
-  $('rBest').textContent = best? '⭐'.repeat(best):'-';
-  $('rNextBtn').style.display = win? 'block':'none';
-  if(win){
-    var unl = Math.max(+(localStorage.getItem('bg_unlock')||1), S.cfg.idx+2);
-    localStorage.setItem('bg_unlock', unl);
+}
+
+/* ---------- 模式E：卦象配对 ---------- */
+function initMatch(){
+  $('matchWrap').style.display='block';
+  $('submitBtn').style.display='none';
+  $('hintBtn').textContent = '💡 提示 25';
+  S.matchPairs = 0; S.matchSel = null;
+  $('matchProgress').textContent = '0/6';
+  // 选 6 个卦做配对
+  var ids = sample(GUA_NAMES.map(function(_,k){return k;}), 6);
+  S.matchIds = ids;
+  // 6 张卦象卡 + 6 张卦名卡
+  var cards = [];
+  ids.forEach(function(gi){
+    cards.push({gi:gi, type:'img'});
+    cards.push({gi:gi, type:'name'});
+  });
+  cards = sample(cards, cards.length);
+  S.matchCards = cards.map(function(c){ return {gi:c.gi, type:c.type, done:false}; });
+  var grid = $('matchGrid'); grid.innerHTML='';
+  for(var i=0;i<S.matchCards.length;i++){
+    var c = S.matchCards[i];
+    var el = document.createElement('div');
+    el.className='card back'; el.dataset.i=i;
+    el.innerHTML = '<div class="cv">'+ (c.type==='name'? simpName(c.gi) : '') +'</div>';
+    el.onclick = (function(i){ return function(){ matchPick(i); }; })(i);
+    grid.appendChild(el);
+    if(c.type==='img'){ /* 背面占位 */ }
   }
+  $('feedback').textContent = '翻開兩張，配對「卦象 ↔ 卦名」';
+}
+function matchPick(i){
+  if(S.locked) return;
+  var c = S.matchCards[i];
+  if(c.done) return;
+  var el = $('matchGrid').children[i];
+  if(el.classList.contains('sel')){ el.classList.remove('sel'); S.matchSel=null; return; }
+  // 翻开
+  el.classList.remove('back');
+  if(c.type==='img'){
+    // 用 miniGua 渲染卦象
+    el.innerHTML=''; el.appendChild(miniGua(targetOf(c.gi), 24, 16));
+  } else {
+    el.innerHTML = '<div class="cv">'+simpName(c.gi)+'</div>';
+  }
+  if(window.SFX && SFX.tap) SFX.tap();
+  if(S.matchSel===null){ S.matchSel = i; el.classList.add('sel'); return; }
+  var p = S.matchSel;
+  if(p===i) return;
+  var pc = S.matchCards[p];
+  el.classList.add('sel');
+  if(pc.gi===S.matchCards[i].gi && pc.type!==S.matchCards[i].type){
+    // 配对成功
+    S.matchCards[p].done=true; S.matchCards[i].done=true;
+    $('matchGrid').children[p].className='card done';
+    el.className='card done';
+    if(window.SFX && SFX.correct) SFX.correct();
+    S.matchSel=null; S.matchPairs++;
+    $('matchProgress').textContent = S.matchPairs+'/6';
+    $('feedback').textContent='✔ 配對成功'; $('feedback').classList.remove('err');
+    if(S.matchPairs>=6){
+      S.locked=true;
+      var stars = S.hintUsed===0? 3 : (S.hintUsed===1? 2 : 1);
+      setTimeout(function(){ finishLevel(true, stars); }, 400);
+    }
+  } else {
+    if(window.SFX && SFX.wrong) SFX.wrong();
+    el.classList.add('err');
+    var pel = $('matchGrid').children[p];
+    pel.classList.add('err');
+    S.hintUsed += 1;
+    S.matchSel=null;
+    $('feedback').textContent='✗ 配對失敗'; $('feedback').classList.add('err');
+    var a=p, b=i;
+    setTimeout(function(){
+      // 翻回去（除非已 done）
+      if(!S.matchCards[a].done){ var ea=$('matchGrid').children[a]; ea.className='card back'; if(S.matchCards[a].type==='name') ea.innerHTML='<div class="cv"></div>'; else ea.innerHTML=''; }
+      if(!S.matchCards[b].done){ var eb=$('matchGrid').children[b]; eb.className='card back'; if(S.matchCards[b].type==='name') eb.innerHTML='<div class="cv"></div>'; else eb.innerHTML=''; }
+    }, 650);
+  }
+}
+
+/* ================= 计时器 ================= */
+function startTimer(sec, onEnd){
+  clearTimer();
+  S.timeLeft = sec; S.timeTotal = sec;
+  $('timerBar').classList.add('show'); $('timerFill').style.width='100%';
+  $('timerBar').classList.remove('low');
+  $('timerFill').style.width='100%';
+  var updateBar = function(){
+    var pct = Math.max(0, S.timeLeft/S.timeTotal*100);
+    $('timerFill').style.width = pct+'%';
+    $('timerBar').classList.toggle('low', pct<=30);
+  };
+  updateBar();
+  S.timer = setInterval(function(){
+    S.timeLeft--;
+    updateBar();
+    if(S.timeLeft<=0){ clearTimer(); if(onEnd) onEnd(); }
+  }, 1000);
+}
+function clearTimer(){ if(S.timer){ clearInterval(S.timer); S.timer=null; } }
+
+/* ================= 结束/结算 ================= */
+function loseGame(){
+  S.locked=true; clearTimer();
+  if(window.SFX && SFX.lose) SFX.lose();
+  $('rStars').textContent = '💧';
+  $('rTitle').textContent = '💧 挑戰失敗';
+  $('rScore').textContent = '0';
+  $('rReward').textContent = '+0';
+  $('rSubK').textContent = '使用步數';
+  $('rMoves').textContent = S.moves;
+  $('rBest').textContent = getBest(S.idx)? ('⭐'.repeat(getBest(S.idx))) : '-';
+  $('rWen').style.display='none';
+  $('rNote').textContent = '再試一次吧！提示可助你破關。';
+  $('rNextBtn').style.display='none';
+  $('ovResult').classList.add('show');
+}
+function finishLevel(win, stars, failMsg){
+  S.locked = true; clearTimer();
+  if(!win){
+    if(window.SFX && SFX.lose) SFX.lose();
+    $('rStars').textContent='💧';
+    $('rTitle').textContent = failMsg || '💧 失敗';
+    $('rScore').textContent='0';
+    $('rReward').textContent='+0';
+    $('rSubK').textContent='使用步數';
+    $('rMoves').textContent = S.moves;
+    $('rBest').textContent = getBest(S.idx)? ('⭐'.repeat(getBest(S.idx))):'-';
+    $('rWen').style.display='none';
+    $('rNote').textContent='再試一次吧！';
+    $('rNextBtn').style.display='none';
+    $('ovResult').classList.add('show');
+    return;
+  }
+  if(window.SFX && SFX.win) SFX.win();
+  var isDaily = false;
+  var base = rewardOf(S.idx);
+  var best = getBest(S.idx);
+  var firstClear = (best===0);
+  var starsForReward = stars;
+  // 首次通关额外奖励（每关一次）
+  var firstBonus = firstClear ? 20 : 0;
+  // ===== 2026-10-29 算了吗：重玩不再给全额（原先进关就发，反复点可以刷币）=====
+  // 首通：全额 + 首通奖；当日重玩：只给 20% 且封顶 6 易币；同一关当日最多结算 3 次。
+  var _todayKey = 'bagua_rep_' + new Date().toDateString();
+  var _rep = {};
+  try { _rep = JSON.parse(localStorage.getItem(_todayKey) || '{}'); } catch(e) { _rep = {}; }
+  var _key = String(S.idx);
+  var _times = _rep[_key] || 0;
+  var reward = 0;
+  if (firstClear) {
+    reward = base + firstBonus + (starsForReward-1)*5;
+  } else if (_times < 3) {
+    reward = Math.min(6, Math.round(base * 0.2));
+    _rep[_key] = _times + 1;
+    try { localStorage.setItem(_todayKey, JSON.stringify(_rep)); } catch(e) {}
+  } else {
+    reward = 0;
+  }
+  var total = Math.min(500, reward);
+  setBest(S.idx, stars);
+  setUnlock(S.idx);
+
+  // 更新 UI
+  $('rStars').textContent = starsStr(stars);
+  $('rTitle').textContent = '🎉 通關！';
+  $('rScore').textContent = '★'.repeat(stars);
+  $('rReward').textContent = '+'+total;
+  $('rSubK').textContent = (S.mode==='moves'||S.mode==='match')? '使用步數':'成績';
+  $('rMoves').textContent = (S.mode==='moves'||S.mode==='match')? S.moves : (stars+'星');
+  $('rBest').textContent = (getBest(S.idx)? ('⭐'.repeat(getBest(S.idx))):'-');
+  // 卦义科普
+  $('rWen').style.display='block';
+  $('rWenT').textContent = '第'+(S.idx+1)+'卦 · '+GUA_NAMES[S.idx];
+  $('rWenD').innerHTML = (GUA_MEAN[GUA_NAMES[S.idx]]||'') + '<br><b>序卦：</b>周易第 '+(S.idx+1)+' 卦。';
+  if (firstClear) {
+    $('rNote').textContent = '首通獎勵 +'+firstBonus+' 易币（含基礎）。';
+  } else if (total > 0) {
+    $('rNote').textContent = '重玩只給少量易币（每日每關限 3 次），想賺幣請挑戰新關卡。';
+  } else {
+    $('rNote').textContent = '本關今日獎勵已領完，請挑戰其他關卡。';
+  }
+  $('rNextBtn').style.display = 'block';
+  $('ovResult').classList.add('show');
+
+  // 上报易币
+  var reason = '通關 第'+(S.idx+1)+'關 '+GUA_NAMES[S.idx]+' '+stars+'星'+(firstClear?'（首通）':'');
+  if (total > 0) {
+    earnYibi(total, reason, function(got, ok){
+      if(ok){ $('rReward').textContent = '+'+got; }
+      else { $('rReward').textContent = '+0（易币達上限）'; }
+    });
+  } else {
+    $('rReward').textContent = '+0';
+  }
+}
+
+/* ================= 提示 ================= */
+function hintCost(){
+  return (S.mode==='guess')?15 : (S.mode==='daily')?20 : (S.mode==='match'||S.mode==='moves')?20 : (S.mode==='matchp')?25 : 30;
+}
+function updateHintBtn(){
+  $('hintBtn').textContent = (S.mode==='daily'? '⏭ 跳過 ':'💡 提示 ') + hintCost();
+}
+async function useHint(){
+  if(S.screen!=='game' || S.locked) return;
+  var cost = hintCost();
+  $('feedback').classList.remove('err');
+  $('feedback').textContent = '確認使用（'+cost+' 易币）？';
+  // 二次确认
+  if(!await Dlg.confirm((S.mode==='daily'?'跳過本題':'使用提示')+'將消耗 '+cost+' 易币，確定嗎？')) { $('feedback').textContent='已取消'; return; }
+  spendYibi(cost, '提示 第'+(S.idx+1)+'關', function(ok, msg){
+    if(!ok){ $('feedback').textContent = '✗ '+(msg||'易币不足'); $('feedback').classList.add('err'); return; }
+    S.hintUsed++;
+    applyHint();
+    updateHintBtn();
+  });
+}
+function applyHint(){
+  if(S.mode==='daily'){
+    // 跳过本题（不解答，仅换下一题）
+    S.dailyPtr++;
+    if(S.dailyPtr>=S.dailyQueue.length){ dailyEnd(); return; }
+    nextDailyGua();
+    $('feedback').textContent='已跳過本題';
+    return;
+  }
+  if(S.mode==='moves' || S.mode==='match'){
+    for(var i=0;i<6;i++){
+      if(S.work[i]!==S.target[i]){
+        var rows = i<3? $('upperRow'):$('lowerRow');
+        var idx = i<3? i : i-3;
+        var yao = rows.children[idx];
+        if(yao){ yao.classList.add('hl'); (function(yao){ setTimeout(function(){ yao.classList.remove('hl'); },1600); })(yao); }
+        $('feedback').textContent = '提示：切換第 '+(i+1)+' 爻';
+        break;
+      }
+    }
+  } else if(S.mode==='guess'){
+    $('targetHint').style.display='block';
+    $('targetHint').textContent = '卦義：'+(GUA_MEAN[GUA_NAMES[S.idx]]||'').replace(GUA_NAMES[S.idx]+'卦：','');
+    $('feedback').textContent = '提示：已顯示卦義（'+S.hintUsed+' 次）';
+  } else if(S.mode==='seq'){
+    var nt = S.seqAnswer[Math.min(S.seqStep,5)];
+    $('seqNext').textContent = '提示：下一個應為第 '+(nt+1)+' 卦';
+    $('feedback').textContent = '提示已顯示';
+  } else if(S.mode==='matchp'){
+    // 高亮一对尚未配对、且能配对的牌
+    var i1=-1,i2=-1;
+    for(var a=0;a<S.matchCards.length;a++){
+      if(S.matchCards[a].done) continue;
+      for(var b=a+1;b<S.matchCards.length;b++){
+        if(S.matchCards[b].done) continue;
+        if(S.matchCards[a].gi===S.matchCards[b].gi && S.matchCards[a].type!==S.matchCards[b].type){ i1=a; i2=b; break; }
+      }
+      if(i1>=0) break;
+    }
+    if(i1>=0){
+      [$('matchGrid').children[i1], $('matchGrid').children[i2]].forEach(function(el){
+        el.classList.add('sel'); setTimeout(function(){ el.classList.remove('sel'); }, 1600);
+      });
+    }
+    $('feedback').textContent = '提示：高亮一組可配對的牌';
+  }
+}
+
+/* ================= 每日挑战 ================= */
+function renderDailyInfo(){
+  var d = loadDaily();
+  $('dailyInfo').innerHTML = '今日已拼出 <b>'+d.count+'</b> 卦 · 今日最佳 <b>'+d.best+'</b> 卦'
+    + (d.firstDone? ' · 首通獎勵已領':' · 首通獎勵待領');
+  $('dailyBtn').textContent = d.count>0? '再玩一次（進度已記錄）' : '開始今日挑戰';
+}
+function dailyPool(){
+  // 每日固定顺序：用 seed 打乱 64 卦，但避开 seq 章节玩法；取前 N
+  var rnd = dailyRng(dailySeed());
+  var arr = [];
+  for(var i=0;i<64;i++) arr.push(i);
+  // Fisher-Yates with daily rng
+  for(var k=arr.length-1;k>0;k--){ var j=Math.floor(rnd()*(k+1)); var t=arr[k]; arr[k]=arr[j]; arr[j]=t; }
+  return arr;
+}
+function startDaily(){
+  clearTimer();
+  var d = loadDaily();
+  S.screen='game'; S.locked=false; S.hintUsed=0; S.daily=true; S.dailyCount=d.count;
+  S.mode='daily';
+  $('lvName').textContent = '每日挑戰';
+  $('lvSub').textContent = '90秒 · 拼出最多卦';
+  $('hudK').textContent='已拼'; $('hudM').textContent = Math.min(d.count, DAILY_MAX_GUA);
+  $('hudBest').textContent = d.best? ('⭐'+d.best):'-';
+  $('hudTarget').textContent = '-';
+  ['choices','seqWrap','matchWrap'].forEach(function(id){ $(id).style.display='none'; });
+  $('workArea').style.display='block';
+  $('actions').style.display='flex';
+  $('submitBtn').style.display='block';
+  updateHintBtn();
+  $('tgtLab').textContent='目標卦象';
+  $('ovResult').classList.remove('show');
+  // 每日挑战队列
+  S.dailyQueue = dailyPool();
+  S.dailyPtr = 0;
+  nextDailyGua();
+  show('s-game');
+  startTimer(90, dailyEnd);
+}
+function nextDailyGua(){
+  if(S.dailyPtr >= S.dailyQueue.length){ dailyEnd(); return; }
+  var gi = S.dailyQueue[S.dailyPtr];
+  S.idx = gi; S.target = targetOf(gi); S.targetName = GUA_NAMES[gi];
+  S.work = [1,1,1,1,1,1]; S.moves=0; S.maxMoves=99;
+  var ty = $('targetYao'); ty.innerHTML=''; ty.appendChild(miniGua(S.target,30,22));
+  $('targetName').textContent = S.targetName;
+  $('targetMeaning').textContent = GUA_MEAN[S.targetName]||'';
+  $('targetHint').style.display='none';
+  renderWork(); updateUpperLowerName();
+  $('feedback').textContent='拼出 '+S.targetName+' 卦';
+  $('feedback').classList.remove('err');
+  S.dailySolvedInRow = 0;
+}
+function checkDailySubmit(){
+  var ok=true;
+  for(var i=0;i<6;i++){ if(S.work[i]!==S.target[i]){ ok=false; break; } }
+  if(!ok){ $('feedback').textContent='✗ 不對！'; $('feedback').classList.add('err'); if(window.SFX&&SFX.wrong)SFX.wrong(); return; }
+  // 正确
+  if(window.SFX && SFX.correct) SFX.correct();
+  S.dailyPtr++;
+  var d = loadDaily();
+  if(d.count < DAILY_MAX_GUA){
+    d.count++;
+    // 每卦 4 易币
+    earnYibi(4, '每日挑戰 第'+d.count+'卦 '+S.targetName, function(){});
+    // 首通奖励
+    if(!d.firstDone && d.count>=1){
+      d.firstDone = true;
+      earnYibi(DAILY_FIRST_BONUS, '每日挑戰 首通獎勵', function(){});
+    }
+  }
+  if(d.count>d.best) d.best = d.count;
+  saveDaily(d);
+  $('hudM').textContent = d.count;
+  $('hudBest').textContent = d.best? ('⭐'+d.best):'-';
+  refreshBadge(); syncEarnBar();
+  if(S.dailyPtr>=S.dailyQueue.length){ dailyEnd(); return; }
+  nextDailyGua();
+}
+function dailyEnd(){
+  clearTimer(); S.locked=true;
+  var d = loadDaily();
+  if(window.SFX && SFX.win) SFX.win();
+  $('rStars').textContent = '🎯';
+  $('rTitle').textContent = '每日挑戰結束';
+  $('rScore').textContent = d.count+' 卦';
+  $('rReward').textContent = '已計入今日';
+  $('rSubK').textContent='今日累計';
+  $('rMoves').textContent = d.count + (d.count>=DAILY_MAX_GUA?'（達上限）':'');
+  $('rBest').textContent = d.best? ('⭐'+d.best):'-';
+  $('rWen').style.display='none';
+  $('rNote').textContent = '每卦 +4 易币 · 首通 +'+DAILY_FIRST_BONUS+' 易币（每日一次）· 明日 00:00 刷新。';
+  $('rNextBtn').style.display='none';
+  $('rNextBtn').setAttribute('onclick','quitGame()');
   $('ovResult').classList.add('show');
 }
 
-/* ============ 关卡列表 ============ */
-function renderLevels(){
-  var wrap = $('levels'); wrap.innerHTML='';
-  var unlock = +(localStorage.getItem('bg_unlock')||1);
-  for(var i=0;i<GUA_NAMES.length;i++){
-    var locked = i+1 > unlock;
-    var done = i+1 < unlock;
-    var name = GUA_NAMES[i];
-    var d = document.createElement('div');
-    d.className = 'lv' + (locked?' locked':'') + (done?' done':'');
-    d.innerHTML = '<div class="n">'+name+'</div><div class="g">'+(locked?'🔒':'第'+(i+1)+'關')+'</div>';
-    if(!locked){ (function(i){ d.addEventListener('click', function(){ startLevel(i); }); })(i); }
-    wrap.appendChild(d);
-  }
+/* ================= 通用 ================= */
+function nextLevel(){
+  if(S.daily){ quitGame(); return; }
+  var n = S.idx+1;
+  if(n<GUA_NAMES.length) startLevel(n); else quitGame();
 }
-function nextLevel(){ var n=S.cfg.idx+1; if(n<GUA_NAMES.length) startLevel(n); else quitGame(); }
-function quitGame(){ S.screen='levels'; $('ovResult').classList.remove('show'); show('s-levels'); renderLevels(); }
+function quitGame(){
+  clearTimer(); S.screen='levels'; S.daily=false; S.locked=false;
+  $('ovResult').classList.remove('show');
+  $('rNextBtn').setAttribute('onclick','nextLevel()');
+  $('submitBtn').style.display='block';
+  show('s-levels');
+  renderLevels();
+  refreshBadge(); syncEarnBar();
+}
 function show(id){
   document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
   $(id).classList.add('active');
 }
 
-/* ============ 启动 ============ */
+/* 提交按钮统一分发 */
+function onSubmitClick(){
+  if(S.mode==='daily'){ checkDailySubmit(); return; }
+  if(S.mode==='guess'){ return; }              // 由选项判定
+  if(S.mode==='seq' || S.mode==='matchp'){ return; }
+  checkWin();
+}
+
+/* 暴露给按钮属性（onclick 中调用），确保 window 上可用 */
+window.quitGame = quitGame; window.nextLevel = nextLevel; window.resetWork = resetWork;
+window.checkWin = checkWin; window.useHint = useHint; window.startLevel = startLevel;
+window.switchTab = switchTab; window.startDaily = startDaily; window.onSubmitClick = onSubmitClick;
+
+/* ================= 启动 ================= */
 renderLevels();
+initCloudSave();   // 本地先渲染（上方已完成），再异步拉云合并（契约C4）
 bindWorkArea();
+updateHintBtn();
+renderDailyInfo();
+refreshBadge(); syncEarnBar();
+$('submitBtn').onclick = onSubmitClick;
 try{
   if(window.ToolIntro && ToolIntro.mount){
     ToolIntro.mount({
       tool:'bagua', icon:'🔮', title:'天機八卦解謎',
-      slogan:'陰陽爻拼出目標卦象，<br>六十四卦皆為關卡，<br>純腦力解謎遊戲。',
+      slogan:'陰陽爻拼卦 · 六大玩法連關，<br>六十四卦皆為關卡，<br>純腦力易理遊戲。',
       steps:[
-        '每關給出<b>目標卦</b>（六十四卦之一）與<b>限定步數</b>；',
-        '每步點擊任一爻可切換陰陽；上方 3 爻 = <b>上卦</b>，下方 3 爻 = <b>下卦</b>；',
-        '在步數內拼出目標卦即通關，星數 = 剩餘步數；',
-        '「💡 提示」會高亮第一個需翻轉的爻；「↻ 重置」回到初始狀態；',
-        '64 關對應六十四卦，從「乾」「坤」等簡單卦到「明夷」「未濟」等難卦。',
+        '第一章<b>八卦啟蒙</b>：不限步，拼出完整卦象，熟悉陰陽爻；',
+        '第二章<b>限步拼卦</b>：在限定步數內拼出目標卦，步數越省星越多；',
+        '第三章<b>卦象辨析</b>：限時看卦象、選卦名，考驗易理積累；',
+        '第四章<b>序卦連線</b>：依周易卦序依次點選 6 卦；',
+        '第五章<b>卦象配對</b>：翻牌配對「卦象 ↔ 卦名」；',
+        '「💡 提示」消耗易币；通關得易币（難度遞增，首通額外加碼）；',
+        '每日挑戰限時 90 秒拼卦，每卦 +4 易币，首通額外 +30。'
       ],
       note:'⚠️ 本遊戲為休閒益智娛樂，命理僅供文化參考，不涉及任何真實賭博或金錢兌換。',
-      onEnter:function(){ show('s-levels'); renderLevels(); }
+      onEnter:function(){ show('s-levels'); renderLevels(); refreshBadge(); syncEarnBar(); }
     });
   }
 }catch(e){}
 </script>
+<script>
+// i18n TIPatch for bagua-puzzle page
+TIPatch({}, {
+  "天机": {"en":"Tianji","zhTW":"天機"},
+  "八字": {"en":"BaZi","zhTW":"八字"},
+  "卦盘": {"en":"Chart","zhTW":"卦盤"},
+  "商城": {"en":"Mall","zhTW":"商城"},
+  "学堂": {"en":"School","zhTW":"學堂"},
+  "我的": {"en":"Me","zhTW":"我的"},
+  "🔮 天機八卦解謎": {"en":"🔮 BaGua Puzzle","zhTW":"🔮 天機八卦解謎"},
+  "陰陽爻拼卦 · 六十四卦關卡": {"en":"Yin-Yang lines · 64 Hexagrams","zhTW":"陰陽爻拼卦 · 六十四卦關卡"},
+  "🪙 易币 —": {"en":"🪙 Coins —","zhTW":"🪙 易幣 —"},
+  "今日已賺": {"en":"Earned today","zhTW":"今日已賺"},
+  "易币": {"en":"coins","zhTW":"易幣"},
+  "每日上限": {"en":"Daily cap","zhTW":"每日上限"},
+  "📜 易理連關": {"en":"📜 Story Levels","zhTW":"📜 易理連關"},
+  "🎯 每日挑戰": {"en":"🎯 Daily Challenge","zhTW":"🎯 每日挑戰"},
+  "🎯 每日挑戰 · 限時90秒": {"en":"🎯 Daily Challenge · 90s","zhTW":"🎯 每日挑戰 · 限時90秒"},
+  "開始今日挑戰": {"en":"Start Daily Challenge","zhTW":"開始今日挑戰"},
+  "每日 00:00 刷新 · 獎勵每日僅首次領取": {"en":"Resets at 00:00 · Reward once per day","zhTW":"每日 00:00 刷新 · 獎勵每日僅首次領取"},
+  "本遊戲為休閒益智娛樂，所有分數均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。": {"en":"This game is for entertainment only. All scores are virtual.","zhTW":"本遊戲為休閒益智娛樂，所有分數均為虛擬娛樂，不涉及任何真實賭博或金錢兌換。"},
+  "命理僅供文化參考。": {"en":"For cultural reference only.","zhTW":"命理僅供文化參考。"},
+  "目標": {"en":"Target","zhTW":"目標"},
+  "剩餘步": {"en":"Moves Left","zhTW":"剩餘步"},
+  "步數": {"en":"Moves","zhTW":"步數"},
+  "限時": {"en":"Time","zhTW":"限時"},
+  "步驟": {"en":"Step","zhTW":"步驟"},
+  "配對": {"en":"Match","zhTW":"配對"},
+  "最高星": {"en":"Best Stars","zhTW":"最高星"},
+  "目標卦象": {"en":"Target Hexagram","zhTW":"目標卦象"},
+  "你的卦象（點爻切換陰陽）": {"en":"Your Hexagram (tap lines to toggle)","zhTW":"你的卦象（點爻切換陰陽）"},
+  "上卦": {"en":"Upper Trigram","zhTW":"上卦"},
+  "下卦": {"en":"Lower Trigram","zhTW":"下卦"},
+  "點擊爻切換陰陽": {"en":"Tap lines to toggle Yin/Yang","zhTW":"點擊爻切換陰陽"},
+  "提交": {"en":"Submit","zhTW":"提交"},
+  "↻ 重置": {"en":"↻ Reset","zhTW":"↻ 重置"},
+  "通關！": {"en":"Cleared!","zhTW":"通關！"},
+  "易币獎勵": {"en":"Coin Reward","zhTW":"易幣獎勵"},
+  "使用步數": {"en":"Moves Used","zhTW":"使用步數"},
+  "歷史最佳": {"en":"Best Record","zhTW":"歷史最佳"},
+  "選關": {"en":"Levels","zhTW":"選關"},
+  "下一關": {"en":"Next Level","zhTW":"下一關"},
+  "卦義": {"en":"Hexagram Meaning","zhTW":"卦義"},
+  "再試一次吧！": {"en":"Try again!","zhTW":"再試一次吧！"},
+  "挑戰失敗": {"en":"Challenge Failed","zhTW":"挑戰失敗"},
+  "每日挑戰結束": {"en":"Daily Challenge Ended","zhTW":"每日挑戰結束"},
+  "卦": {"en":"hexagrams","zhTW":"卦"},
+  "不對！再試試": {"en":"Wrong! Try again","zhTW":"不對！再試試"},
+  "✔ 正確！": {"en":"✔ Correct!","zhTW":"✔ 正確！"},
+  "✔ 正確": {"en":"✔ Correct","zhTW":"✔ 正確"},
+  "✗ 不對！": {"en":"✗ Wrong!","zhTW":"✗ 不對！"},
+  "✗ 次序不對": {"en":"✗ Wrong order","zhTW":"✗ 次序不對"},
+  "✗ 配對失敗": {"en":"✗ Match failed","zhTW":"✗ 配對失敗"},
+  "✔ 配對成功": {"en":"✔ Matched!","zhTW":"✔ 配對成功"},
+  "步數已用盡，可重試或重置": {"en":"Out of moves. Reset or retry.","zhTW":"步數已用盡，可重試或重置"},
+  "已重置": {"en":"Reset","zhTW":"已重置"},
+  "已取消": {"en":"Cancelled","zhTW":"已取消"},
+  "易币不足": {"en":"Insufficient coins","zhTW":"易幣不足"},
+  "網絡錯誤": {"en":"Network error","zhTW":"網絡錯誤"},
+  "翻開兩張，配對「卦象 ↔ 卦名」": {"en":"Flip two cards to match image ↔ name","zhTW":"翻開兩張，配對「卦象 ↔ 卦名」"},
+  "依周易卦序，從起點卦開始依序點選": {"en":"Click hexagrams in Zhouyi order","zhTW":"依周易卦序，從起點卦開始依序點選"},
+  "看卦象，選出正確的卦名。": {"en":"Look at the hexagram, choose the correct name.","zhTW":"看卦象，選出正確的卦名。"},
+  "謎面（猜此卦名）": {"en":"Mystery (guess the name)","zhTW":"謎面（猜此卦名）"},
+  "提示": {"en":"Hint","zhTW":"提示"},
+  "確認": {"en":"Confirm","zhTW":"確認"},
+  "第一章 · 八卦啟蒙": {"en":"Chapter 1 · Trigram Basics","zhTW":"第一章 · 八卦啟蒙"},
+  "第二章 · 限步拼卦": {"en":"Chapter 2 · Move-Limited","zhTW":"第二章 · 限步拼卦"},
+  "第三章 · 卦象辨析": {"en":"Chapter 3 · Hexagram ID","zhTW":"第三章 · 卦象辨析"},
+  "第四章 · 序卦連線": {"en":"Chapter 4 · Sequence","zhTW":"第四章 · 序卦連線"},
+  "第五章 · 卦象配對": {"en":"Chapter 5 · Matching","zhTW":"第五章 · 卦象配對"}
+});
+</script>
+
 </body>
 </html>

@@ -44,7 +44,11 @@
     x.type = 'button'; x.textContent = '✕';
     x.style.cssText = 'padding:8px 10px;border-radius:8px;border:0;background:transparent;color:#9a8a6a;font-size:15px';
     x.onclick = function (e) { e.stopPropagation(); window.__pbBannerClosed = true; try { bar.parentNode.removeChild(bar); } catch (er) {} };
-    bar.appendChild(t); bar.appendChild(b1); bar.appendChild(b2); bar.appendChild(x);
+    var bk=document.createElement('button');
+    bk.type='button';bk.textContent='← 返回';
+    bk.style.cssText='padding:11px 12px;border-radius:9px;border:1px solid #3a2e1e;background:transparent;color:#9a8a6a;font-size:14px;font-weight:700;white-space:nowrap';
+    bk.onclick=function(e){e.stopPropagation();try{bar.parentNode.removeChild(bar)}catch(er){};if(window.history&&window.history.length>1)window.history.back();};
+    bar.appendChild(t); bar.appendChild(bk); bar.appendChild(b1); bar.appendChild(b2); bar.appendChild(x);
     (document.body || document.documentElement).appendChild(bar);
   }
 
