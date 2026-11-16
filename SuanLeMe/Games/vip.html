@@ -113,6 +113,13 @@ h2{font-size:15px;font-weight:800;color:var(--gold);margin:18px 16px 10px;letter
     <button class="btn" id="btnYear" onclick="buy('year')">訂閱年卡</button>
   </div>
 
+  <div class="note" style="margin:14px 16px 0;padding:12px 14px;border:1px solid rgba(212,175,55,.35);border-radius:12px;line-height:1.85">
+    <b style="color:#d4af37">會員與黑卡的關係</b><br>
+    · 月卡 US$1.99／年卡 US$39.99：都是 <b>VIP 會員（同一等級）</b>，分別贈 500／3000 易幣與 5／60 次工具額度，工具按次扣減。<br>
+    · 黑卡 US$99.99 工具年卡：在會員權益之上<b>再疊加 365 天工具不限次</b>，並非與會員互斥；到期後回到按次扣減。<br>
+    · 易幣只用於遊戲，不能用於工具，兩者是不同的東西。
+  </div>
+
   <h2 id="secTool">工具能量包</h2>
   <div id="toolList"></div>
 
@@ -299,8 +306,15 @@ function loadVipExpire(){
       } else {
         var soon = msLeft <= 3 * 86400000;   // 到期前 3 天内
         box.className = soon ? 'expire warn' : 'expire';
-        box.textContent = (lv >= 3 ? '黑卡会员' : 'VIP会员') + '有效期至 ' + String(_vipExpire).slice(0,10) +
+        /* 2026-11-17 统一口径：月卡/年卡同为 VIP会员(level 1)；
+           黑卡 = 会员权益之上叠加 365 天工具不限次（靠 is_black/unlimited_expire 判定，不靠等级号）。 */
+        var _nm = 'VIP会员';
+        if (u.is_black || u.unlimited_expire) _nm += ' + 黑卡';
+        box.textContent = _nm + '有效期至 ' + String(_vipExpire).slice(0,10) +
                           '（剩 ' + (left > 0 ? left + ' 天' : '不到 1 天') + '）';
+        if ((u.quota_remain || 0) > 0) {
+          box.textContent += '｜工具剩 ' + u.quota_remain + ' 次';
+        }
         if (soon && !_remindShown){
           _remindShown = true;
           setTimeout(function(){ showRenewDialog(left); }, 600);

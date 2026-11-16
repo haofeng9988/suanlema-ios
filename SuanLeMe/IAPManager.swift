@@ -12,6 +12,11 @@ final class IAPManager {
     static let shared = IAPManager()
     private var updatesTask: Task<Void, Never>?
 
+    /// 2026-11-17：续订/App 外完成/家人共享的交易，必须把 JWS 交回服务端验单发货，
+    /// 否则第二个月起自动续费的用户拿不到易币和工具次数（只有 ASSN 后台通知一条路）。
+    /// 由 ViewController 赋值：(productId, jws) -> Void
+    var onVerifiedTransaction: ((String, String) -> Void)?
+
     private init() {}
 
     /// 监听交易更新（App 外完成、订阅续费、家人共享等）
@@ -21,9 +26,13 @@ final class IAPManager {
             for await result in Transaction.updates {
                 guard let self = self else { continue }
                 if case .verified(let transaction) = result {
-                    // 交给服务端校验（网页层在下次轮询/启动时会核对），这里仅结束交易
+                    // 先把 JWS 交给服务端验单发货（幂等：同一 transactionId 只发一次）
+                    let jws = result.jwsRepresentation
+                    let pid = transaction.productID
                     await transaction.finish()
-                    _ = transaction
+                    if !jws.isEmpty {
+                        self.onVerifiedTransaction?(pid, jws)
+                    }
                 }
             }
         }
@@ -82,7 +91,7 @@ final class IAPManager {
         }
     }
 
-    /// 恢复购买：返回当前所有有效交易的 JWS 列表
+    /// 恢复购买：返回当前所有有效交易的 JWS 列表（必须带 jws，服务端凭它验单发货）
     func restore() async -> [[String: Any]] {
         var out: [[String: Any]] = []
         for await result in Transaction.currentEntitlements {
@@ -90,9 +99,9 @@ final class IAPManager {
                 out.append([
                     "productId": transaction.productID,
                     "transactionId": String(transaction.id),
-                    "originalId": String(transaction.originalID)
+                    "originalId": String(transaction.originalID),
+                    "jws": result.jwsRepresentation
                 ])
-                _ = transaction
             }
         }
         return out

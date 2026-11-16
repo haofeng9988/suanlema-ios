@@ -39,8 +39,33 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         setupLoadingView()
         loadStart()
         if #available(iOS 15.0, *) {
+            // 2026-11-17：续订/App 外完成的交易也要发货。
+            // 以前只 finish()，第二个月起自动续费的用户拿不到易币和工具次数。
+            IAPManager.shared.onVerifiedTransaction = { [weak self] productId, jws in
+                self?.reportIAPTransaction(productId: productId, jws: jws)
+            }
             IAPManager.shared.startObserving()
         }
+    }
+
+    /// 把续订等交易的 JWS 交给服务端验单发货（服务端按 transactionId 幂等，重复上报不会双发）
+    private func reportIAPTransaction(productId: String, jws: String) {
+        guard !jws.isEmpty, let url = URL(string: apiBase + "/api/iap/verify") else { return }
+        var req = URLRequest(url: url)
+        req.httpMethod = "POST"
+        req.timeoutInterval = 25
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if !authToken.isEmpty { req.setValue(authToken, forHTTPHeaderField: "X-Token") }
+        req.setValue(apiBase, forHTTPHeaderField: "Origin")
+        req.setValue(apiBase + "/", forHTTPHeaderField: "Referer")
+        let body: [String: Any] = ["jws": jws, "product_id": productId]
+        req.httpBody = try? JSONSerialization.data(withJSONObject: body, options: [])
+        URLSession.shared.dataTask(with: req) { data, resp, err in
+            let status = (resp as? HTTPURLResponse)?.statusCode ?? 0
+            let text = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
+            NSLog("[wanleme] iap renewal report %@ status=%d body=%@", productId, status, text.prefix(200))
+            _ = err
+        }.resume()
     }
 
     private func setupWebView() {
