@@ -63,8 +63,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         URLSession.shared.dataTask(with: req) { data, resp, err in
             let status = (resp as? HTTPURLResponse)?.statusCode ?? 0
             let text = data.flatMap { String(data: $0, encoding: .utf8) } ?? ""
-            NSLog("[wanleme] iap renewal report %@ status=%d body=%@", productId, status, text.prefix(200))
-            _ = err
+            // 注：Swift 6 下 NSLog 的变参形式不可用，改用字符串插值上报日志
+            print("[wanleme] iap renewal report \(productId) status=\(status) body=\(String(text.prefix(200))) err=\(err?.localizedDescription ?? "-")")
         }.resume()
     }
 
