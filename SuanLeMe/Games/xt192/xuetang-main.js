@@ -900,7 +900,9 @@ async function showMyPanel(type){
   else if(type==='deleteAccount'){title='⚠️ 注销账号';body=panelDeleteAccount();}
   else if(type==='myrefunds'){title='↩️ 我的退款申请';body=await panelMyRefunds();}
   else if(type==='kefu'){title='💬 在线客服';body=panelKefu();}
-  else if(type==='exchange'){title='🏦 找换店';body=await panelExchange();}
+  /* 2026-11-17 老板要求：下架「易币兑换」入口。兑换渠道上线前，找换店面板不对外开放；
+     相关入口/按钮/弹窗/兑换窗口一并隐藏。渠道上线后删掉下面这行判断即可恢复。 */
+  else if(type==='exchange'){return;}
   document.getElementById('panelTitle').textContent=title;
   document.getElementById('panelBody').innerHTML=body;
   document.getElementById('panelModal').classList.add('show');
@@ -1488,7 +1490,7 @@ async function doYibiExchange(){
     let body=_ybDir==='buy'?{points:amount}:{amount:amount};
     let r=await fetch(API+path,{method:'POST',headers:{...h(),'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
     alert(r.msg||'已提交');
-    if(r.ok){if(USER){USER.points=r.points;USER.yibi=r.yibi;}showMyPanel('exchange');}
+    if(r.ok){if(USER){USER.points=r.points;USER.yibi=r.yibi;}showMyPanel('wallet');}
   });
 }
 async function doTransfer(){
