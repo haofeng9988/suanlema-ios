@@ -138,6 +138,8 @@
       subtitle: opts.subtitle || opts.score_line || '',
       brand: opts.brand || '算了吗',
       chart_svg: opts.chart_svg || '',
+      // 2026-11-21：邀请码显式透传（缺省时后端按登录用户兜底）
+      invite_code: opts.invite_code || '',
       bg: _normBg(opts.bg)
     };
   }
