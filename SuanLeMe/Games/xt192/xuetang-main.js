@@ -1606,44 +1606,47 @@ async function delAddress(id){
 async function panelInvite(){
   let r=await fetch(API+'/api/my/invite',{headers:h()}).then(r=>r.json());
   let code=r.ok?r.invite_code:'';
-  let link='https://tianji.matetechhk.com'+'/xuetang?ref='+code;
+  // 包内页面是 file:// 环境，location.origin 无效，链接必须用站点绝对地址
+  let link='https://tianji.matetechhk.com/xuetang?ref='+code;
   let stats='';
-  let team='';
   if(r.ok){
-    let nextTxt=r.agent_next?`（再邀 ${(r.agent_req-r.level1_count)>0?(r.agent_req-r.level1_count):0} 人升 ${r.agent_next}）`:'（已满级）';
-    stats=`<div style="background:var(--bg);border:1px solid var(--gold);border-radius:10px;padding:12px;margin-top:10px;text-align:left;font-size:13px;line-height:1.9;color:var(--text)">
-      <div style="color:var(--gold);font-size:14px;font-weight:700">🌟 ${r.agent_name}（${r.agent_level}级）</div>
-      <div>一级 ${r.level1_count||0} 人 · 二级 ${r.level2_count||0} 人 · 一级奖励 ${r.total1||0} · 二级奖励 ${r.total2||0} · 累计 ${r.total_commission}（${r.commission_currency==='coins'?'易币':(r.commission_currency==='both'?'易币+易币':'易币')}）</div>
-      <div style="color:var(--sub)">${nextTxt}</div>
+    // 2026-11-20 统一口径：只讲邀请福利，不出现奖励/等级数据（App 商店合规）
+    stats=`<div style="background:var(--bg);border:1px solid var(--c2);border-radius:10px;padding:12px;margin-top:10px;text-align:left;font-size:13px;line-height:1.9;color:var(--text)">
+      <div>已邀请 ${r.level1_count||0} 位好友</div>
+      <div style="color:var(--sub);font-size:12px">好友注册后可正常使用全部功能</div>
     </div>`;
-    let refs=r.referees||[];
-    if(refs.length>0){
-      team='<div style="margin-top:12px;text-align:left;font-size:13px;color:var(--gold);font-weight:700">🌳 我的团队</div>'+refs.map(function(rr){
-        let vipTag=rr.vip_level>0?`<span style="color:var(--gold)">· VIP${rr.vip_level}</span>`:'';
-        let subsHtml=rr.subs&&rr.subs.length>0?`<div style="margin-left:14px;border-left:1px dashed var(--c2);padding-left:10px;margin-top:4px">`+rr.subs.map(function(s){
-          let svip=s.vip_level>0?`<span style="color:var(--gold)">· VIP${s.vip_level}</span>`:'';
-          return `<div style="font-size:12px;color:var(--sub);padding:3px 0">↳ ${s.name||'未实名'} <span style="color:var(--c2)">#${s.id} · ${s.phone||''}</span> ${svip}</div>`;
-        }).join('')+`</div>`:'';
-        return `<div style="padding:8px 0;border-bottom:1px solid var(--c2);text-align:left">
-          <div style="font-size:14px;color:var(--text);display:flex;justify-content:space-between"><span>${rr.name||'未实名'} <span style="color:var(--c2);font-size:12px">#${rr.id} · ${rr.phone||''}</span> ${vipTag}</span><span style="font-size:12px;color:var(--sub)">${rr.sub_count||0} 个下级</span></div>
-          ${subsHtml}
-        </div>`;
-      }).join('');
-    }else{
-      team='<p style="color:var(--sub);font-size:12px;margin-top:8px">暂无一级团队成员，快去邀请好友吧～</p>';
-    }
   }
   return `<div style="text-align:center;padding:20px">
     <div style="color:var(--sub);font-size:13px">我的邀请码</div>
     <div style="font-size:32px;color:var(--gold);font-weight:700;letter-spacing:3px;margin:8px 0">${code||'-'}</div>
-    <div style="color:var(--sub);font-size:12px;margin-bottom:16px">好友通过你的链接注册，你可得邀请奖励易币</div>
-    <button class="btn" style="background:var(--gold);color:var(--bg)" onclick="copyInvite('${link}')">复制邀请链接</button>
+    <div style="color:var(--sub);font-size:12px;margin-bottom:16px">好友通过你的链接注册，即可开始使用</div>
+    <button class="btn" style="background:var(--gold);color:var(--bg)" onclick="openInvitePoster('${code||''}')">📲 生成邀请海报</button>
+    <button class="btn" style="background:var(--c2);color:var(--gold);margin-top:8px" onclick="copyInvite('${link}','${code||''}')">复制邀请链接</button>
+    <div style="color:var(--text);font-size:13.5px;line-height:2;margin:12px 0 4px;text-align:center">
+      安卓用户进入 Google Play 商店，输入「算了吗易游」<br>
+      苹果用户进入 iOS App Store，输入「算了吗易游」
+    </div>
     ${stats}
-    ${team}
   </div>`;
 }
-async function copyInvite(link){
-  try{await navigator.clipboard.writeText(link);alert('已复制邀请链接');}catch(e){prompt('复制此链接',link);}
+/* 2026-11-20：邀请面板直接出统一海报（品牌 + 我的邀请码 + 双下载徽章） */
+function openInvitePoster(code){
+  if(!window.UnifiedShare||!UnifiedShare.open){alert('海报组件加载中，请稍后重试');return;}
+  if(!code){alert('登录后即可生成邀请海报');return;}
+  try{closePanel();}catch(e){}
+  UnifiedShare.open({tool:'会员邀请',invite_code:code});
+}
+async function copyInviteCode(code){
+  if(!code){alert('邀请码获取失败，请稍后重试');return;}
+  try{await navigator.clipboard.writeText(code);alert('已复制邀请码：'+code);}catch(e){prompt('复制邀请码',code);}
+}
+async function copyInvite(link,code){
+  var txt='【算了吗易游】我的邀请码：'+(code||'-')
+    +'\n下载地址：'+link
+    +'\n安卓用户：进入 Google Play 商店，搜索「算了吗易游」下载'
+    +'\n苹果用户：进入 iOS App Store，搜索「算了吗易游」下载'
+    +'\n注册时请填写邀请码：'+(code||'-');
+  try{await navigator.clipboard.writeText(txt);alert('已复制邀请链接与邀请码');}catch(e){prompt('复制以下内容',txt);}
 }
 async function panelSettings(){
   let r=await fetch(API+'/api/me',{headers:h()}).then(r=>r.json());

@@ -12,9 +12,15 @@
 (function(global){
   'use strict';
   var _invite = '';
+  var SITE = 'https://tianji.matetechhk.com';
   var API = (function(){
     // 推断 API 前缀（与各页保持一致）；为空则用同源
-    return ((global.API || '') && String(global.API).replace(/\/$/,'')) || location.origin;
+    var b = ((global.API || '') && String(global.API).replace(/\/$/,''));
+    if (b) return b;
+    // 内置页（App 首屏）走 file://，location.origin 为 "file://" 或 "null"，
+    // 直接用会拼出无效接口地址 → 海报接口 404。此时固定走生产站点。
+    try{ if (location.protocol === 'file:') return SITE; }catch(e){}
+    return location.origin;
   })();
 
   function token(){
@@ -35,7 +41,9 @@
     }catch(e){ cb(''); }
   }
   function buildLink(path){
-    var base = location.origin + (path || location.pathname);
+    var _o = location.origin;
+    try{ if (location.protocol === 'file:' || !_o || _o === 'null' || _o === 'file://') _o = SITE; }catch(e){ _o = SITE; }
+    var base = _o + (path || location.pathname);
     var code = _invite || '';
     return base + (base.indexOf('?')>=0 ? '&' : '?') + 'ref=' + encodeURIComponent(code);
   }
