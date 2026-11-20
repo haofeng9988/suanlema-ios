@@ -356,6 +356,7 @@ body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;backgr
 
 <script>
 var REMOTE_BASE = 'https://tianji.matetechhk.com';
+var APP_VER = '20261120a';   // 页面版本串：改版时更新，用于强制取新
 var TABS = ['games', 'tools', 'mall', 'course', 'me'];
 
 function switchTab(name) {
@@ -370,7 +371,16 @@ function switchTab(name) {
   window.scrollTo(0, 0);
 }
 
-function go(f) { location.href = f; }
+/* 2026-11-20 修复：菜单点击后跳到旧版页面。
+   根因：go() 用相对路径（如 'millionaire.html'），App 内 WebView 走 file:// 时
+   命中安装包内附带的旧副本，必须完全退出 App 才刷新。
+   修正：一律走服务器绝对地址 + 版本串，保证每次点击取线上最新页。 */
+function go(f) {
+  if (!f) return;
+  var page = String(f).replace(/^\.?\/+/, '');
+  if (/^https?:\/\//i.test(page)) { location.href = page; return; }
+  location.href = REMOTE_BASE + '/' + page + '?v=' + APP_VER;
+}
 
 function openRemote(path) {
   if (!path) return;
