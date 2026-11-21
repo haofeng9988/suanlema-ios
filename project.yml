@@ -18,7 +18,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.suanleme.yixue.wanleme
         MARKETING_VERSION: "2.1.1"
-        CURRENT_PROJECT_VERSION: "37"
+        CURRENT_PROJECT_VERSION: "38"
         INFOPLIST_KEY_CFBundleDisplayName: "算了吗·易游"
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
@@ -36,6 +36,10 @@ targets:
         # 保存分享海报到相册（原生写入，避免 WebView 处理 data: 大图闪退）
         NSPhotoLibraryAddUsageDescription: "保存游戏分享海报到相册"
         NSPhotoLibraryUsageDescription: "保存游戏分享海报到相册"
+        # 2026-11-21 补：相术/面相手相页在 App 内走 getUserMedia 实时相机，
+        # WKWebView 缺 NSCameraUsageDescription 会导致相机无法调起（甚至进程被终止）。
+        NSCameraUsageDescription: "拍摄面相、手相照片用于 AI 分析"
+        NSMicrophoneUsageDescription: "录制语音用于 AI 对话与合盘分析"
         UILaunchStoryboardName: ""
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
