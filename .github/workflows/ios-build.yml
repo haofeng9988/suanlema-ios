@@ -81,6 +81,16 @@ jobs:
             "$PROJECT/../SuanLeMe/Info.plist" 2>/dev/null || true
           ls -la
 
+      - name: Prune expired signing certificates
+        if: always()
+        env:
+          ASC_KEY_PATH: ${{ runner.temp }}/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          set +e
+          node .github/scripts/asc-certs.js 2>&1 | tee -a "$GITHUB_STEP_SUMMARY" || true
+
       - name: Archive
         env:
           MV: ${{ inputs.marketing_version }}
