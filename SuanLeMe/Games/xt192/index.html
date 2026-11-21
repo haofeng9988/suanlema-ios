@@ -897,12 +897,51 @@ body[data-theme="white"]{color-scheme:light}
   <div style="font-size:12px;color:var(--sub);margin-bottom:4px" data-i18n="支持手机号或邮箱登录">支持手机号或邮箱登录</div>
   <input type="text" id="loginAccount" placeholder="手机号 / 邮箱" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="username">
   <input type="password" id="loginPw" placeholder="密码" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="current-password">
+  <!-- 2026-11-21：登录界面必须有清晰「忘记密码」入口 -->
+  <div style="text-align:right;margin:-2px 0 6px"><a href="javascript:;" onclick="openReset()" style="color:var(--gold);font-size:13px;text-decoration:none;font-weight:700" data-i18n="忘记密码？">忘记密码？</a></div>
   <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);margin:2px 0 4px;cursor:pointer"><input type="checkbox" id="loginRemember" style="width:auto;margin:0 2px 0 0;flex:0 0 auto"> 记住密码</label>
   <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);margin:0 0 8px;cursor:pointer"><input type="checkbox" id="loginKeep" style="width:auto;margin:0 2px 0 0;flex:0 0 auto"> 保持登录（下次自动登录）</label>
   <button class="btn" style="background:var(--gold);color:var(--bg)" onclick="doLogin()" data-i18n="登录">登录</button>
   <button class="btn" style="background:transparent;border:1px solid var(--gold);color:var(--gold);margin-top:8px" onclick="switchAuth('reg')" data-i18n="没有账号？注册">没有账号？注册</button>
   <button class="btn" style="background:var(--c2);color:var(--sub);margin-top:8px" onclick="closeAuth()" data-i18n="取消">取消</button>
 
+</div></div>
+
+<div class="modal" id="resetModal" onclick="if(event.target===this)closeReset()"><div class="box" style="max-height:88vh;overflow-y:auto">
+  <div class="panel-head"><h3 data-i18n="重置密码">重置密码</h3><button class="panel-close" onclick="closeReset()" aria-label="关闭">✕</button></div>
+  <div style="font-size:12px;color:var(--sub);margin-bottom:10px" data-i18n="输入注册时的手机号或邮箱，获取验证码后设置新密码">输入注册时的手机号或邮箱，获取验证码后设置新密码</div>
+  <div class="seg" style="margin-bottom:12px">
+    <button id="rstTabPhone" class="active" onclick="setResetMode('phone')" data-i18n="📱 手机号">📱 手机号</button>
+    <button id="rstTabEmail" onclick="setResetMode('email')" data-i18n="✉️ 邮箱">✉️ 邮箱</button>
+  </div>
+  <div id="rstPhonePane">
+    <div style="display:flex;gap:8px">
+      <select id="rstCountry" style="width:96px;flex-shrink:0">
+        <option value="+86">🇨🇳 +86</option>
+        <option value="+852">🇭🇰 +852</option>
+        <option value="+853">🇲🇴 +853</option>
+        <option value="+886">🇹🇼 +886</option>
+        <option value="+1">🇺🇸 +1</option>
+        <option value="+44">🇬🇧 +44</option>
+        <option value="+81">🇯🇵 +81</option>
+        <option value="+82">🇰🇷 +82</option>
+        <option value="+65">🇸🇬 +65</option>
+        <option value="+60">🇲🇾 +60</option>
+      </select>
+      <input type="tel" id="rstPhone" placeholder="手机号" style="flex:1" autocapitalize="off" autocomplete="tel">
+    </div>
+  </div>
+  <div id="rstEmailPane" style="display:none">
+    <input type="email" id="rstEmail" placeholder="邮箱地址" autocapitalize="off" autocorrect="off" spellcheck="false" autocomplete="email">
+  </div>
+  <div style="display:flex;gap:8px;margin-top:8px">
+    <input type="text" id="rstCode" placeholder="验证码" maxlength="6" inputmode="numeric" style="flex:1" autocomplete="one-time-code">
+    <button class="btn sm" id="rstCodeBtn" style="width:auto;margin:0;padding:0 14px;white-space:nowrap" onclick="sendResetCode()" data-i18n="获取验证码">获取验证码</button>
+  </div>
+  <input type="password" id="rstPw" placeholder="新密码（6-8 位）" autocomplete="new-password" style="margin-top:8px">
+  <input type="password" id="rstPw2" placeholder="确认新密码" autocomplete="new-password">
+  <button class="btn" style="background:var(--gold);color:var(--bg)" onclick="doResetPassword()" data-i18n="确认重置">确认重置</button>
+  <button class="btn" style="background:var(--c2);color:var(--sub);margin-top:8px" onclick="closeReset()" data-i18n="取消">取消</button>
 </div></div>
 
 <div class="modal" id="regModal"><div class="box" style="max-height:88vh;overflow-y:auto">

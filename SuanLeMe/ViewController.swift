@@ -1,8 +1,6 @@
 import UIKit
 import WebKit
 import Photos
-import PhotosUI
-import UniformTypeIdentifiers
 #if canImport(StoreKit)
 import StoreKit
 #endif
@@ -30,10 +28,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     // 导致内置 vip.html 取不到 yx_tk → /api/iap/verify 401 → 付款后不发货。
     // 由原生统一持有 token：页面登录时上报、API 转发时自动补 X-Token、打开页面时回灌。
     let authTokenKey = "yx_tk"
-    /// 2026-11-21（相术拍照/相册）：<input type="file"> 的完成回调。
-    /// WKWebView 不实现 runOpenPanelWith 时，点 file input 静默无反应 ——
-    /// 用户看到的就是「相册/拍照点了没有任何动静」。
-    private var filePickHandler: (([URL]?) -> Void)?
     var authToken: String = (UserDefaults.standard.string(forKey: "yx_tk") ?? "")
 
     // 允许站内跳转的远程域名（仅用于联网功能，如排行榜/账号；离线游戏不依赖）
@@ -333,94 +327,6 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
         presentOnTop(alert)
     }
 
-    // MARK: - 相术上传：<input type="file"> 桥（拍照 / 录像 / 相册）
-    // 2026-11-21：此前 ViewController 声明了 WKUIDelegate，但从未实现该方法，
-    // WKWebView 内点 file input 只会静默无反应。这里改为由原生统一呈现
-    // 「拍照/录像」与「从相册选择」两个入口，不再依赖 getUserMedia。
-    func webView(_ webView: WKWebView, runOpenPanelWith parameters: WKOpenPanelParameters,
-                 initiatedByFrame frame: WKFrameInfo,
-                 completionHandler: @escaping ([URL]?) -> Void) {
-        // 已有选择器在展示：立刻回 nil，避免回调悬挂导致页面一直转圈
-        if filePickHandler != nil { completionHandler(nil); return }
-        filePickHandler = completionHandler
-        let sheet = UIAlertController(title: "选择图片来源", message: nil, preferredStyle: .actionSheet)
-        if UIImagePickerController.isSourceTypeAvailable(.camera) {
-            sheet.addAction(UIAlertAction(title: "拍照 / 录像", style: .default) { [weak self] _ in
-                self?.presentNativeCamera()
-            })
-        }
-        sheet.addAction(UIAlertAction(title: "从相册选择", style: .default) { [weak self] _ in
-            self?.presentPhotoLibrary()
-        })
-        sheet.addAction(UIAlertAction(title: "取消", style: .cancel) { [weak self] _ in
-            self?.finishFilePick(nil)
-        })
-        if let pop = sheet.popoverPresentationController {
-            pop.sourceView = self.view
-            pop.sourceRect = CGRect(x: view.bounds.midX, y: view.bounds.maxY - 60, width: 1, height: 1)
-        }
-        presentOnTop(sheet)
-    }
-
-    private func finishFilePick(_ urls: [URL]?) {
-        let h = filePickHandler
-        filePickHandler = nil
-        h?(urls)
-    }
-
-    private func presentNativeCamera() {
-        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
-            showToast("此设备不可用相机")
-            finishFilePick(nil)
-            return
-        }
-        let picker = UIImagePickerController()
-        picker.sourceType = .camera
-        // 同时开放照片与视频，覆盖页面「拍照」与「动态视频」两个按钮
-        picker.mediaTypes = [UTType.image.identifier, UTType.movie.identifier]
-        picker.videoQuality = .typeMedium
-        picker.delegate = self
-        presentOnTop(picker)
-    }
-
-    private func presentPhotoLibrary() {
-        var cfg = PHPickerConfiguration(photoLibrary: .shared())
-        cfg.selectionLimit = 1
-        cfg.filter = .any(of: [.images, .videos])
-        let picker = PHPickerViewController(configuration: cfg)
-        picker.delegate = self
-        presentOnTop(picker)
-    }
-
-    /// 把系统给的临时文件拷到自有临时目录再回传。
-    /// 系统临时文件在回调返回后即被清理，不拷贝会导致上传拿到空文件。
-    private func deliverMedia(_ src: URL, ext fallbackExt: String) {
-        let ext = src.pathExtension.isEmpty ? fallbackExt : src.pathExtension
-        let dst = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString + "." + ext)
-        do {
-            try? FileManager.default.removeItem(at: dst)
-            try FileManager.default.copyItem(at: src, to: dst)
-            finishFilePick([dst])
-        } catch {
-            finishFilePick(nil)
-        }
-    }
-
-    private func deliverImage(_ img: UIImage) {
-        guard let data = img.jpegData(compressionQuality: 0.9) else {
-            finishFilePick(nil); return
-        }
-        let dst = FileManager.default.temporaryDirectory
-            .appendingPathComponent(UUID().uuidString + ".jpg")
-        do {
-            try data.write(to: dst, options: .atomic)
-            finishFilePick([dst])
-        } catch {
-            finishFilePick(nil)
-        }
-    }
-
     // 在顶层控制器上呈现（避免 "whose view is not in the window hierarchy" / already presenting 报错）
     private func presentOnTop(_ vc: UIViewController) {
         var top: UIViewController = self
@@ -465,11 +371,8 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
     (function(){
       if (window.AndroidApp) return;
       function post(p){ try { window.webkit.messageHandlers.media.postMessage(p); } catch(e){} }
-      // 2026-11-21：相术文件选择能力开关。页面据此走原生选择器（推荐），
-      // 而不是 getUserMedia。未注入该标志的旧包保持原行为。
-      window.__slFilePickSupported = true;
       window.AndroidApp = {
-        getBridgeVersion: function(){ return 4; },
+        getBridgeVersion: function(){ return 3; },
         saveImage: function(dataUri, name){ post({action:'saveImage', dataUri:String(dataUri||''), name:String(name||'')}); },
         shareImage: function(dataUri, name){ post({action:'shareImage', dataUri:String(dataUri||''), name:String(name||'')}); }
       };
@@ -753,60 +656,5 @@ class ViewController: UIViewController, WKNavigationDelegate, WKUIDelegate, WKSc
             str = String(str.dropFirst().dropLast())
         }
         return str
-    }
-}
-
-// MARK: - 相术上传：相机 / 相册回调
-extension ViewController: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-    func imagePickerController(_ picker: UIImagePickerController,
-                               didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-        picker.dismiss(animated: true) { [weak self] in
-            guard let self = self else { return }
-            if let url = info[.mediaURL] as? URL {
-                self.deliverMedia(url, ext: "mov")
-            } else if let img = info[.originalImage] as? UIImage {
-                self.deliverImage(img)
-            } else {
-                self.finishFilePick(nil)
-            }
-        }
-    }
-
-    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        picker.dismiss(animated: true) { [weak self] in self?.finishFilePick(nil) }
-    }
-}
-
-extension ViewController: PHPickerViewControllerDelegate {
-    func picker(_ picker: PHPickerViewController, didFinishPicking results: [PHPickerResult]) {
-        picker.dismiss(animated: true) { [weak self] in
-            guard let self = self else { return }
-            guard let result = results.first else { self.finishFilePick(nil); return }
-            let provider = result.itemProvider
-            let typeId: String
-            if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-                typeId = UTType.image.identifier
-            } else if provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
-                typeId = UTType.movie.identifier
-            } else {
-                self.finishFilePick(nil); return
-            }
-            provider.loadFileRepresentation(forTypeIdentifier: typeId) { url, _ in
-                guard let url = url else {
-                    DispatchQueue.main.async { self.finishFilePick(nil) }
-                    return
-                }
-                let ext = url.pathExtension.isEmpty ? "jpg" : url.pathExtension
-                let dst = FileManager.default.temporaryDirectory
-                    .appendingPathComponent(UUID().uuidString + "." + ext)
-                do {
-                    try? FileManager.default.removeItem(at: dst)
-                    try FileManager.default.copyItem(at: url, to: dst)
-                    DispatchQueue.main.async { self.finishFilePick([dst]) }
-                } catch {
-                    DispatchQueue.main.async { self.finishFilePick(nil) }
-                }
-            }
-        }
     }
 }

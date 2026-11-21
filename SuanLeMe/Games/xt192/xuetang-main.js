@@ -549,6 +549,81 @@ function showAuth(tip){
   var a=document.getElementById('loginAccount'); if(a&&!a.value)setTimeout(function(){try{a.focus();}catch(e){}},120);
 }
 function closeAuth(){document.getElementById('authModal').classList.remove('show')}
+
+// ===== 忘记密码（2026-11-21，App 内置首屏同样需要）=====
+var _rstMode='phone', _rstTimer=null;
+function openReset(){
+  try{document.getElementById('authModal').classList.remove('show');}catch(e){}
+  try{document.getElementById('regModal').classList.remove('show');}catch(e){}
+  try{
+    var a=document.getElementById('loginAccount');
+    var v=(a&&a.value||'').trim();
+    if(v){
+      if(v.indexOf('@')>=0){ setResetMode('email'); document.getElementById('rstEmail').value=v; }
+      else { setResetMode('phone'); document.getElementById('rstPhone').value=v.replace(/^\+(86|852|853|886)/,''); }
+    }
+  }catch(e){}
+  document.getElementById('resetModal').classList.add('show');
+}
+function closeReset(){document.getElementById('resetModal').classList.remove('show');}
+function setResetMode(m){
+  _rstMode=(m==='email')?'email':'phone';
+  var p=document.getElementById('rstTabPhone'), e=document.getElementById('rstTabEmail');
+  if(p)p.classList.toggle('active',_rstMode==='phone');
+  if(e)e.classList.toggle('active',_rstMode==='email');
+  document.getElementById('rstPhonePane').style.display=(_rstMode==='phone')?'':'none';
+  document.getElementById('rstEmailPane').style.display=(_rstMode==='email')?'':'none';
+}
+function _rstAccount(){
+  if(_rstMode==='email') return (document.getElementById('rstEmail').value||'').trim();
+  var cc=(document.getElementById('rstCountry').value||'+86');
+  var num=(document.getElementById('rstPhone').value||'').trim();
+  if(!num) return '';
+  return num.indexOf('+')===0 ? num : cc+num;
+}
+function sendResetCode(){
+  var target=_rstAccount();
+  if(!target) return alert('请先填写'+( _rstMode==='email'?'邮箱':'手机号'));
+  if(_rstMode==='email' && target.indexOf('@')<0) return alert('邮箱格式不正确');
+  var btn=document.getElementById('rstCodeBtn');
+  if(!btn||btn.disabled) return;
+  btn.disabled=true;
+  fetch(API+'/api/send-code',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({channel:_rstMode,target:target,purpose:'reset'})})
+  .then(r=>r.json()).then(r=>{
+    if(!r.ok){btn.disabled=false;return alert(r.msg);}
+    alert(r.msg+(r.dev?'（演示模式：验证码见后端日志，未真实发送）':''));
+    var s=60;btn.textContent=s+'s';
+    if(_rstTimer)clearInterval(_rstTimer);
+    _rstTimer=setInterval(function(){
+      s--; btn.textContent=s+'s';
+      if(s<=0){clearInterval(_rstTimer);_rstTimer=null;btn.textContent='获取验证码';btn.disabled=false;}
+    },1000);
+  }).catch(function(){btn.disabled=false;alert('网络错误');});
+}
+async function doResetPassword(){
+  var target=_rstAccount();
+  var code=(document.getElementById('rstCode').value||'').trim();
+  var pw=(document.getElementById('rstPw').value||'');
+  var pw2=(document.getElementById('rstPw2').value||'');
+  if(!target) return alert('请填写'+( _rstMode==='email'?'邮箱':'手机号'));
+  if(!code) return alert('请输入验证码');
+  if(pw.length<6||pw.length>8) return alert('新密码需为 6-8 位');
+  if(pw!==pw2) return alert('两次输入的新密码不一致');
+  try{
+    var r=await fetch(API+'/api/my/reset-password',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({channel:_rstMode,account:target,code:code,new:pw,confirm:pw2})}).then(x=>x.json());
+    if(!r.ok) return alert(r.msg);
+    alert('✅ 密码已重置，请用新密码登录');
+    closeReset();
+    try{
+      var a=document.getElementById('loginAccount'); if(a)a.value=target;
+      var p=document.getElementById('loginPw'); if(p)p.value='';
+      document.getElementById('authModal').classList.add('show');
+    }catch(e){}
+  }catch(e){ alert('网络错误，请重试'); }
+}
+
 function switchAuth(t){
   document.getElementById('authModal').classList.remove('show');
   document.getElementById('regModal').classList.add('show');
@@ -653,6 +728,7 @@ async function doLogin(){
     if(_kp&&_kp.checked){ localStorage.setItem('yx_keep','1'); } else { localStorage.removeItem('yx_keep'); }
   }catch(e){}
   closeAuth();
+  try{ closeReset(); }catch(e){}
   // 管理员登录后隐藏维护横幅
   if(USER&&USER.role&&(USER.role==='admin'||USER.role==='superadmin')){
     let b=document.getElementById('mtBanner');if(b)b.style.display='none';
