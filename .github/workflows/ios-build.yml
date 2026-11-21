@@ -108,6 +108,19 @@ jobs:
             ${ARGS} \
             2>&1 | tee "$RUNNER_TEMP/archive.log"
 
+      - name: Archive error annotations
+        if: failure()
+        run: |
+          set +e
+          LOG="$RUNNER_TEMP/archive.log"
+          if [ ! -f "$LOG" ]; then echo "::error::archive.log not found"; exit 0; fi
+          echo "===== 关键错误行 ====="
+          grep -nE "error:|Error Domain|No profiles|No signing certificate|provided API key|Authentication|provisioning|Code Sign|requires a" "$LOG" | tail -12 | while IFS= read -r l; do
+            echo "::error::ARCHIVE $l"
+          done
+          echo "===== 末尾 30 行 ====="
+          tail -30 "$LOG"
+
       - name: Show archive identity
         run: |
           set -euo pipefail
