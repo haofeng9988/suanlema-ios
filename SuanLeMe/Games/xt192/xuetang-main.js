@@ -164,8 +164,8 @@ function xtInitI18n(){
 }
 xtInitI18n();
 let currentCourse=null;
-const CATS=['八字','紫微','六爻','奇门','风水','免费'];
-const CAT_ICON={'八字':'📊','紫微':'🌟','六爻':'🪙','奇门':'🗺️','风水':'🧭','免费':'🎁','合婚':'💑','起名':'🎨','择日':'📅','奇门遁甲':'🗝️'};
+const CATS=['易学文化','八字','紫微','六爻','奇门','风水','免费'];
+const CAT_ICON={'易学文化':'📖','八字':'📊','紫微':'🌟','六爻':'🪙','奇门':'🗺️','风水':'🧭','免费':'🎁','合婚':'💑','起名':'🎨','择日':'📅','奇门遁甲':'🗝️'};
 const TYPE_NAME={video:'视频课',audio:'音频课',article:'图文课'};
 
 /* ===== 课程模块开关见文件顶部 COURSE_ONLINE：首期只做预告 ===== */
@@ -387,15 +387,31 @@ function showList(){
 
 function backToList(){showList();}
 
+/* 后台新加的分类自动出现在 tab 里：以接口返回的 category 为准补进 CATS */
+function syncCats(items){
+  try{
+    let idx=CATS.indexOf('免费'); if(idx<0)idx=CATS.length;
+    (items||[]).forEach(function(c){
+      let k=(c.category||'').trim();
+      if(!k||k==='免费')return;
+      if(CATS.indexOf(k)<0){CATS.splice(idx++,0,k);idx=CATS.indexOf('免费')<0?CATS.length:CATS.indexOf('免费');}
+      if(!CAT_ICON[k])CAT_ICON[k]='📚';
+    });
+    renderCats();
+  }catch(e){}
+}
+
 async function loadCourses(){
   if(!COURSE_ONLINE){showCourseSoon('course_soon',currentCat);return;}
-  let url=API+'/api/courses';
-  if(currentCat)url+='?cat='+encodeURIComponent(currentCat);
-  let r=await fetch(url).then(r=>r.json());
+  let r=await fetch(API+'/api/courses').then(r=>r.json());
   if(!r.ok)return;
   let items=r.items||[];
+  syncCats(items);
+  if(currentCat==='免费'){items=items.filter(c=>c.is_free);}
+  else if(currentCat){items=items.filter(c=>(c.category||'')===currentCat);}
   if(items.length===0){
-    document.getElementById('courseList').innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--sub);padding:40px">暂无课程</p>';
+    let _msg=currentCat?('「'+currentCat+'」课程即将上线，敬请期待'):'暂无课程';
+    document.getElementById('courseList').innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--sub);padding:40px">'+_msg+'</p>';
     return;
   }
   document.getElementById('courseList').innerHTML=items.map(c=>renderCourseCard(c)).join('');
