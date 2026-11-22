@@ -433,7 +433,7 @@ async function openDetail(cid){
     }else{
       document.getElementById('buyPrice').textContent=orig>0?orig+' 易币':'免费';
     }
-    document.getElementById('buyBtn').textContent=orig>0?'购买学习':'立即学习';
+    document.getElementById('buyBtn').textContent=orig>0?'购买学习':'暂不可购买';
   }
   bar.style.display='flex';
 }
@@ -456,6 +456,7 @@ async function buyCourse(){
 function openPay(){
   let c=currentCourse;
   let need=Number(c.yibi_cost||c.discounted_cost||c.points_cost||0);
+  if(!(need>0)){alert('该课程暂未开放购买，请稍后再试');return;}
   document.getElementById('payTitle').textContent=c.title;
   let opts=[];
   if(need>0){
