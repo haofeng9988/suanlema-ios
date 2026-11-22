@@ -1,7 +1,17 @@
 /* 学堂主逻辑（原内联于 xuetang.html，抽出以便缓存） */
 const API='';
 /* 首期只预告：改 true 即全量开放，无需发版 */
-var COURSE_ONLINE=false;
+var COURSE_ONLINE=true;
+/* 相对路径资源（/uploads/xxx）在 iOS file:// 页面下会被解析成 file:///uploads/... → 图/视频全裂。
+   统一补全为生产域名。App 与浏览器通用。 */
+var MEDIA_ORIGIN='https://tianji.matetechhk.com';
+function mURL(u){
+  if(!u)return '';
+  u=String(u).trim();
+  if(/^(https?:|data:|blob:)/i.test(u))return u;
+  if(u.charAt(0)==='/')return MEDIA_ORIGIN+u;
+  return u;
+}
 /* ===== 原生弹窗兜底（iOS WKWebView 未实现 alert/confirm/prompt 回调时，window.alert 等会静默失效）===== */
 (function(){
   var NEEDS=false;
@@ -216,7 +226,7 @@ async function loadBanners(){
     if(r.ok&&r.items&&r.items.length>0){
       _banners=r.items.map(b=>({
         title:b.title,sub:b.subtitle,art:null,
-        image:b.image||'',cat:b.link_cat||'',url:b.link_url||''
+        image:mURL(b.image||''),cat:b.link_cat||'',url:b.link_url||''
       }));
     }
   }catch(e){}
@@ -269,7 +279,7 @@ function renderBanner(){
   if(_banners.length===0)return;
   let b=_banners[_bIdx];
   if(b.image){
-    document.getElementById('bArt').innerHTML=`<img src="${b.image}" style="width:100%;height:100%;object-fit:cover">`;
+    document.getElementById('bArt').innerHTML=`<img src="${mURL(b.image)}" style="width:100%;height:100%;object-fit:cover">`;
     document.getElementById('bArt').style.fontSize='';
     document.getElementById('bArt').style.opacity='1';
   }else{
@@ -329,8 +339,9 @@ function showHomeSearch(){
 
 // ===== 渲染课程卡片（抽出供网格 + 免费课共用） =====
 function renderCourseCard(c){
-  let cover=c.cover?`<img src="${c.cover}" style="width:100%;height:100%;object-fit:cover">`:(CAT_ICON[c.category]||'🎓');
-  let priceTag=c.is_free?'<span class="ftag">免费</span>':(c.owned?'<span class="otag">已购</span>':`<span class="price">${c.points_cost>0?c.points_cost+'易币':'¥'+c.price}</span>`);
+  let cover=c.cover?`<img src="${mURL(c.cover)}" style="width:100%;height:100%;object-fit:cover">`:(CAT_ICON[c.category]||'🎓');
+  let _yp=Number(c.yibi_cost||c.points_cost||0);
+  let priceTag=c.is_free?'<span class="ftag">免费</span>':(c.owned?'<span class="otag">已购</span>':`<span class="price">${_yp>0?_yp+'易币':'免费'}</span>`);
   return `<div class="home-card" onclick="openDetail(${c.id})">
     <div class="cover">${cover}</div>
     <div class="title">${c.title}</div>
@@ -345,7 +356,7 @@ async function loadFreeList(){
   if(!r.ok)return;
   let free=(r.items||[]).filter(c=>c.is_free).slice(0,12);
   document.getElementById('homeFreeList').innerHTML=free.map(c=>{
-    let cover=c.cover?`<img src="${c.cover}" style="width:100%;height:100%;object-fit:cover">`:(CAT_ICON[c.category]||'🎓');
+    let cover=c.cover?`<img src="${mURL(c.cover)}" style="width:100%;height:100%;object-fit:cover">`:(CAT_ICON[c.category]||'🎓');
     return `<div class="home-free-card" onclick="openDetail(${c.id})">
       <div class="cov">${cover}</div>
       <div class="t">${c.title}</div>
@@ -398,7 +409,7 @@ async function openDetail(cid){
   document.getElementById('courseList').style.display='none';
   document.getElementById('detailPage').style.display='block';
   document.getElementById('playerPage').style.display='none';
-  document.getElementById('dCover').innerHTML=currentCourse.cover?`<img src="${currentCourse.cover}">`:CAT_ICON[currentCourse.category]||'🎓';
+  document.getElementById('dCover').innerHTML=currentCourse.cover?`<img src="${mURL(currentCourse.cover)}">`:CAT_ICON[currentCourse.category]||'🎓';
   document.getElementById('dTitle').textContent=currentCourse.title;
   document.getElementById('dCat').textContent=currentCourse.category;
   document.getElementById('dType').textContent=TYPE_NAME[currentCourse.type]||currentCourse.type;
@@ -414,15 +425,15 @@ async function openDetail(cid){
     document.getElementById('buyPrice').textContent='免费';
     document.getElementById('buyBtn').textContent='立即学习';
   }else{
-    let orig=currentCourse.points_cost;
+    let orig=Number(currentCourse.yibi_cost||currentCourse.points_cost||0);
     let cost=currentCourse.discounted_cost!==undefined?currentCourse.discounted_cost:orig;
     let disc=currentCourse.discount!==undefined?currentCourse.discount:100;
     if(disc<100){
       document.getElementById('buyPrice').innerHTML=`<span style="text-decoration:line-through;color:var(--sub);font-size:14px">${orig}易币</span> <span>${cost}易币</span> <span style="font-size:12px;color:var(--gold)">(${disc/10}折)</span>`;
     }else{
-      document.getElementById('buyPrice').textContent=orig>0?orig+' 易币':'¥'+currentCourse.price;
+      document.getElementById('buyPrice').textContent=orig>0?orig+' 易币':'免费';
     }
-    document.getElementById('buyBtn').textContent='购买学习';
+    document.getElementById('buyBtn').textContent=orig>0?'购买学习':'立即学习';
   }
   bar.style.display='flex';
 }
@@ -486,7 +497,8 @@ function startLearn(){
   if(currentCourse.type==='video'&&currentCourse.video_url){
     document.getElementById('pVideoBox').style.display='block';
     let v=document.getElementById('pVideo');
-    v.src=currentCourse.video_url;
+    v.src=mURL(currentCourse.video_url);
+    v.onerror=()=>{document.getElementById('pVideoBox').style.display='none';document.getElementById('pArticle').style.display='block';document.getElementById('pArticle').innerHTML='<p style="color:var(--sub);text-align:center;padding:40px">视频加载失败，请稍后在后台重新上传</p>';};
     v.currentTime=currentCourse.last_pos||0;
     v.onloadedmetadata=()=>{if(currentCourse.last_pos)v.currentTime=currentCourse.last_pos;};
     v.onended=()=>saveProgress(100,0);
@@ -494,7 +506,7 @@ function startLearn(){
   }else if(currentCourse.type==='audio'&&currentCourse.audio_url){
     document.getElementById('pAudioBox').style.display='block';
     let a=document.getElementById('pAudio');
-    a.src=currentCourse.audio_url;
+    a.src=mURL(currentCourse.audio_url);
     a.onended=()=>saveProgress(100,0);
   }else if(currentCourse.type==='article'&&currentCourse.content){
     document.getElementById('pArticle').style.display='block';
@@ -1186,7 +1198,7 @@ async function panelCourses(){
   let items=r.items||[];
   if(items.length===0)return '<p style="color:var(--sub);text-align:center;padding:20px">暂无已购课程</p>';
   return items.map(c=>`<div class="mycourse-item" onclick="closePanel();openDetail(${c.id})">
-    <div class="cov">${c.cover?`<img src="${c.cover}">`:'🎓'}</div>
+    <div class="cov">${c.cover?`<img src="${mURL(c.cover)}">`:'🎓'}</div>
     <div class="in"><div class="tt">${c.title}</div>
       <div class="prog"><div class="bar" style="width:${c.progress||0}%"></div></div>
       <div class="pct">已学 ${c.progress||0}%</div></div>
@@ -1198,7 +1210,7 @@ async function panelFavorites(){
   let items=r.items||[];
   if(items.length===0)return '<p style="color:var(--sub);text-align:center;padding:20px">暂无收藏</p>';
   return items.map(c=>`<div class="mycourse-item" onclick="closePanel();openDetail(${c.id})">
-    <div class="cov">${c.cover?`<img src="${c.cover}">`:'🎓'}</div>
+    <div class="cov">${c.cover?`<img src="${mURL(c.cover)}">`:'🎓'}</div>
     <div class="in"><div class="tt">${c.title}</div><div class="pct">${c.category} · ${c.type==='video'?'视频':c.type==='audio'?'音频':'图文'}</div></div>
   </div>`).join('');
 }
