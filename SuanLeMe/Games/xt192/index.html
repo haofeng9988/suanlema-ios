@@ -188,7 +188,7 @@ header a.back{color:var(--gold);text-decoration:none;font-size:14px}
 .home-free-card .t{padding:8px 10px;font-size:13px;font-weight:600;line-height:1.3;height:34px;overflow:hidden}
 .home-fab{position:fixed;right:16px;bottom:90px;width:50px;height:50px;border-radius:50%;background:var(--gold);color:var(--bg);font-size:28px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.3);cursor:pointer;z-index:80;border:none}
 .home-section{padding:4px 0 12px}
-.home-tabs-strip{padding:8px 16px 12px;display:flex;gap:8px;overflow-x:auto;background:var(--c1);position:sticky;top:62px;z-index:99}
+.home-tabs-strip{padding:8px 16px 12px;display:flex;gap:8px;overflow-x:auto;background:var(--c1);position:relative;z-index:1}
 .home-tabs-strip button{flex-shrink:0;padding:6px 14px;border:1px solid var(--c2);background:var(--bg);color:var(--sub);border-radius:18px;font-size:13px;cursor:pointer}
 .home-tabs-strip button.active{background:var(--gold);color:var(--bg);border-color:var(--gold);font-weight:700}
 /* ===== 易学闯关 ===== */
@@ -454,6 +454,7 @@ header a.back{color:var(--gold);text-decoration:none;font-size:14px}
 .course-top-bar{display:flex;align-items:center;gap:10px;padding:14px 16px 6px}
 .course-top-bar .search{flex:1;display:flex;align-items:center;gap:8px;background:var(--c2);border-radius:10px;padding:10px 14px;color:var(--sub);font-size:14px;cursor:pointer}
 .course-top-bar .iconbtn{font-size:22px;cursor:pointer}
+.course-top-bar .course-back{flex-shrink:0;display:flex;align-items:center;justify-content:center;width:26px;height:26px;font-size:22px;line-height:1;color:var(--gold);cursor:pointer;user-select:none}
 /* v6.x：响应式（手机/平板/电脑自适应） */
 @media (min-width:768px){
   .tianji-page{padding:18px 32px 100px;max-width:1400px;margin:0 auto}
@@ -662,6 +663,7 @@ body[data-theme="white"]{color-scheme:light}
 <!-- ===== 第2层：课程学习 ===== -->
 <div id="coursePanel" style="display:none">
   <div class="course-top-bar">
+    <div class="course-back" onclick="courseBack()" title="返回" aria-label="返回">←</div>
     <div class="search" onclick="showHomeSearch()"><span class="ic">🔍</span><span data-i18n="search">搜索课程 / 关键词</span></div>
     <div class="iconbtn" onclick="showMyPanel('orders')" title="我的订单">🛒</div>
   </div>

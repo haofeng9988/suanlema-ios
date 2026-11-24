@@ -832,7 +832,14 @@ async function doRegister(){
 
 // ===== 我的中心 =====
 let mainTab='home';
+/* 2026-11-24 课程页返回键：与安卓端一致；不用 history.back（file:// 下可能跳出 App） */
+let _prevMainTab='home';
+function courseBack(){
+  var back=(_prevMainTab&&_prevMainTab!=='course')?_prevMainTab:'home';
+  switchMainTab(back);
+}
 function switchMainTab(t){
+  if(t==='course'&&mainTab&&mainTab!=='course') _prevMainTab=mainTab;
   mainTab=t;
   /* 2026-11-11：tab 状态同步到 URL（replaceState 不新增历史、不触发 hashchange）。
      目的：从工具页返回时 history.back() 能落回「工具」tab，而不是默认的「游戏」tab。 */
